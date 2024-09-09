@@ -1,22 +1,34 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Res, UseGuards } from '@nestjs/common';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { Response } from 'express';
+import { JwtService } from '@nestjs/jwt';
+import { CurrentUser } from 'src/common/guards/current-user.guard';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
+    constructor(
+        private readonly JwtService: JwtService,
+        private readonly configService: ConfigService,
+    ) {}
+
+    /* Google Auth*/
     @Get('google')
     @UseGuards(GoogleAuthGuard)
-    async googleLogin() {
-        // Initiates the Google OAuth2 login flow
-    }
+    async googleLogin() {}
 
+    /* Google Auth Callback */
     @Get('google/callback')
     @UseGuards(GoogleAuthGuard)
-    googleLoginCallback(@Req() req) {
-        // Once the user is authenticated, Google will redirect to this route
-        // and the req.user will contain the authenticated user's information
-        return {
-            message: 'User info from Google',
-            user: req.user,
-        };
+    googleLoginCallback(
+        @Res() res: Response,
+        @CurrentUser() user: any,
+    ) {
+        const accessToken: string = this.JwtService.sign({
+            sub: Date.now(),
+            email: user.email,
+        });
+        const redirectUri = `${this.configService.get('frontend.uri')}/${this.configService.get('frontend.auth_callback')}?token=${accessToken}`;
+        res.redirect(redirectUri);
     }
 }

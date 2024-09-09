@@ -22,6 +22,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         profile: any,
         done: VerifyCallback,
     ): Promise<any> {
+        /* TODO: Check if user exist in db or not */
         const { name, emails, photos } = profile;
         const user = {
             email: emails[0].value,
