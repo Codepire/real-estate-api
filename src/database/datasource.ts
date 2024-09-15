@@ -16,11 +16,5 @@ const dataSource = new DataSource({
     migrations: [__dirname + '/migrations/*.{ts,js}'],
 } as DataSourceOptions);
 
-console.log(
-    process.env.DATABASE,
-    process.env.DATABASE_USER,
-    process.env.DATABASE_PASSWORD,
-);
-
 dataSource.initialize();
 export default dataSource;
