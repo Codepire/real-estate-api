@@ -4,6 +4,9 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeormConfigService } from './config/typeorm/typeorm.config';
+import { UsersModule } from './users/users.module';
 
 @Module({
     imports: [
@@ -13,6 +16,10 @@ import configuration from './config/configuration';
             isGlobal: true,
             load: [configuration],
         }),
+        TypeOrmModule.forRootAsync({
+            useClass: TypeormConfigService,
+        }),
+        UsersModule,
     ],
     controllers: [AppController],
     providers: [AppService],

@@ -13,4 +13,12 @@ export default () => ({
         uri: process.env.FRONTEND_URI,
         auth_callback: process.env.FRONTEND_AUTH_CALLBACK,
     },
+    database: {
+        user: process.env.DATABASE_USER,
+        pass: process.env.DATABASE_PASSWORD,
+        port: parseInt(process.env.DATABASE_PORT, 10),
+        database: process.env.DATABASE,
+        type: process.env.DATABASE_TYPE,
+        host: process.env.DATABASE_HOST,
+    },
 });
