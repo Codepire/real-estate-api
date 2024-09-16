@@ -17,6 +17,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { IGenericResult, ILoginResult } from 'src/common/interfaces';
 import { CONSTANTS } from 'src/common/constants';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -57,6 +58,16 @@ export class AuthController {
         };
     }
 
+    @Post('verify-email')
+    async verifyEmail(
+        @Body() verifyEmailDto: VerifyEmailDto
+    ): Promise<IGenericResult> {
+        await this.auhService.verifyEmail(verifyEmailDto)
+        return {
+            message: CONSTANTS.EMAIL_VERIFIED,
+        }
+    }
+
     @UseGuards(LocalAuthGuard)
     @Post('login')
     async login(@Request() req): Promise<ILoginResult> {
@@ -72,4 +83,5 @@ export class AuthController {
             },
         };
     }
+
 }

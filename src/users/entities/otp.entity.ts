@@ -19,7 +19,7 @@ export class OtpEntity {
     otp_type: string;
 
     @CreateDateColumn()
-    created_at: string;
+    created_at: Date;
 
     @ManyToOne(() => UsersEntity, (userEntity) => userEntity.otps)
     user: UsersEntity;

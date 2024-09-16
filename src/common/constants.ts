@@ -4,5 +4,8 @@ export enum CONSTANTS {
     USER_NOT_EXIST = 'User not exist',
     SOMETHING_WENT_WRONG_ERROR = 'Something went wrong',
     LOGIN_SUCCESS = 'Logged in successfully',
-    REGISTER_SUCCESS = 'Registered successfully'
+    REGISTER_SUCCESS = 'Registered successfully',
+    EMAIL_VERIFIED = 'Email verified',
+    INVALID_OTP = 'Invalid otp',
+    OTP_EXPIRED = 'Otp expired'
 }

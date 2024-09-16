@@ -13,11 +13,14 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { OtpEntity } from 'src/users/entities/otp.entity';
 import { OtpTypesEnum } from 'src/common/enums';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 export class AuthService {
     constructor(
         @InjectRepository(UsersEntity)
         private readonly userRepo: Repository<UsersEntity>,
+        @InjectRepository(OtpEntity)
+        private readonly otpRepo: Repository<OtpEntity>,
 
         private readonly cryptography: Cryptography,
         private readonly dataSource: DataSource,
@@ -53,21 +56,18 @@ export class AuthService {
 
             let registeredUser: UsersEntity = null;
             await this.dataSource.transaction(async (entityManager) => {
-                registeredUser = await entityManager.save(
-                    UsersEntity,
-                    {
-                        ...registerUserDto,
-                        password: hash,
-                        salt,
-                    },
-                );
+                registeredUser = await entityManager.save(UsersEntity, {
+                    ...registerUserDto,
+                    password: hash,
+                    salt,
+                });
                 const randomOtp = Math.floor(
                     100000 + Math.random() * 900000,
                 ).toString();
                 await entityManager.insert(OtpEntity, {
                     otp: randomOtp,
                     user: registeredUser,
-                    otp_type: OtpTypesEnum.REGISTER_USER
+                    otp_type: OtpTypesEnum.REGISTER_USER,
                 });
             });
 
@@ -80,6 +80,25 @@ export class AuthService {
                 );
             }
         }
+    }
+
+    async verifyEmail({ email, otp }: VerifyEmailDto) {
+        const foundOtp: OtpEntity = await this.otpRepo
+            .createQueryBuilder('o')
+            .leftJoinAndSelect('o.user', 'u')
+            .where('u.email = :email', { email })
+            .andWhere('u.is_verified_email = :is_verified_email', {
+                is_verified_email: false,
+            })
+            .andWhere('o.otp = :otp', { otp })
+            .orderBy('o.created_at', 'DESC')
+            .getOne();
+
+        if (!foundOtp) {
+            throw new NotFoundException(CONSTANTS.INVALID_OTP);
+        }
+        /* TODO: Invalidate otp after 3 minutes */
+        await this.userRepo.update({ email }, { is_verified_email: true });
     }
 
     /***

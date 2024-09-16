@@ -9,13 +9,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersEntity } from 'src/users/entities/user.entity';
 import { Cryptography } from 'src/common/cryptography';
 import { LocalStrategy } from './strategies/local.strategy';
+import { OtpEntity } from 'src/users/entities/otp.entity';
 
 @Module({
     imports: [
         JwtModule.registerAsync({
             useClass: JwtConfigService,
         }),
-        TypeOrmModule.forFeature([UsersEntity])
+        TypeOrmModule.forFeature([UsersEntity, OtpEntity])
     ],
     controllers: [AuthController],
     providers: [GoogleStrategy, JwtStrategy, AuthService, Cryptography, LocalStrategy],

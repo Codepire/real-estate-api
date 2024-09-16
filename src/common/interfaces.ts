@@ -2,7 +2,7 @@ import { ISendMailOptions } from '@nestjs-modules/mailer';
 
 export interface IGenericResult {
     message: string;
-    data: any;
+    data?: any;
 }
 
 export interface ILoginResult extends IGenericResult {
