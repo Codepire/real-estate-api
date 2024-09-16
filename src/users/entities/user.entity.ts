@@ -1,5 +1,6 @@
 import { TimeStampedCommonEntities } from 'src/common/entities';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { OtpEntity } from './otp.entity';
 
 @Entity({ name: 'users' })
 export class UsersEntity extends TimeStampedCommonEntities {
@@ -26,4 +27,11 @@ export class UsersEntity extends TimeStampedCommonEntities {
 
     @Column({ nullable: true })
     phone_number?: string;
+
+    @Column({ default: false })
+    is_verified_email?: boolean;
+
+    /* Relations */
+    @OneToMany(() => OtpEntity, (otpEntity) => otpEntity.user)
+    otps?: OtpEntity;
 }

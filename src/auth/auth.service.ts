@@ -8,9 +8,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CONSTANTS } from 'src/common/constants';
 import { Cryptography } from 'src/common/cryptography';
 import { UsersEntity } from 'src/users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { OtpEntity } from 'src/users/entities/otp.entity';
+import { OtpTypesEnum } from 'src/common/enums';
 
 export class AuthService {
     constructor(
@@ -18,6 +20,7 @@ export class AuthService {
         private readonly userRepo: Repository<UsersEntity>,
 
         private readonly cryptography: Cryptography,
+        private readonly dataSource: DataSource,
     ) {}
 
     /**
@@ -47,13 +50,29 @@ export class AuthService {
             const { hash, salt } = await this.cryptography.hash({
                 plainText: registerUserDto.password,
             });
-            const result = await this.userRepo.save({
-                ...registerUserDto,
-                password: hash,
-                salt,
+
+            let registeredUser: UsersEntity = null;
+            await this.dataSource.transaction(async (entityManager) => {
+                registeredUser = await entityManager.save(
+                    UsersEntity,
+                    {
+                        ...registerUserDto,
+                        password: hash,
+                        salt,
+                    },
+                );
+                const randomOtp = Math.floor(
+                    100000 + Math.random() * 900000,
+                ).toString();
+                await entityManager.insert(OtpEntity, {
+                    otp: randomOtp,
+                    user: registeredUser,
+                    otp_type: OtpTypesEnum.REGISTER_USER
+                });
             });
-            if (result) {
-                const { deleted_at, password, salt, ...rest } = result;
+
+            if (registeredUser) {
+                const { deleted_at, password, salt, ...rest } = registeredUser;
                 return rest;
             } else {
                 throw new BadRequestException(
@@ -70,6 +89,7 @@ export class AuthService {
     async validateUserLocal(loginUserDto: LoginUserDto) {
         const foundUser = await this.userRepo.findOneBy({
             email: loginUserDto.email,
+            is_verified_email: true,
         });
         if (!foundUser) {
             throw new NotFoundException(CONSTANTS.USER_NOT_EXIST);
