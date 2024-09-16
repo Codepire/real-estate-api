@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { UsersEntity } from './user.entity';
 
-@Entity()
+@Entity({ name: 'otps' })
 export class OtpEntity {
     @PrimaryGeneratedColumn('increment')
     id?: number;
