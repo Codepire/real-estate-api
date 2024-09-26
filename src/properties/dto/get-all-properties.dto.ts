@@ -1,3 +1,12 @@
+import { IsNotEmpty } from "class-validator";
+
 export class GetAllPropertiesDto {
-    city: string
+    @IsNotEmpty()
+    longitude: string;
+
+    @IsNotEmpty()
+    latitude: string;
+
+    @IsNotEmpty()
+    radius: string;
 }

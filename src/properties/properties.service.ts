@@ -15,11 +15,9 @@ export class PropertiesService {
             FROM
                 wp_realty_listingsdb wrl
             WHERE
-                wrl.City = ?
-            LIMIT
-                ? OFFSET ?
+                ST_Distance_Sphere(point(longitude, latitude), point(?, ?)) <= ?
             `,
-            [query.city, 50, 0], // Note that OFFSET comes after LIMIT in the parameter array
+            [query.longitude, query.latitude, query.radius],
         );
 
         return result;
