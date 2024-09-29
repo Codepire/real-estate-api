@@ -22,7 +22,7 @@ export class UsersEntity extends TimeStampedCommonEntities {
     @Column({ nullable: true })
     password?: string;
 
-    @Column()
+    @Column({ nullable: true })
     salt?: string;
 
     @Column({ nullable: true })
