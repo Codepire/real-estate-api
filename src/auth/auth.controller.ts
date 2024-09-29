@@ -18,6 +18,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { IGenericResult, ILoginResult } from 'src/common/interfaces';
 import { CONSTANTS } from 'src/common/constants';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -30,11 +31,13 @@ export class AuthController {
     ) {}
 
     /* Google Auth*/
+    @SkipAuth()
     @Get('google')
     @UseGuards(GoogleAuthGuard)
     async googleLogin() {}
 
     /* Google Auth Callback */
+    @SkipAuth()
     @Get('google/callback')
     @UseGuards(GoogleAuthGuard)
     googleLoginCallback(@Res() res: Response, @CurrentUser() user: any) {
@@ -46,6 +49,7 @@ export class AuthController {
         res.redirect(redirectUri);
     }
 
+    @SkipAuth()
     @Post('register')
     async register(
         @Body() registerUserDto: RegisterUserDto,
@@ -58,6 +62,7 @@ export class AuthController {
         };
     }
 
+    @SkipAuth()
     @Post('verify-email')
     async verifyEmail(
         @Body() verifyEmailDto: VerifyEmailDto
@@ -68,6 +73,7 @@ export class AuthController {
         }
     }
 
+    @SkipAuth()
     @UseGuards(LocalAuthGuard)
     @Post('login')
     async login(@Request() req): Promise<ILoginResult> {

@@ -10,6 +10,8 @@ import { UsersEntity } from 'src/users/entities/user.entity';
 import { Cryptography } from 'src/common/cryptography';
 import { LocalStrategy } from './strategies/local.strategy';
 import { OtpEntity } from 'src/users/entities/otp.entity';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Module({
     imports: [
@@ -19,6 +21,9 @@ import { OtpEntity } from 'src/users/entities/otp.entity';
         TypeOrmModule.forFeature([UsersEntity, OtpEntity])
     ],
     controllers: [AuthController],
-    providers: [GoogleStrategy, JwtStrategy, AuthService, Cryptography, LocalStrategy],
+    providers: [GoogleStrategy, JwtStrategy, AuthService, Cryptography, LocalStrategy, {
+        provide: APP_GUARD,
+        useClass: JwtAuthGuard
+    }],
 })
 export class AuthModule {}

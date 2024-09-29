@@ -9,4 +9,10 @@ export class GetAllPropertiesDto {
 
     @IsNotEmpty()
     radius: string;
+
+    beads_total: string;
+
+    property_types: string;
+
+    states: string;
 }
