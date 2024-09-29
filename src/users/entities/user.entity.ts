@@ -11,7 +11,10 @@ export class UsersEntity extends TimeStampedCommonEntities {
     email: string;
 
     @Column()
-    username: string;
+    first_name: string;
+
+    @Column()
+    last_name: string;
 
     @Column({
         default:
