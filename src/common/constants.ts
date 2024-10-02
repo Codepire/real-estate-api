@@ -8,4 +8,6 @@ export enum CONSTANTS {
     EMAIL_VERIFIED = 'Email verified',
     INVALID_OTP = 'Invalid otp',
     OTP_EXPIRED = 'Otp expired',
+    OTP_SENT = 'Otp has been sent on provided email',
+    PASSWORD_CHANGED = 'Password has been changed',
 }

@@ -19,6 +19,8 @@ import { IGenericResult, ILoginResult } from 'src/common/interfaces';
 import { CONSTANTS } from 'src/common/constants';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
+import ForgotPasswordDto from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -87,6 +89,43 @@ export class AuthController {
             data: {
                 user: req.user,
             },
+        };
+    }
+
+    /**
+     *
+     * @name forgotPassword
+     * @description send otp to existing active user to forgot password
+     */
+    @SkipAuth()
+    @Post('forgot-password')
+    async forgotPassword(
+        @Body() forgotPasswordDto: ForgotPasswordDto,
+    ): Promise<IGenericResult> {
+        // TODO: SEND EMAIL
+        const { otp } = await this.auhService.forgotPassword(forgotPasswordDto);
+        return {
+            message: CONSTANTS.OTP_SENT,
+            data: {
+                otp, //temp: remove after email configuration
+            },
+        };
+    }
+
+    /**
+     *
+     * @name resetPasswordDto
+     * @description validates otp by email, reset password with new hash and salt.
+     */
+    @SkipAuth()
+    @Post('reset-password')
+    async resetPassword(
+        @Body() resetPasswordDto: ResetPasswordDto,
+    ): Promise<IGenericResult> {
+        // TODO: ADD 3 MINUTES VALIDATION TO VALIDATE OTP
+        await this.auhService.resetPassword(resetPasswordDto);
+        return {
+            message: CONSTANTS.PASSWORD_CHANGED,
         };
     }
 }

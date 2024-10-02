@@ -14,6 +14,8 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { OtpEntity } from 'src/users/entities/otp.entity';
 import { OtpTypesEnum } from 'src/common/enums';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import ForgotPasswordDto from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 export class AuthService {
     constructor(
@@ -122,6 +124,74 @@ export class AuthService {
         ) {
             const { password, salt, deleted_at, ...rest } = foundUser;
             return rest;
+        }
+    }
+
+    async forgotPassword(
+        forgotPasswordDto: ForgotPasswordDto,
+    ): Promise<{ otp: string }> {
+        const foundUser: UsersEntity = await this.userRepo.findOneBy({
+            email: forgotPasswordDto.email,
+            is_verified_email: true,
+        });
+
+        if (!foundUser) {
+            throw new NotFoundException(CONSTANTS.USER_NOT_EXIST);
+        } else {
+            const randomOtp: string = Math.floor(
+                100000 + Math.random() * 900000,
+            ).toString();
+            await this.otpRepo.insert({
+                otp: randomOtp,
+                otp_type: OtpTypesEnum.FORGOT_PASSWORD,
+                user: foundUser,
+            });
+            return {
+                otp: randomOtp,
+            };
+        }
+    }
+
+    async resetPassword(resetPasswordDto: ResetPasswordDto) {
+        const foundUser: UsersEntity = await this.userRepo.findOneBy({
+            email: resetPasswordDto.email,
+            is_verified_email: true,
+        });
+
+        if (!foundUser) {
+            throw new NotFoundException(CONSTANTS.INVALID_OTP);
+        } else {
+            const foundOtp = await this.otpRepo.findOne({
+                where: {
+                    otp: resetPasswordDto.otp,
+                    otp_type: OtpTypesEnum.FORGOT_PASSWORD,
+                    user: {
+                        id: foundUser.id,
+                    },
+                },
+            });
+
+            if (!foundOtp) {
+                throw new BadRequestException(CONSTANTS.INVALID_OTP);
+            } else {
+                await this.dataSource.transaction(async (entityManager) => {
+                    await entityManager.delete(OtpEntity, {
+                        otp_type: OtpTypesEnum.FORGOT_PASSWORD,
+                        user: foundUser,
+                    });
+                    const { hash, salt } = await this.cryptography.hash({
+                        plainText: resetPasswordDto.password,
+                    });
+                    await entityManager.update(
+                        UsersEntity,
+                        { email: resetPasswordDto.email },
+                        {
+                            password: hash,
+                            salt,
+                        },
+                    );
+                });
+            }
         }
     }
 }
