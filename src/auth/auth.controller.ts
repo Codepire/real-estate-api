@@ -65,12 +65,12 @@ export class AuthController {
     @SkipAuth()
     @Post('verify-email')
     async verifyEmail(
-        @Body() verifyEmailDto: VerifyEmailDto
+        @Body() verifyEmailDto: VerifyEmailDto,
     ): Promise<IGenericResult> {
-        await this.auhService.verifyEmail(verifyEmailDto)
+        await this.auhService.verifyEmail(verifyEmailDto);
         return {
             message: CONSTANTS.EMAIL_VERIFIED,
-        }
+        };
     }
 
     @SkipAuth()
@@ -89,5 +89,4 @@ export class AuthController {
             },
         };
     }
-
 }

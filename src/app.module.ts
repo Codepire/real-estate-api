@@ -23,7 +23,7 @@ import { PropertiesModule } from './properties/properties.module';
         }),
         UsersModule,
         MailModule,
-        PropertiesModule
+        PropertiesModule,
     ],
     controllers: [AppController],
     providers: [AppService],

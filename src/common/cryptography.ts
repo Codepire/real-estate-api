@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import * as crypto from 'node:crypto';
 import { CONSTANTS } from './constants';
 
-
 @Injectable()
 export class Cryptography {
     hash(options: {

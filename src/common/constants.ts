@@ -7,5 +7,5 @@ export enum CONSTANTS {
     REGISTER_SUCCESS = 'Registered successfully',
     EMAIL_VERIFIED = 'Email verified',
     INVALID_OTP = 'Invalid otp',
-    OTP_EXPIRED = 'Otp expired'
+    OTP_EXPIRED = 'Otp expired',
 }

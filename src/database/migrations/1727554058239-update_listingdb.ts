@@ -20,7 +20,7 @@
 //         // Step 3: Alter the location_point column to be NOT NULL
 //         await queryRunner.query(`
 //             ALTER TABLE wp_realty_listingsdb
-//             MODIFY location_point POINT NOT NULL; 
+//             MODIFY location_point POINT NOT NULL;
 //         `);
 
 //         // Step 4: Add the spatial index

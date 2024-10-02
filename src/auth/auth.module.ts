@@ -18,12 +18,19 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
         JwtModule.registerAsync({
             useClass: JwtConfigService,
         }),
-        TypeOrmModule.forFeature([UsersEntity, OtpEntity])
+        TypeOrmModule.forFeature([UsersEntity, OtpEntity]),
     ],
     controllers: [AuthController],
-    providers: [GoogleStrategy, JwtStrategy, AuthService, Cryptography, LocalStrategy, {
-        provide: APP_GUARD,
-        useClass: JwtAuthGuard
-    }],
+    providers: [
+        GoogleStrategy,
+        JwtStrategy,
+        AuthService,
+        Cryptography,
+        LocalStrategy,
+        {
+            provide: APP_GUARD,
+            useClass: JwtAuthGuard,
+        },
+    ],
 })
 export class AuthModule {}

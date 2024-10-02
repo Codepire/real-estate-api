@@ -10,13 +10,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     canActivate(context: ExecutionContext) {
-        const isSkipAuth = this.reflector.getAllAndOverride<boolean>(IS_SKIP_AUTH, [
-          context.getHandler(),
-          context.getClass(),
-        ]);
+        const isSkipAuth = this.reflector.getAllAndOverride<boolean>(
+            IS_SKIP_AUTH,
+            [context.getHandler(), context.getClass()],
+        );
         if (isSkipAuth) {
-          return true;
+            return true;
         }
         return super.canActivate(context);
-      }
+    }
 }

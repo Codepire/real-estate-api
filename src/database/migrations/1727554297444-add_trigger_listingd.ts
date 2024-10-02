@@ -31,4 +31,3 @@
 //         await queryRunner.query(`DROP TRIGGER IF EXISTS before_update_location;`);
 //     }
 // }
-

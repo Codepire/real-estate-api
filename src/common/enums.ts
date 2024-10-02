@@ -1,3 +1,3 @@
 export enum OtpTypesEnum {
-    REGISTER_USER = 'register user'
+    REGISTER_USER = 'register user',
 }
