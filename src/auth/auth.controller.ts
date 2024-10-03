@@ -123,7 +123,6 @@ export class AuthController {
     async resetPassword(
         @Body() resetPasswordDto: ResetPasswordDto,
     ): Promise<IGenericResult> {
-        // TODO: ADD 3 MINUTES VALIDATION TO VALIDATE OTP
         await this.auhService.resetPassword(resetPasswordDto);
         return {
             message: CONSTANTS.PASSWORD_CHANGED,

@@ -91,6 +91,7 @@ export class AuthService {
             .createQueryBuilder('o')
             .leftJoinAndSelect('o.user', 'u')
             .where('u.email = :email', { email })
+            .andWhere('o.created_at >= NOW() - INTERVAL 3 MINUTE')
             .andWhere('u.is_verified_email = :is_verified_email', {
                 is_verified_email: false,
             })
@@ -101,7 +102,6 @@ export class AuthService {
         if (!foundOtp) {
             throw new NotFoundException(CONSTANTS.INVALID_OTP);
         }
-        /* TODO: Invalidate otp after 3 minutes */
         await this.userRepo.update({ email }, { is_verified_email: true });
     }
 
@@ -159,19 +159,19 @@ export class AuthService {
             email: resetPasswordDto.email,
             is_verified_email: true,
         });
-
         if (!foundUser) {
             throw new NotFoundException(CONSTANTS.INVALID_OTP);
         } else {
-            const foundOtp = await this.otpRepo.findOne({
-                where: {
-                    otp: resetPasswordDto.otp,
+            const foundOtp = await this.otpRepo
+                .createQueryBuilder('otp')
+                .where('otp = :otp', { otp: resetPasswordDto.otp })
+                .andWhere('otp.created_at >= NOW() - INTERVAL 3 MINUTE')
+                .andWhere('otp.otp_type = :otp_type', {
                     otp_type: OtpTypesEnum.FORGOT_PASSWORD,
-                    user: {
-                        id: foundUser.id,
-                    },
-                },
-            });
+                })
+                .leftJoin('otp.user', 'user')
+                .andWhere('user.id = :user_id', { user_id: foundUser.id })
+                .getOne();
 
             if (!foundOtp) {
                 throw new BadRequestException(CONSTANTS.INVALID_OTP);
