@@ -10,4 +10,5 @@ export enum CONSTANTS {
     OTP_EXPIRED = 'Otp expired',
     OTP_SENT = 'Otp has been sent on provided email',
     PASSWORD_CHANGED = 'Password has been changed',
+    PASSWORD_MISMATCH = 'Password missmatched',
 }

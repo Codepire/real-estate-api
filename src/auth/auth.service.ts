@@ -16,6 +16,8 @@ import { OtpTypesEnum } from 'src/common/enums';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import ForgotPasswordDto from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { IGenericResult } from 'src/common/interfaces';
 
 export class AuthService {
     constructor(
@@ -26,7 +28,7 @@ export class AuthService {
 
         private readonly cryptography: Cryptography,
         private readonly dataSource: DataSource,
-    ) {}
+    ) { }
 
     /**
      * @name validateUserGoogleAuth
@@ -191,6 +193,57 @@ export class AuthService {
                         },
                     );
                 });
+            }
+        }
+    }
+
+    async changePassword(
+        user: UsersEntity,
+        changePasswordDto: ChangePasswordDto,
+    ): Promise<IGenericResult> {
+        const foundUser = await this.userRepo.findOneBy({ id: user.id });
+
+        if (!foundUser) {
+            throw new BadRequestException(CONSTANTS.USER_NOT_EXIST);
+        } else {
+            if (
+                changePasswordDto.new_password !==
+                changePasswordDto.re_new_password
+            ) {
+                throw new BadRequestException(CONSTANTS.PASSWORD_MISMATCH);
+            } else {
+                console.log(foundUser, changePasswordDto.old_password)
+                console.log(
+                    await this.cryptography.compare({
+                        plainText: changePasswordDto.old_password,
+                        salt: foundUser.salt,
+                        hash: foundUser.password,
+                    }),
+                );
+                if (
+                    // why not working
+                    await this.cryptography.compare({
+                        plainText: changePasswordDto.old_password,
+                        salt: foundUser.salt,
+                        hash: foundUser.password,
+                    })
+                ) {
+                    const { hash, salt } = await this.cryptography.hash({
+                        plainText: changePasswordDto.new_password,
+                    });
+                    // await this.userRepo.update(
+                    //     { id: foundUser.id },
+                    //     {
+                    //         password: hash,
+                    //         salt,
+                    //     },
+                    // );
+                    return {
+                        message: CONSTANTS.PASSWORD_CHANGED,
+                    };
+                } else {
+                    throw new UnauthorizedException('hi');
+                }
             }
         }
     }

@@ -21,6 +21,7 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 import ForgotPasswordDto from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -127,5 +128,13 @@ export class AuthController {
         return {
             message: CONSTANTS.PASSWORD_CHANGED,
         };
+    }
+
+    @Post('change-password')
+    async changePassword(
+        @CurrentUser() user: any,
+        @Body() changePasswordDto: ChangePasswordDto,
+    ) {
+        return this.auhService.changePassword(user, changePasswordDto);
     }
 }
