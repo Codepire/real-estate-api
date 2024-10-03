@@ -21,7 +21,9 @@ export class BlogsController {
 
     @SkipAuth()
     @Post()
-    create(@Body() createBlogDto: CreateBlogDto): Promise<IGenericResult> {
+    async create(
+        @Body() createBlogDto: CreateBlogDto,
+    ): Promise<IGenericResult> {
         return this.blogsService.createBlog(createBlogDto);
     }
 
@@ -31,9 +33,10 @@ export class BlogsController {
         return this.blogsService.findAllBlogs(query);
     }
 
+    @SkipAuth()
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.blogsService.findOne(+id);
+    async findOne(@Param('id') id: string) {
+        return this.blogsService.findOne(id);
     }
 
     @Patch(':id')

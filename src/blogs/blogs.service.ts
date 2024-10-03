@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { IGenericResult } from 'src/common/interfaces';
@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BlogsEntity } from './entities/blogs.entity';
 import GetBlogsDto from './dto/get-blogs.dto';
+import { CONSTANTS } from 'src/common/constants';
 
 @Injectable()
 export class BlogsService {
@@ -49,8 +50,13 @@ export class BlogsService {
         };
     }
 
-    findOne(id: number) {
-        return `This action returns a #${id} blog`;
+    async findOne(id: string) {
+        const foundBlog: BlogsEntity = await this.blogsRepo.findOneBy({ id });
+        if (!foundBlog) {
+            throw new BadRequestException(CONSTANTS.BLOG_NOT_FOUND);
+        } else {
+            return foundBlog;
+        }
     }
 
     update(id: number, updateBlogDto: UpdateBlogDto) {
