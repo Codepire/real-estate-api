@@ -5,6 +5,7 @@ import { IGenericResult } from 'src/common/interfaces';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BlogsEntity } from './entities/blogs.entity';
+import GetBlogsDto from './dto/get-blogs.dto';
 
 @Injectable()
 export class BlogsService {
@@ -20,8 +21,32 @@ export class BlogsService {
         };
     }
 
-    findAll() {
-        return `This action returns all blogs`;
+    async findAllBlogs(getBlogsDto: GetBlogsDto): Promise<IGenericResult> {
+        const qb = this.blogsRepo
+            .createQueryBuilder('blogs')
+            .offset(getBlogsDto.offset)
+            .limit(getBlogsDto.limit);
+
+        if (getBlogsDto.search) {
+            const search = `%${getBlogsDto.search.toLowerCase()}%`;
+            qb.where('LOWER(title) LIKE :titleSearch', {
+                titleSearch: search,
+            })
+                .orWhere('LOWER(body) LIKE :bodySearch', {
+                    bodySearch: search,
+                })
+                .orWhere('LOWER(tag) LIKE :tagSearch', {
+                    tagSearch: search,
+                });
+        }
+        const [foundBlogs, count] = await qb.getManyAndCount();
+        return {
+            data: {
+                blogs: foundBlogs,
+                count,
+            },
+            message: 'blogs found',
+        };
     }
 
     findOne(id: number) {

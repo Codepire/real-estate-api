@@ -6,11 +6,14 @@ import {
     Patch,
     Param,
     Delete,
+    Query,
 } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
+import GetBlogsDto from './dto/get-blogs.dto';
+import { IGenericResult } from 'src/common/interfaces';
 
 @Controller('blogs')
 export class BlogsController {
@@ -18,13 +21,14 @@ export class BlogsController {
 
     @SkipAuth()
     @Post()
-    create(@Body() createBlogDto: CreateBlogDto) {
+    create(@Body() createBlogDto: CreateBlogDto): Promise<IGenericResult> {
         return this.blogsService.createBlog(createBlogDto);
     }
 
+    @SkipAuth()
     @Get()
-    findAll() {
-        return this.blogsService.findAll();
+    async findAll(@Query() query: GetBlogsDto): Promise<IGenericResult> {
+        return this.blogsService.findAllBlogs(query);
     }
 
     @Get(':id')
