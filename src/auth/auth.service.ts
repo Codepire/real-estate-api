@@ -28,7 +28,7 @@ export class AuthService {
 
         private readonly cryptography: Cryptography,
         private readonly dataSource: DataSource,
-    ) { }
+    ) {}
 
     /**
      * @name validateUserGoogleAuth
@@ -212,16 +212,7 @@ export class AuthService {
             ) {
                 throw new BadRequestException(CONSTANTS.PASSWORD_MISMATCH);
             } else {
-                console.log(foundUser, changePasswordDto.old_password)
-                console.log(
-                    await this.cryptography.compare({
-                        plainText: changePasswordDto.old_password,
-                        salt: foundUser.salt,
-                        hash: foundUser.password,
-                    }),
-                );
                 if (
-                    // why not working
                     await this.cryptography.compare({
                         plainText: changePasswordDto.old_password,
                         salt: foundUser.salt,
@@ -231,13 +222,13 @@ export class AuthService {
                     const { hash, salt } = await this.cryptography.hash({
                         plainText: changePasswordDto.new_password,
                     });
-                    // await this.userRepo.update(
-                    //     { id: foundUser.id },
-                    //     {
-                    //         password: hash,
-                    //         salt,
-                    //     },
-                    // );
+                    await this.userRepo.update(
+                        { id: foundUser.id },
+                        {
+                            password: hash,
+                            salt,
+                        },
+                    );
                     return {
                         message: CONSTANTS.PASSWORD_CHANGED,
                     };
