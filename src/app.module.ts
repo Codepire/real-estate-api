@@ -9,6 +9,7 @@ import { TypeormConfigService } from './config/typeorm/typeorm.config';
 import { UsersModule } from './users/users.module';
 import { MailModule } from './mail/mail.module';
 import { PropertiesModule } from './properties/properties.module';
+import { BlogsModule } from './blogs/blogs.module';
 
 @Module({
     imports: [
@@ -24,6 +25,7 @@ import { PropertiesModule } from './properties/properties.module';
         UsersModule,
         MailModule,
         PropertiesModule,
+        BlogsModule,
     ],
     controllers: [AppController],
     providers: [AppService],
