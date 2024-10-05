@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+    ConflictException,
+    Injectable,
+    InternalServerErrorException,
+    NotFoundException,
+} from '@nestjs/common';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { IGenericResult } from 'src/common/interfaces';
@@ -13,13 +18,30 @@ export class BlogsService {
     constructor(
         @InjectRepository(BlogsEntity)
         private readonly blogsRepo: Repository<BlogsEntity>,
-    ) { }
+    ) {}
+
+    private async findBlogById(id: string): Promise<BlogsEntity> {
+        const blog = await this.blogsRepo.findOneBy({ id });
+        if (!blog) {
+            throw new NotFoundException(CONSTANTS.BLOG_NOT_FOUND);
+        }
+        return blog;
+    }
 
     async createBlog(createBlogDto: CreateBlogDto): Promise<IGenericResult> {
-        await this.blogsRepo.insert(createBlogDto);
-        return {
-            message: 'Blog created successfully',
-        };
+        try {
+            const newBlog = this.blogsRepo.create(createBlogDto);
+            const result = await this.blogsRepo.save(newBlog);
+            return {
+                message: 'Blog created successfully',
+                data: { blog: result },
+            };
+        } catch (error) {
+            if (error.code === 'ER_DUP_ENTRY') {
+                throw new ConflictException(CONSTANTS.BLOG_URL_CONFLICT);
+            }
+            throw new InternalServerErrorException();
+        }
     }
 
     async findAllBlogs(getBlogsDto: GetBlogsDto): Promise<IGenericResult> {
@@ -30,48 +52,56 @@ export class BlogsService {
 
         if (getBlogsDto.search) {
             const search = `%${getBlogsDto.search.toLowerCase()}%`;
-            qb.where('LOWER(title) LIKE :titleSearch', {
-                titleSearch: search,
-            })
-                .orWhere('LOWER(body) LIKE :bodySearch', {
-                    bodySearch: search,
-                })
-                .orWhere('LOWER(tag) LIKE :tagSearch', {
-                    tagSearch: search,
-                });
+            qb.where('LOWER(title) LIKE :titleSearch', { titleSearch: search })
+                .orWhere('LOWER(body) LIKE :bodySearch', { bodySearch: search })
+                .orWhere('LOWER(tag) LIKE :tagSearch', { tagSearch: search });
         }
+
         const [foundBlogs, count] = await qb.getManyAndCount();
         return {
-            data: {
-                blogs: foundBlogs,
-                count,
-            },
-            message: 'blogs found',
+            data: { blogs: foundBlogs, count },
+            message: 'Blogs found',
         };
     }
 
-    async findOne(id: string) {
-        const foundBlog: BlogsEntity = await this.blogsRepo.findOneBy({ id });
-        if (!foundBlog) {
-            throw new BadRequestException(CONSTANTS.BLOG_NOT_FOUND);
-        } else {
-            return foundBlog;
-        }
+    async findOne(id: string): Promise<IGenericResult> {
+        const foundBlog = await this.findBlogById(id);
+        return {
+            data: { blog: foundBlog },
+            message: 'Blog found',
+        };
     }
 
-    update(id: number, updateBlogDto: UpdateBlogDto) {
-        return `This action updates a #${id} blog`;
+    async updateBlog(
+        id: string,
+        updateBlogDto: UpdateBlogDto,
+    ): Promise<IGenericResult> {
+        try {
+            const foundBlog = await this.findBlogById(id);
+
+            const updatedBlog = this.blogsRepo.merge(foundBlog, updateBlogDto);
+            await this.blogsRepo.save(updatedBlog);
+
+            return {
+                message: 'Blog updated successfully',
+                data: { blog: updatedBlog },
+            };
+        } catch (error) {
+            if (error.code === 'ER_DUP_ENTRY') {
+                throw new ConflictException(CONSTANTS.BLOG_URL_CONFLICT);
+            }
+            throw new InternalServerErrorException();
+        }
     }
 
     async deleteBlog(id: string): Promise<IGenericResult> {
-        const foundBlog: BlogsEntity = await this.blogsRepo.findOneBy({ id });
-        if (!foundBlog) {
-            throw new BadRequestException(CONSTANTS.BLOG_NOT_FOUND);
-        } else {
-            await this.blogsRepo.update({ id }, { deleted_at: new Date() });
-            return {
-                message: `This action removes a #${id} blog`,
-            };
-        }
+        const foundBlog = await this.findBlogById(id); // Will throw if not found
+        await this.blogsRepo.update({ id }, { deleted_at: new Date() }); // Soft delete
+        return {
+            message: 'Blog deleted successfully',
+            data: {
+                blog: foundBlog,
+            },
+        };
     }
 }

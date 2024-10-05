@@ -15,9 +15,14 @@ import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 import GetBlogsDto from './dto/get-blogs.dto';
 import { IGenericResult } from 'src/common/interfaces';
 
+/**
+ * TODO: Remaining stuff
+ *  - Role based authentication, have to confirm
+ *  - Restrict access for blog update and delete
+ */
 @Controller('blogs')
 export class BlogsController {
-    constructor(private readonly blogsService: BlogsService) { }
+    constructor(private readonly blogsService: BlogsService) {}
 
     @SkipAuth()
     @Post()
@@ -35,18 +40,22 @@ export class BlogsController {
 
     @SkipAuth()
     @Get(':id')
-    async findOne(@Param('id') id: string) {
+    async findOne(@Param('id') id: string): Promise<IGenericResult> {
         return this.blogsService.findOne(id);
     }
 
+    @SkipAuth()
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateBlogDto: UpdateBlogDto) {
-        return this.blogsService.update(+id, updateBlogDto);
+    async update(
+        @Param('id') id: string,
+        @Body() updateBlogDto: UpdateBlogDto,
+    ): Promise<IGenericResult> {
+        return this.blogsService.updateBlog(id, updateBlogDto);
     }
 
     @SkipAuth()
     @Delete(':id')
-    remove(@Param('id') id: string) {
+    remove(@Param('id') id: string): Promise<IGenericResult> {
         return this.blogsService.deleteBlog(id);
     }
 }

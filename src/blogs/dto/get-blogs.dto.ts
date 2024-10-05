@@ -1,4 +1,5 @@
-import { IsNumber, IsOptional, Length } from 'class-validator';
+import { IsInt, IsOptional, Length, Min } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export default class GetBlogsDto {
     @IsOptional()
@@ -6,10 +7,14 @@ export default class GetBlogsDto {
     search?: string;
 
     @IsOptional()
-    @IsNumber()
-    offset: number = 0;
+    @Transform(({ value }) => Number(value)) // Transform to number
+    @IsInt()
+    @Min(0)
+    offset?: number;
 
     @IsOptional()
-    @IsNumber()
-    limit: number = 10;
+    @Transform(({ value }) => Number(value)) // Transform to number
+    @IsInt()
+    @Min(1)
+    limit?: number;
 }
