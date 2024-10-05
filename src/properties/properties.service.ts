@@ -7,11 +7,12 @@ import { GetPropertiesStateByZip } from './dto/get-properties-states.dto';
 
 @Injectable()
 export class PropertiesService {
-    constructor(private readonly dataSource: DataSource) { }
+    constructor(private readonly dataSource: DataSource) {}
 
     private getFrequentlySelectedPropertyFields(): string[] {
         return [
             'wrl.listingsdb_id AS id',
+            'wrl.Address AS address',
             'wrl.latitude AS latitude',
             'wrl.longitude AS longitude',
             'wrl.listingsdb_title AS title',
@@ -65,6 +66,7 @@ export class PropertiesService {
         radius,
         beads_total,
         property_types,
+        area,
     }: GetAllPropertiesDto): Promise<IGenericResult> {
         const qb = this.dataSource
             .createQueryBuilder()
@@ -100,6 +102,14 @@ export class PropertiesService {
                     { propertyTypesOptions },
                 );
             }
+        }
+
+        // Validate and filter area
+        if (area) {
+            qb.andWhere(
+                'LOWER(listingsdb_title) LIKE :area OR LOWER(Address) LIKE :area OR LOWER(StreetName) LIKE :area',
+                { area: `%${area.toLowerCase()}` },
+            );
         }
 
         const result = await qb.getRawMany();
@@ -139,6 +149,7 @@ export class PropertiesService {
     async getPropertiesStateByZip(
         query: GetPropertiesStateByZip,
     ): Promise<IGenericResult> {
+        // todo: may be original listing price is not actual price check for price,,, rent sell
         const result = await this.dataSource.query(
             `
             SELECT
