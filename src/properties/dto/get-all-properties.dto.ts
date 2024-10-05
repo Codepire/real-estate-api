@@ -17,4 +17,6 @@ export class GetAllPropertiesDto {
     states: string;
 
     area: string;
+
+    builder_name: string;
 }

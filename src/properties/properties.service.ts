@@ -7,7 +7,7 @@ import { GetPropertiesStateByZip } from './dto/get-properties-states.dto';
 
 @Injectable()
 export class PropertiesService {
-    constructor(private readonly dataSource: DataSource) {}
+    constructor(private readonly dataSource: DataSource) { }
 
     private getFrequentlySelectedPropertyFields(): string[] {
         return [
@@ -57,6 +57,7 @@ export class PropertiesService {
             'wrl.SchoolMiddle AS middle_school',
             'wrl.TaxAmount AS tax_amount',
             'wrl.TaxRate AS tax_rate',
+            'wrl.BuilderName AS builder_name',
         ];
     }
 
@@ -67,6 +68,7 @@ export class PropertiesService {
         beads_total,
         property_types,
         area,
+        builder_name,
     }: GetAllPropertiesDto): Promise<IGenericResult> {
         const qb = this.dataSource
             .createQueryBuilder()
@@ -107,9 +109,19 @@ export class PropertiesService {
         // Validate and filter area
         if (area) {
             qb.andWhere(
-                'LOWER(listingsdb_title) LIKE :area OR LOWER(Address) LIKE :area OR LOWER(StreetName) LIKE :area',
-                { area: `%${area.toLowerCase()}` },
+                '(LOWER(wrl.listingsdb_title) LIKE :area OR LOWER(wrl.Address) LIKE :area OR LOWER(wrl.StreetName) LIKE :area)',
+                {
+                    area: `%${area.toLowerCase()}%`, // Add wildcards
+                },
             );
+        }
+
+        // Validate and filter builder
+        if (builder_name) {
+            console.log('came in builder name', builder_name);
+            qb.andWhere('LOWER(wrl.BuilderName) LIKE :builder_name', {
+                builder_name: `%${builder_name.toLowerCase()}%`, // Add wildcards
+            });
         }
 
         const result = await qb.getRawMany();
