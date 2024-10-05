@@ -13,7 +13,7 @@ export class BlogsService {
     constructor(
         @InjectRepository(BlogsEntity)
         private readonly blogsRepo: Repository<BlogsEntity>,
-    ) {}
+    ) { }
 
     async createBlog(createBlogDto: CreateBlogDto): Promise<IGenericResult> {
         await this.blogsRepo.insert(createBlogDto);
@@ -63,7 +63,15 @@ export class BlogsService {
         return `This action updates a #${id} blog`;
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} blog`;
+    async deleteBlog(id: string): Promise<IGenericResult> {
+        const foundBlog: BlogsEntity = await this.blogsRepo.findOneBy({ id });
+        if (!foundBlog) {
+            throw new BadRequestException(CONSTANTS.BLOG_NOT_FOUND);
+        } else {
+            await this.blogsRepo.update({ id }, { deleted_at: new Date() });
+            return {
+                message: `This action removes a #${id} blog`,
+            };
+        }
     }
 }

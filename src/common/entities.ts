@@ -5,8 +5,8 @@ export abstract class TimeStampedCommonEntities {
     created_at?: Date;
 
     @UpdateDateColumn({ type: 'timestamp' })
-    updated_at?: string;
+    updated_at?: Date;
 
     @DeleteDateColumn({ type: 'timestamp', nullable: true })
-    deleted_at?: string | null;
+    deleted_at?: Date;
 }

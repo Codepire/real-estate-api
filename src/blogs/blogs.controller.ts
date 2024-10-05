@@ -17,7 +17,7 @@ import { IGenericResult } from 'src/common/interfaces';
 
 @Controller('blogs')
 export class BlogsController {
-    constructor(private readonly blogsService: BlogsService) {}
+    constructor(private readonly blogsService: BlogsService) { }
 
     @SkipAuth()
     @Post()
@@ -44,8 +44,9 @@ export class BlogsController {
         return this.blogsService.update(+id, updateBlogDto);
     }
 
+    @SkipAuth()
     @Delete(':id')
     remove(@Param('id') id: string) {
-        return this.blogsService.remove(+id);
+        return this.blogsService.deleteBlog(id);
     }
 }
