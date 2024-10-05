@@ -13,4 +13,5 @@ export enum CONSTANTS {
     PASSWORD_MISMATCH = 'Password missmatched',
     BLOG_NOT_FOUND = 'Blog not found',
     BLOG_URL_CONFLICT = 'A blog with this thumbnail URL already exists.',
+    PROPERTY_NOT_FOUND = 'Property not found',
 }
