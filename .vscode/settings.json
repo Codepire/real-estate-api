@@ -1,7 +1,11 @@
 {
     "cSpell.words": [
+        "CURDATE",
+        "DATEDIFF",
         "listingsdb",
         "otps",
-        "typeorm"
+        "sqft",
+        "typeorm",
+        "zipcode"
     ]
 }

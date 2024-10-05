@@ -3,10 +3,11 @@ import { GetAllPropertiesDto } from './dto/get-all-properties.dto';
 import { DataSource } from 'typeorm';
 import { IGenericResult } from 'src/common/interfaces';
 import { CONSTANTS } from 'src/common/constants';
+import { GetPropertiesStateByZip } from './dto/get-properties-states.dto';
 
 @Injectable()
 export class PropertiesService {
-    constructor(private readonly dataSource: DataSource) {}
+    constructor(private readonly dataSource: DataSource) { }
 
     private getFrequentlySelectedPropertyFields(): string[] {
         return [
@@ -128,6 +129,37 @@ export class PropertiesService {
                 property: result,
             },
             message: 'Property found',
+        };
+    }
+
+    /*
+        TODO: IMPROVEMENTS
+        - For sale column has all nulls so considered all homes for sale
+    */
+    async getPropertiesStateByZip(
+        query: GetPropertiesStateByZip,
+    ): Promise<IGenericResult> {
+        const result = await this.dataSource.query(
+            `
+            SELECT
+                COALESCE(ROUND(AVG(wrl.OriginalListPrice), 2), 0) AS avg_price,            
+                COALESCE(COUNT(*), 0 ) AS total_listings,
+                COALESCE(ROUND(AVG(wrl.OriginalListPrice / wrl.SqFtTotal), 2), 0 ) AS avg_price_per_sqft,
+                COALESCE(ROUND(AVG(DATEDIFF(CURDATE(), wrl.ActiveDate)), 2), 0 ) AS avg_active_days
+            FROM
+                my_database.wp_realty_listingsdb wrl
+            WHERE
+                wrl.Zip = ?;
+
+            `,
+            [query.zipcode],
+        );
+
+        return {
+            data: {
+                states: result,
+            },
+            message: 'Properties states',
         };
     }
 }
