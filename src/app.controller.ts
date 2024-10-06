@@ -5,7 +5,7 @@ import { IGenericResult } from './common/interfaces';
 
 @Controller()
 export class AppController {
-    constructor(private readonly appService: AppService) {}
+    constructor(private readonly appService: AppService) { }
 
     @Get()
     getHello(): string {
@@ -44,5 +44,23 @@ export class AppController {
     @Get('master-planned-communities')
     async getMasterPlannedCommunities(): Promise<IGenericResult> {
         return this.appService.getMasterPlannedCommunities();
+    }
+
+    @SkipAuth()
+    @Get('counties')
+    async getCounties(): Promise<IGenericResult> {
+        return this.appService.getCounties();
+    }
+
+    @SkipAuth()
+    @Get('room-count')
+    async getRoomCount(): Promise<IGenericResult> {
+        return this.appService.getRoomCount();
+    }
+
+    @SkipAuth()
+    @Get('zipcodes')
+    async getZipCodes(): Promise<IGenericResult> {
+        return this.appService.getZipCods();
     }
 }

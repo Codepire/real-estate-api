@@ -4,7 +4,7 @@ import { IGenericResult } from './common/interfaces';
 
 @Injectable()
 export class AppService {
-    constructor(private readonly dataSource: DataSource) {}
+    constructor(private readonly dataSource: DataSource) { }
     getHello(): string {
         return 'Hello World!';
     }
@@ -94,6 +94,48 @@ export class AppService {
                             el.MasterPlannedCommunity,
                     ) ?? [],
             },
+        };
+    }
+
+    async getCounties(): Promise<IGenericResult> {
+        const res = await this.dataSource.query(`
+                SELECT DISTINCT (wrl.County)
+                FROM my_database.wp_realty_listingsdb wrl
+                WHERE wrl.County IS NOT NULL;
+            `);
+
+        return {
+            message: 'Counties found',
+            data: {
+                counties: res?.map((el: { County: string }) => el.County) ?? [],
+            },
+        };
+    }
+
+    async getRoomCount(): Promise<IGenericResult> {
+        const res = await this.dataSource.query(`
+                SELECT DISTINCT (wrl.RoomCount)
+                from wp_realty_listingsdb wrl
+                WHERE wrl.RoomCount IS NOT NULL;
+        `);
+        return {
+            message: 'Room count found',
+            data: res?.map((el: { RoomCount: number }) => el.RoomCount) ?? [],
+        };
+    }
+
+    async getZipCods(): Promise<IGenericResult> {
+        const res = await this.dataSource.query(`
+            SELECT
+                DISTINCT (wrl.Zip)
+            FROM
+                my_database.wp_realty_listingsdb wrl
+            WHERE
+                wrl.Zip IS NOT NULL;
+        `);
+        return {
+            message: 'Zipcodes found',
+            data: res?.map((el: { Zip: string }) => el.Zip) ?? [],
         };
     }
 }
