@@ -13,6 +13,7 @@ import { OtpEntity } from 'src/users/entities/otp.entity';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
     imports: [
@@ -20,6 +21,7 @@ import { RolesGuard } from './guards/roles.guard';
             useClass: JwtConfigService,
         }),
         TypeOrmModule.forFeature([UsersEntity, OtpEntity]),
+        MailModule,
     ],
     controllers: [AuthController],
     providers: [

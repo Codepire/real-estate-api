@@ -18,6 +18,7 @@ import ForgotPasswordDto from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { IGenericResult } from 'src/common/interfaces';
+import { MailService } from 'src/mail/mail.service';
 
 export class AuthService {
     constructor(
@@ -28,6 +29,7 @@ export class AuthService {
 
         private readonly cryptography: Cryptography,
         private readonly dataSource: DataSource,
+        private readonly mailService: MailService,
     ) {}
 
     /**
@@ -59,15 +61,15 @@ export class AuthService {
             });
 
             let registeredUser: UsersEntity = null;
+            const randomOtp = Math.floor(
+                100000 + Math.random() * 900000,
+            ).toString();
             await this.dataSource.transaction(async (entityManager) => {
                 registeredUser = await entityManager.save(UsersEntity, {
                     ...registerUserDto,
                     password: hash,
                     salt,
                 });
-                const randomOtp = Math.floor(
-                    100000 + Math.random() * 900000,
-                ).toString();
                 await entityManager.insert(OtpEntity, {
                     otp: randomOtp,
                     user: registeredUser,
@@ -76,6 +78,15 @@ export class AuthService {
             });
 
             if (registeredUser) {
+                // await this.mailService.sendMail({
+                //     type: 'REGISTER_OTP',
+                //     to: registerUserDto.email,
+                //     username:
+                //         registerUserDto.first_name + registerUserDto.last_name,
+                //     context: {
+                //         otp: randomOtp,
+                //     },
+                // });
                 const { deleted_at, password, salt, ...rest } = registeredUser;
                 return rest;
             } else {

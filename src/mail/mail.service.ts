@@ -11,7 +11,8 @@ export class MailService {
     ) {}
     async sendMail(options: ISendMailOption) {
         if (options.type === 'REGISTER_OTP') {
-            options.template = './register-user-otp';
+            options.template = './register-user';
+            options.subject = `Welcome ${options.username}`;
         }
         this.mailerService.sendMail({
             from: this.configService.get('email').user,
