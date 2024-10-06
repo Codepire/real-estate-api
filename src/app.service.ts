@@ -4,7 +4,7 @@ import { IGenericResult } from './common/interfaces';
 
 @Injectable()
 export class AppService {
-    constructor(private readonly dataSource: DataSource) { }
+    constructor(private readonly dataSource: DataSource) {}
     getHello(): string {
         return 'Hello World!';
     }
@@ -13,7 +13,8 @@ export class AppService {
         const res = await this.dataSource.query(
             `
             SELECT DISTINCT(wrl.Country)
-            FROM wp_realty_listingsdb wrl;
+            FROM wp_realty_listingsdb wrl
+            WHERE wrl.Country IS NOT NULL;
             `,
         );
         return {
@@ -29,9 +30,9 @@ export class AppService {
     async getStatesByCountry(country: string): Promise<IGenericResult> {
         const res = await this.dataSource.query(
             `
-            select DISTINCT (wrl.State)
-            from wp_realty_listingsdb wrl
-            where LOWER(wrl.Country) = LOWER(?);
+            SELECT DISTINCT (wrl.State)
+            FROM wp_realty_listingsdb wrl
+            WHERE LOWER(wrl.Country) = LOWER(?) AND wrl.State IS NOT NULL;
             `,
             [country],
         );
@@ -46,9 +47,9 @@ export class AppService {
     async getCitiesByState(state: string): Promise<IGenericResult> {
         const res = await this.dataSource.query(
             `
-            select DISTINCT (wrl.City)
-            from wp_realty_listingsdb wrl
-            where LOWER(wrl.State) = LOWER(?);
+            SELECT DISTINCT (wrl.City)
+            FROM wp_realty_listingsdb wrl
+            WHERE LOWER(wrl.State) = LOWER(?) AND wrl.City IS NOT NULL;
             `,
             [state],
         );
@@ -60,41 +61,30 @@ export class AppService {
         };
     }
 
-    async getBuilders(): Promise<IGenericResult> {
+    async getBuilders(): Promise<string[]> {
         const res = await this.dataSource.query(
             `
                 SELECT DISTINCT (wrl.builderName)
-                from my_database.wp_realty_listingsdb wrl
+                FROM my_database.wp_realty_listingsdb wrl
                 WHERE wrl.BuilderName IS NOT NULL;
             `,
         );
-        return {
-            message: 'Builders found',
-            data: {
-                builders: res?.map(
-                    (el: { builderName: string }) => el.builderName ?? [],
-                ),
-            },
-        };
+        return res?.map((el: { builderName: string }) => el.builderName) ?? [];
     }
 
-    async getMasterPlannedCommunities(): Promise<IGenericResult> {
+    async getMasterPlannedCommunities(): Promise<string[]> {
         const res = await this.dataSource.query(`
                 SELECT DISTINCT (wrl.MasterPlannedCommunity)
                 FROM my_database.wp_realty_listingsdb wrl
                 WHERE wrl.MasterPlannedCommunity IS NOT NULL;
             `);
 
-        return {
-            message: 'Master planned communities found',
-            data: {
-                master_planned_communities:
-                    res?.map(
-                        (el: { MasterPlannedCommunity: string }) =>
-                            el.MasterPlannedCommunity,
-                    ) ?? [],
-            },
-        };
+        return (
+            res?.map(
+                (el: { MasterPlannedCommunity: string }) =>
+                    el.MasterPlannedCommunity,
+            ) ?? []
+        );
     }
 
     async getCounties(): Promise<IGenericResult> {
@@ -104,12 +94,7 @@ export class AppService {
                 WHERE wrl.County IS NOT NULL;
             `);
 
-        return {
-            message: 'Counties found',
-            data: {
-                counties: res?.map((el: { County: string }) => el.County) ?? [],
-            },
-        };
+        return res?.map((el: { County: string }) => el.County) ?? [];
     }
 
     async getRoomCount(): Promise<IGenericResult> {
@@ -118,10 +103,7 @@ export class AppService {
                 from wp_realty_listingsdb wrl
                 WHERE wrl.RoomCount IS NOT NULL;
         `);
-        return {
-            message: 'Room count found',
-            data: res?.map((el: { RoomCount: number }) => el.RoomCount) ?? [],
-        };
+        return res?.map((el: { RoomCount: number }) => el.RoomCount) ?? [];
     }
 
     async getZipCods(): Promise<IGenericResult> {

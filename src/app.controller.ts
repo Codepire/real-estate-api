@@ -5,7 +5,7 @@ import { IGenericResult } from './common/interfaces';
 
 @Controller()
 export class AppController {
-    constructor(private readonly appService: AppService) { }
+    constructor(private readonly appService: AppService) {}
 
     @Get()
     getHello(): string {
@@ -35,32 +35,33 @@ export class AppController {
     }
 
     @SkipAuth()
-    @Get('builders')
-    async getBuilders(): Promise<IGenericResult> {
-        return this.appService.getBuilders();
-    }
-
-    @SkipAuth()
-    @Get('master-planned-communities')
-    async getMasterPlannedCommunities(): Promise<IGenericResult> {
-        return this.appService.getMasterPlannedCommunities();
-    }
-
-    @SkipAuth()
-    @Get('counties')
-    async getCounties(): Promise<IGenericResult> {
-        return this.appService.getCounties();
-    }
-
-    @SkipAuth()
-    @Get('room-count')
-    async getRoomCount(): Promise<IGenericResult> {
-        return this.appService.getRoomCount();
-    }
-
-    @SkipAuth()
     @Get('zipcodes')
     async getZipCodes(): Promise<IGenericResult> {
         return this.appService.getZipCods();
+    }
+
+    @SkipAuth()
+    @Get('filter-options')
+    async getFilterOptions(): Promise<IGenericResult> {
+        const [
+            builder_names,
+            master_planned_communities,
+            counties,
+            room_counts,
+        ] = await Promise.all([
+            this.appService.getBuilders(),
+            this.appService.getMasterPlannedCommunities(),
+            this.appService.getCounties(),
+            this.appService.getRoomCount(),
+        ]);
+        return {
+            message: 'filter options',
+            data: {
+                builder_names,
+                master_planned_communities,
+                counties,
+                room_counts,
+            },
+        };
     }
 }
