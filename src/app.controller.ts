@@ -25,4 +25,12 @@ export class AppController {
     ): Promise<IGenericResult> {
         return this.appService.getStatesByCountry(country);
     }
+
+    @SkipAuth()
+    @Get(':state/cities')
+    async getCitiesByState(
+        @Param('state') state: string,
+    ): Promise<IGenericResult> {
+        return this.appService.getCitiesByState(state);
+    }
 }
