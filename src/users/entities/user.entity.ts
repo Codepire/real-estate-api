@@ -1,6 +1,7 @@
 import { TimeStampedCommonEntities } from 'src/common/entities';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { OtpEntity } from './otp.entity';
+import { UserRoleEnum } from 'src/common/enums';
 
 @Entity({ name: 'users' })
 export class UsersEntity extends TimeStampedCommonEntities {
@@ -33,6 +34,9 @@ export class UsersEntity extends TimeStampedCommonEntities {
 
     @Column({ default: false })
     is_verified_email?: boolean;
+
+    @Column({ type: 'enum', enum: UserRoleEnum, default: UserRoleEnum.USER })
+    role?: string;
 
     /* Relations */
     @OneToMany(() => OtpEntity, (otpEntity) => otpEntity.user)

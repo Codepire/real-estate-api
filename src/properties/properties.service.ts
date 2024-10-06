@@ -7,7 +7,7 @@ import { GetPropertiesStateByZip } from './dto/get-properties-states.dto';
 
 @Injectable()
 export class PropertiesService {
-    constructor(private readonly dataSource: DataSource) { }
+    constructor(private readonly dataSource: DataSource) {}
 
     private getFrequentlySelectedPropertyFields(): string[] {
         return [
