@@ -106,15 +106,20 @@ export class AppService {
         return res?.map((el: { RoomCount: number }) => el.RoomCount) ?? [];
     }
 
-    async getZipCods(): Promise<IGenericResult> {
-        const res = await this.dataSource.query(`
+    async getZipCodesByCity(city: string): Promise<IGenericResult> {
+        const res = await this.dataSource.query(
+            `
             SELECT
                 DISTINCT (wrl.Zip)
             FROM
                 my_database.wp_realty_listingsdb wrl
             WHERE
-                wrl.Zip IS NOT NULL;
-        `);
+                wrl.Zip IS NOT NULL
+            AND
+                LOWER(wrl.City) = LOWER(?)
+        `,
+            [city],
+        );
         return {
             message: 'Zipcodes found',
             data: res?.map((el: { Zip: string }) => el.Zip) ?? [],

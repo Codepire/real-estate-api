@@ -35,9 +35,11 @@ export class AppController {
     }
 
     @SkipAuth()
-    @Get('zipcodes')
-    async getZipCodes(): Promise<IGenericResult> {
-        return this.appService.getZipCods();
+    @Get(':city/zipcodes')
+    async getZipCodesByCity(
+        @Param('city') city: string,
+    ): Promise<IGenericResult> {
+        return this.appService.getZipCodesByCity(city);
     }
 
     @SkipAuth()
