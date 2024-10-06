@@ -138,29 +138,38 @@ export class PropertiesService {
         // Validate and filter area
         if (area) {
             qb.andWhere(
-                '(LOWER(wrl.listingsdb_title) LIKE :area OR LOWER(wrl.Address) LIKE :area OR LOWER(wrl.StreetName) LIKE :area)',
+                '(LOWER(wrl.listingsdb_title) LIKE TRIM(LOWER(:area)) OR LOWER(wrl.Address) LIKE TRIM(LOWER(:area)) OR LOWER(wrl.StreetName) LIKE TRIM(LOWER(:area)))',
                 {
-                    area: `%${area.toLowerCase()}%`, // Add wildcards
+                    area,
                 },
             );
         }
 
         // Validate and filter builder
         if (builder_name) {
-            qb.andWhere('LOWER(wrl.BuilderName) LIKE :builder_name', {
-                builder_name: `%${builder_name.toLowerCase()}%`, // Add wildcards
-            });
+            qb.andWhere(
+                'LOWER(wrl.BuilderName) LIKE TRIM(LOWER(:builder_name))',
+                {
+                    builder_name,
+                },
+            );
         }
 
         // Validate Country -> State -> City -> Zipcode
         if (country) {
-            qb.andWhere('LOWER(wrl.Country) = LOWER(:country)', { country });
+            qb.andWhere('LOWER(wrl.Country) = TRIM(LOWER(:country))', {
+                country,
+            });
             if (state) {
-                qb.andWhere('LOWER(wrl.State) = LOWER(:state)', { state });
+                qb.andWhere('LOWER(wrl.State) = TRIM(LOWER(:state))', {
+                    state,
+                });
                 if (city) {
-                    qb.andWhere('LOWER(wrl.City) = LOWER(:city)', { city });
+                    qb.andWhere('LOWER(wrl.City) = TRIM(LOWER(:city))', {
+                        city,
+                    });
                     if (zipcode) {
-                        qb.andWhere('LOWER(wrl.Zip) = LOWER(:zipcode)', {
+                        qb.andWhere('LOWER(wrl.Zip) = TRIM(LOWER(:zipcode))', {
                             zipcode,
                         });
                     }
@@ -170,20 +179,23 @@ export class PropertiesService {
 
         // validate county, todo: confirm if it is multiselect or not
         if (county) {
-            qb.andWhere('LOWER(wrl.County) = LOWER(:county)', { county });
+            qb.andWhere('LOWER(wrl.County) = TRIM(LOWER(:county))', { county });
         }
 
         if (master_planned_communities) {
             qb.andWhere(
-                'LOWER(wrl.MasterPlannedCommunity) = LOWER(:master_planned_communities)',
+                'LOWER(wrl.MasterPlannedCommunity) = TRIM(LOWER(:master_planned_communities))',
                 { master_planned_communities },
             );
         }
 
         if (school_district) {
-            qb.andWhere('LOWER(wrl.SchoolDistrict) = LOWER(:school_district)', {
-                school_district,
-            });
+            qb.andWhere(
+                'LOWER(wrl.SchoolDistrict) = TRIM(LOWER(:school_district))',
+                {
+                    school_district,
+                },
+            );
         }
 
         // validate if property has golf course
