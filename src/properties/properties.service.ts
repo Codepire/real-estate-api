@@ -65,6 +65,7 @@ export class PropertiesService {
             'wrl.PoolArea as neighborhood_pool',
             'wrl.PoolPrivate as private_pool',
             'wrl.Tennis as tennis_area',
+            'wrl.Furnished AS is_furnished',
         ];
     }
 
@@ -88,6 +89,7 @@ export class PropertiesService {
         has_neighborhood_pool_area,
         has_private_pool,
         has_tennis_area,
+        is_furnished,
     }: GetAllPropertiesDto): Promise<IGenericResult> {
         const qb = this.dataSource
             .createQueryBuilder()
@@ -223,6 +225,10 @@ export class PropertiesService {
             qb.andWhere(
                 '(wrl.Tennis IS NOT NULL AND LOWER(wrl.Tennis) <> LOWER("N"))',
             );
+        }
+
+        if (Boolean(is_furnished)) {
+            qb.andWhere('wrl.Furnished IS NOT NULL AND wrl.Furnished <> "0"');
         }
 
         const result = await qb.getRawMany();

@@ -11,20 +11,19 @@ import { UserRoleEnum } from 'src/common/enums';
 export class PropertiesController {
     constructor(private readonly propertiesService: PropertiesService) {}
 
+    @SkipAuth()
     @Get()
-    @Roles(UserRoleEnum.USER, UserRoleEnum.ADMIN)
     async getAllProperties(@Query() query: GetAllPropertiesDto) {
         return this.propertiesService.getAllProperties(query);
     }
 
-    @SkipAuth()
     @Roles(UserRoleEnum.ADMIN)
     @Get('properties-states')
     async getPropertiesStateByZip(@Query() query: GetPropertiesStateByZip) {
         return this.propertiesService.getPropertiesStateByZip(query);
     }
 
-    @Roles(UserRoleEnum.ADMIN, UserRoleEnum.USER)
+    @SkipAuth()
     @Get(':id')
     async getPropertyById(@Param('id') id: string): Promise<IGenericResult> {
         return this.propertiesService.getPropertyById(+id);

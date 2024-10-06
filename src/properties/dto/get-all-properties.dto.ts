@@ -41,4 +41,6 @@ export class GetAllPropertiesDto {
     has_private_pool: boolean;
 
     has_tennis_area: boolean;
+
+    is_furnished: boolean;
 }
