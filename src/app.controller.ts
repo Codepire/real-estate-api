@@ -5,7 +5,7 @@ import { IGenericResult } from './common/interfaces';
 
 @Controller()
 export class AppController {
-    constructor(private readonly appService: AppService) {}
+    constructor(private readonly appService: AppService) { }
 
     @Get()
     getHello(): string {
@@ -50,11 +50,13 @@ export class AppController {
             master_planned_communities,
             counties,
             room_counts,
+            bed_room_counts
         ] = await Promise.all([
             this.appService.getBuilders(),
             this.appService.getMasterPlannedCommunities(),
             this.appService.getCounties(),
             this.appService.getRoomCount(),
+            this.appService.getBedRoomCount(),
         ]);
         return {
             message: 'filter options',
@@ -63,6 +65,7 @@ export class AppController {
                 master_planned_communities,
                 counties,
                 room_counts,
+                bed_room_counts,
             },
         };
     }

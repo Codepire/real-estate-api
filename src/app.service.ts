@@ -4,7 +4,7 @@ import { IGenericResult } from './common/interfaces';
 
 @Injectable()
 export class AppService {
-    constructor(private readonly dataSource: DataSource) {}
+    constructor(private readonly dataSource: DataSource) { }
     getHello(): string {
         return 'Hello World!';
     }
@@ -87,7 +87,7 @@ export class AppService {
         );
     }
 
-    async getCounties(): Promise<IGenericResult> {
+    async getCounties(): Promise<string[]> {
         const res = await this.dataSource.query(`
                 SELECT DISTINCT (wrl.County)
                 FROM my_database.wp_realty_listingsdb wrl
@@ -97,13 +97,22 @@ export class AppService {
         return res?.map((el: { County: string }) => el.County) ?? [];
     }
 
-    async getRoomCount(): Promise<IGenericResult> {
+    async getRoomCount(): Promise<number[]> {
         const res = await this.dataSource.query(`
                 SELECT DISTINCT (wrl.RoomCount)
                 from wp_realty_listingsdb wrl
                 WHERE wrl.RoomCount IS NOT NULL;
         `);
         return res?.map((el: { RoomCount: number }) => el.RoomCount) ?? [];
+    }
+
+    async getBedRoomCount(): Promise<number[]> {
+        const res = await this.dataSource.query(`
+            SELECT DISTINCT (wrl.BedsTotaL)
+            FROM my_database.wp_realty_listingsdb wrl 
+            WHERE wrl.BedsTotal IS NOT NULL;
+    `);
+        return res?.map((el: { BedsTotaL: number }) => el.BedsTotaL) ?? [];
     }
 
     async getZipCodesByCity(city: string): Promise<IGenericResult> {
