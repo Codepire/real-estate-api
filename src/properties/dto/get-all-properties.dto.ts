@@ -18,5 +18,5 @@ export class GetAllPropertiesDto {
 
     area: string;
 
-    builder_name: string;
+    builder_name: string; // todo: can be multiple here like beads fix it
 }
