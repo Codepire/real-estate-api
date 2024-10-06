@@ -14,9 +14,15 @@ export class GetAllPropertiesDto {
 
     property_types: string;
 
-    states: string;
-
     area: string;
 
-    builder_name: string; // todo: can be multiple here like beads fix it
+    builder_name: string;
+
+    country: string;
+
+    state: string;
+
+    city: string;
+
+    zipcode: string;
 }

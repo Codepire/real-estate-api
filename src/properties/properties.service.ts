@@ -7,7 +7,7 @@ import { GetPropertiesStateByZip } from './dto/get-properties-states.dto';
 
 @Injectable()
 export class PropertiesService {
-    constructor(private readonly dataSource: DataSource) {}
+    constructor(private readonly dataSource: DataSource) { }
 
     private getFrequentlySelectedPropertyFields(): string[] {
         return [
@@ -58,6 +58,7 @@ export class PropertiesService {
             'wrl.TaxAmount AS tax_amount',
             'wrl.TaxRate AS tax_rate',
             'wrl.BuilderName AS builder_name',
+            'wrl.City AS city',
         ];
     }
 
@@ -69,6 +70,10 @@ export class PropertiesService {
         property_types,
         area,
         builder_name,
+        country,
+        state,
+        city,
+        zipcode,
     }: GetAllPropertiesDto): Promise<IGenericResult> {
         const qb = this.dataSource
             .createQueryBuilder()
@@ -121,6 +126,22 @@ export class PropertiesService {
             qb.andWhere('LOWER(wrl.BuilderName) LIKE :builder_name', {
                 builder_name: `%${builder_name.toLowerCase()}%`, // Add wildcards
             });
+        }
+
+        // Validate Country -> State -> City -> Zipcode
+        if (country) {
+            qb.andWhere('LOWER(wrl.Country) = LOWER(:country)', { country });
+            if (state) {
+                qb.andWhere('LOWER(wrl.State) = LOWER(:state)', { state });
+                if (city) {
+                    qb.andWhere('LOWER(wrl.City) = LOWER(:city)', { city });
+                    if (zipcode) {
+                        qb.andWhere('LOWER(wrl.Zip) = LOWER(:zipcode)', {
+                            zipcode,
+                        });
+                    }
+                }
+            }
         }
 
         const result = await qb.getRawMany();

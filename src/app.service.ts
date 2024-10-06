@@ -4,7 +4,7 @@ import { IGenericResult } from './common/interfaces';
 
 @Injectable()
 export class AppService {
-    constructor(private readonly dataSource: DataSource) { }
+    constructor(private readonly dataSource: DataSource) {}
     getHello(): string {
         return 'Hello World!';
     }
