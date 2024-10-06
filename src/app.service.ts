@@ -20,8 +20,7 @@ export class AppService {
             message: 'Countries found',
             data: {
                 countries: res?.map(
-                    (el: { Country: string }) =>
-                        String(el.Country).toLowerCase() ?? [],
+                    (el: { Country: string }) => el.Country ?? [],
                 ),
             },
         };
@@ -39,10 +38,7 @@ export class AppService {
         return {
             message: 'States found',
             data: {
-                states:
-                    res?.map((el: { State: string }) =>
-                        String(el.State).toLowerCase(),
-                    ) ?? [],
+                states: res?.map((el: { State: string }) => el.State) ?? [],
             },
         };
     }
@@ -59,10 +55,7 @@ export class AppService {
         return {
             message: 'Cities found',
             data: {
-                cities:
-                    res?.map((el: { City: string }) =>
-                        String(el.City).toLowerCase(),
-                    ) ?? [],
+                cities: res?.map((el: { City: string }) => el.City) ?? [],
             },
         };
     }
@@ -79,9 +72,27 @@ export class AppService {
             message: 'Builders found',
             data: {
                 builders: res?.map(
-                    (el: { builderName: string }) =>
-                        String(el.builderName).toLowerCase() ?? [],
+                    (el: { builderName: string }) => el.builderName ?? [],
                 ),
+            },
+        };
+    }
+
+    async getMasterPlannedCommunities(): Promise<IGenericResult> {
+        const res = await this.dataSource.query(`
+                SELECT DISTINCT (wrl.MasterPlannedCommunity)
+                FROM my_database.wp_realty_listingsdb wrl
+                WHERE wrl.MasterPlannedCommunity IS NOT NULL;
+            `);
+
+        return {
+            message: 'Master planned communities found',
+            data: {
+                master_planned_communities:
+                    res?.map(
+                        (el: { MasterPlannedCommunity: string }) =>
+                            el.MasterPlannedCommunity,
+                    ) ?? [],
             },
         };
     }

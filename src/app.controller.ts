@@ -39,4 +39,10 @@ export class AppController {
     async getBuilders(): Promise<IGenericResult> {
         return this.appService.getBuilders();
     }
+
+    @SkipAuth()
+    @Get('master-planned-communities')
+    async getMasterPlannedCommunities(): Promise<IGenericResult> {
+        return this.appService.getMasterPlannedCommunities();
+    }
 }
