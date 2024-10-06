@@ -64,6 +64,7 @@ export class PropertiesService {
             'wrl.GolfCourse AS golf_course',
             'wrl.PoolArea as neighborhood_pool',
             'wrl.PoolPrivate as private_pool',
+            'wrl.Tennis as tennis_area',
         ];
     }
 
@@ -86,6 +87,7 @@ export class PropertiesService {
         has_golf_course,
         has_neighborhood_pool_area,
         has_private_pool,
+        has_tennis_area,
     }: GetAllPropertiesDto): Promise<IGenericResult> {
         const qb = this.dataSource
             .createQueryBuilder()
@@ -215,6 +217,14 @@ export class PropertiesService {
                 '(wrl.PoolPrivate IS NOT NULL AND LOWER(wrl.poolPrivate) <> LOWER("N"))',
             );
         }
+
+        // Validate tennis play area
+        if (Boolean(has_tennis_area)) {
+            qb.andWhere(
+                '(wrl.Tennis IS NOT NULL AND LOWER(wrl.Tennis) <> LOWER("N"))',
+            );
+        }
+
         const result = await qb.getRawMany();
         return {
             data: {
