@@ -1,5 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { AppService } from './app.service';
+import { SkipAuth } from './common/decorators/skip-auth.decorator';
+import { IGenericResult } from './common/interfaces';
 
 @Controller()
 export class AppController {
@@ -8,5 +10,19 @@ export class AppController {
     @Get()
     getHello(): string {
         return this.appService.getHello();
+    }
+
+    @SkipAuth()
+    @Get('countries')
+    async getCountries(): Promise<IGenericResult> {
+        return this.appService.getCountries();
+    }
+
+    @SkipAuth()
+    @Get(':country/states')
+    async getStatesByCountries(
+        @Param('country') country: string,
+    ): Promise<IGenericResult> {
+        return this.appService.getStatesByCountry(country);
     }
 }
