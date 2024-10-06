@@ -7,7 +7,7 @@ import { GetPropertiesStateByZip } from './dto/get-properties-states.dto';
 
 @Injectable()
 export class PropertiesService {
-    constructor(private readonly dataSource: DataSource) { }
+    constructor(private readonly dataSource: DataSource) {}
 
     private getFrequentlySelectedPropertyFields(): string[] {
         return [
@@ -61,6 +61,9 @@ export class PropertiesService {
             'wrl.MasterPlannedCommunity AS master_planned_community',
             'wrl.County AS county',
             'wrl.SchoolDistrict AS school_district',
+            'wrl.GolfCourse AS golf_course',
+            'wrl.PoolArea as neighborhood_pool',
+            'wrl.PoolPrivate as private_pool',
         ];
     }
 
@@ -80,6 +83,9 @@ export class PropertiesService {
         county,
         master_planned_communities,
         school_district,
+        has_golf_course,
+        has_neighborhood_pool_area,
+        has_private_pool,
     }: GetAllPropertiesDto): Promise<IGenericResult> {
         const qb = this.dataSource
             .createQueryBuilder()
@@ -180,6 +186,23 @@ export class PropertiesService {
             });
         }
 
+        // validate if property has golf course
+        if (Boolean(has_golf_course)) {
+            qb.andWhere('wrl.GolfCourse IS NOT NULL');
+        }
+
+        // Validate pool area, or private pool
+        if (Boolean(has_neighborhood_pool_area)) {
+            qb.andWhere(
+                '(wrl.PoolArea IS NOT NULL AND LOWER(wrl.PoolArea) <> LOWER("N"))',
+            );
+        }
+
+        if (Boolean(has_private_pool)) {
+            qb.andWhere(
+                '(wrl.PoolPrivate IS NOT NULL AND LOWER(wrl.poolPrivate) <> LOWER("N"))',
+            );
+        }
         const result = await qb.getRawMany();
         return {
             data: {

@@ -33,4 +33,10 @@ export class GetAllPropertiesDto {
     school_district: string;
 
     rooms_total: string;
+
+    has_golf_course: boolean;
+
+    has_neighborhood_pool_area: boolean;
+
+    has_private_pool: boolean;
 }
