@@ -10,6 +10,7 @@ import { UsersModule } from './users/users.module';
 import { MailModule } from './mail/mail.module';
 import { PropertiesModule } from './properties/properties.module';
 import { BlogsModule } from './blogs/blogs.module';
+import { ContactUsModule } from './contact-us/contact-us.module';
 
 @Module({
     imports: [
@@ -26,6 +27,7 @@ import { BlogsModule } from './blogs/blogs.module';
         MailModule,
         PropertiesModule,
         BlogsModule,
+        ContactUsModule,
     ],
     controllers: [AppController],
     providers: [AppService],

@@ -21,4 +21,8 @@ export default () => ({
         type: process.env.DATABASE_TYPE,
         host: process.env.DATABASE_HOST,
     },
+    email: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+    },
 });

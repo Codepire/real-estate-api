@@ -118,7 +118,6 @@ export class PropertiesService {
 
         // Validate and filter builder
         if (builder_name) {
-            console.log('came in builder name', builder_name);
             qb.andWhere('LOWER(wrl.BuilderName) LIKE :builder_name', {
                 builder_name: `%${builder_name.toLowerCase()}%`, // Add wildcards
             });
