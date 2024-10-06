@@ -5,7 +5,7 @@ import { IGenericResult } from './common/interfaces';
 
 @Controller()
 export class AppController {
-    constructor(private readonly appService: AppService) { }
+    constructor(private readonly appService: AppService) {}
 
     @Get()
     getHello(): string {
@@ -43,6 +43,14 @@ export class AppController {
     }
 
     @SkipAuth()
+    @Get(':zipcode/geo-market-area')
+    async getGeoMarketAreasByZip(
+        @Param('zipcode') zipcode: string,
+    ): Promise<IGenericResult> {
+        return this.appService.getGeoMarketAreasByZip(zipcode);
+    }
+
+    @SkipAuth()
     @Get('filter-options')
     async getFilterOptions(): Promise<IGenericResult> {
         const [
@@ -50,7 +58,7 @@ export class AppController {
             master_planned_communities,
             counties,
             room_counts,
-            bed_room_counts
+            bed_room_counts,
         ] = await Promise.all([
             this.appService.getBuilders(),
             this.appService.getMasterPlannedCommunities(),
