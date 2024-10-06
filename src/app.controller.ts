@@ -33,4 +33,10 @@ export class AppController {
     ): Promise<IGenericResult> {
         return this.appService.getCitiesByState(state);
     }
+
+    @SkipAuth()
+    @Get('builders')
+    async getBuilders(): Promise<IGenericResult> {
+        return this.appService.getBuilders();
+    }
 }

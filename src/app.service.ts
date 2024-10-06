@@ -4,7 +4,7 @@ import { IGenericResult } from './common/interfaces';
 
 @Injectable()
 export class AppService {
-    constructor(private readonly dataSource: DataSource) { }
+    constructor(private readonly dataSource: DataSource) {}
     getHello(): string {
         return 'Hello World!';
     }
@@ -63,6 +63,25 @@ export class AppService {
                     res?.map((el: { City: string }) =>
                         String(el.City).toLowerCase(),
                     ) ?? [],
+            },
+        };
+    }
+
+    async getBuilders(): Promise<IGenericResult> {
+        const res = await this.dataSource.query(
+            `
+                SELECT DISTINCT (wrl.builderName)
+                from my_database.wp_realty_listingsdb wrl
+                WHERE wrl.BuilderName IS NOT NULL;
+            `,
+        );
+        return {
+            message: 'Builders found',
+            data: {
+                builders: res?.map(
+                    (el: { builderName: string }) =>
+                        String(el.builderName).toLowerCase() ?? [],
+                ),
             },
         };
     }
