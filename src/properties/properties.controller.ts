@@ -4,24 +4,27 @@ import { GetAllPropertiesDto } from './dto/get-all-properties.dto';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 import { IGenericResult } from 'src/common/interfaces';
 import { GetPropertiesStateByZip } from './dto/get-properties-states.dto';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { UserRoleEnum } from 'src/common/enums';
 
 @Controller('properties')
 export class PropertiesController {
     constructor(private readonly propertiesService: PropertiesService) {}
 
     @Get()
-    @SkipAuth() //todo: temp till frontend don't get ready for apis
+    @Roles(UserRoleEnum.USER, UserRoleEnum.ADMIN)
     async getAllProperties(@Query() query: GetAllPropertiesDto) {
         return this.propertiesService.getAllProperties(query);
     }
 
     @SkipAuth()
+    @Roles(UserRoleEnum.ADMIN)
     @Get('properties-states')
     async getPropertiesStateByZip(@Query() query: GetPropertiesStateByZip) {
         return this.propertiesService.getPropertiesStateByZip(query);
     }
 
-    @SkipAuth()
+    @Roles(UserRoleEnum.ADMIN, UserRoleEnum.USER)
     @Get(':id')
     async getPropertyById(@Param('id') id: string): Promise<IGenericResult> {
         return this.propertiesService.getPropertyById(+id);

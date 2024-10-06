@@ -47,6 +47,7 @@ export class AuthController {
         const accessToken: string = this.JwtService.sign({
             sub: Date.now(),
             email: user.email,
+            role: user.role,
         });
         const redirectUri = `${this.configService.get('frontend.uri')}/${this.configService.get('frontend.auth_callback')}?token=${accessToken}`;
         res.redirect(redirectUri);
@@ -83,6 +84,7 @@ export class AuthController {
         const accessToken = this.JwtService.sign({
             sub: req.user.id,
             email: req.user.email,
+            role: req.user.role,
         });
         return {
             message: CONSTANTS.LOGIN_SUCCESS,
