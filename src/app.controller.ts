@@ -3,9 +3,10 @@ import { AppService } from './app.service';
 import { SkipAuth } from './common/decorators/skip-auth.decorator';
 import { IGenericResult } from './common/interfaces';
 
+// TODO: HAVE TO FILTER THINGS ON LATITUDE LONGITUDE IN FUTURE, E.G. SCHOOL AREA
 @Controller()
 export class AppController {
-    constructor(private readonly appService: AppService) {}
+    constructor(private readonly appService: AppService) { }
 
     @Get()
     getHello(): string {
@@ -59,12 +60,14 @@ export class AppController {
             counties,
             room_counts,
             bed_room_counts,
+            school_districts,
         ] = await Promise.all([
             this.appService.getBuilders(),
             this.appService.getMasterPlannedCommunities(),
             this.appService.getCounties(),
             this.appService.getRoomCount(),
             this.appService.getBedRoomCount(),
+            this.appService.getSchoolDistricts(),
         ]);
         return {
             message: 'filter options',
@@ -74,6 +77,7 @@ export class AppController {
                 counties,
                 room_counts,
                 bed_room_counts,
+                school_districts,
             },
         };
     }
