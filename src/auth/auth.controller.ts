@@ -15,7 +15,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { IGenericResult, ILoginResult } from 'src/common/interfaces';
+import { IGenericResult } from 'src/common/interfaces';
 import { CONSTANTS } from 'src/common/constants';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
@@ -31,13 +31,13 @@ export class AuthController {
         /* Custom services */
         private readonly configService: ConfigService,
         private readonly auhService: AuthService,
-    ) {}
+    ) { }
 
     /* Google Auth*/
     @SkipAuth()
     @Get('google')
     @UseGuards(GoogleAuthGuard)
-    async googleLogin() {}
+    async googleLogin() { }
 
     /* Google Auth Callback */
     @SkipAuth()
@@ -80,7 +80,7 @@ export class AuthController {
     @SkipAuth()
     @UseGuards(LocalAuthGuard)
     @Post('login')
-    async login(@Request() req): Promise<ILoginResult> {
+    async login(@Request() req): Promise<IGenericResult> {
         const accessToken = this.JwtService.sign({
             sub: req.user.id,
             email: req.user.email,
@@ -88,9 +88,9 @@ export class AuthController {
         });
         return {
             message: CONSTANTS.LOGIN_SUCCESS,
-            access_token: accessToken,
             data: {
                 user: req.user,
+                access_token: accessToken,
             },
         };
     }
