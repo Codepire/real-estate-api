@@ -25,4 +25,12 @@ export class GetAllPropertiesDto {
     city: string;
 
     zipcode: string;
+
+    county: string;
+
+    master_planned_communities: string;
+
+    school_district: string;
+
+    rooms_total: string;
 }

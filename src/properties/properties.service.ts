@@ -51,7 +51,6 @@ export class PropertiesService {
             'wrl.MaintFeeAmt AS maint_fee_amt',
             'wrl.NoOfGarageCap AS no_of_garage_cap',
             'wrl.PublicRemarks AS public_remarks',
-            'wrl.SchoolDistrict AS district_school',
             'wrl.SchoolElementary AS elementary_school',
             'wrl.SchoolHigh AS high_school',
             'wrl.SchoolMiddle AS middle_school',
@@ -59,6 +58,9 @@ export class PropertiesService {
             'wrl.TaxRate AS tax_rate',
             'wrl.BuilderName AS builder_name',
             'wrl.City AS city',
+            'wrl.MasterPlannedCommunity AS master_planned_community',
+            'wrl.County AS county',
+            'wrl.SchoolDistrict AS school_district',
         ];
     }
 
@@ -67,6 +69,7 @@ export class PropertiesService {
         latitude,
         radius,
         beads_total,
+        rooms_total,
         property_types,
         area,
         builder_name,
@@ -74,6 +77,9 @@ export class PropertiesService {
         state,
         city,
         zipcode,
+        county,
+        master_planned_communities,
+        school_district,
     }: GetAllPropertiesDto): Promise<IGenericResult> {
         const qb = this.dataSource
             .createQueryBuilder()
@@ -93,6 +99,18 @@ export class PropertiesService {
             if (bedsOptions.length) {
                 qb.andWhere('wrl.BedsTotal IN (:...bedsOptions)', {
                     bedsOptions,
+                });
+            }
+        }
+
+        if (rooms_total) {
+            const roomsOptions = rooms_total
+                .split(',')
+                .map((num) => parseInt(num.trim(), 10))
+                .filter(Number.isFinite);
+            if (roomsOptions.length) {
+                qb.andWhere('wrl.RoomCount IN (:...roomsOptions)', {
+                    roomsOptions,
                 });
             }
         }
@@ -142,6 +160,24 @@ export class PropertiesService {
                     }
                 }
             }
+        }
+
+        // validate county, todo: confirm if it is multiselect or not
+        if (county) {
+            qb.andWhere('LOWER(wrl.County) = LOWER(:county)', { county });
+        }
+
+        if (master_planned_communities) {
+            qb.andWhere(
+                'LOWER(wrl.MasterPlannedCommunity) = LOWER(:master_planned_communities)',
+                { master_planned_communities },
+            );
+        }
+
+        if (school_district) {
+            qb.andWhere('LOWER(wrl.SchoolDistrict) = LOWER(:school_district)', {
+                school_district,
+            });
         }
 
         const result = await qb.getRawMany();
