@@ -19,6 +19,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { IGenericResult } from 'src/common/interfaces';
 import { MailService } from 'src/mail/mail.service';
+import { SendOtpInput } from './dto/resend-otp.dto';
 
 export class AuthService {
     constructor(
@@ -53,31 +54,59 @@ export class AuthService {
             email: registerUserDto.email,
         });
 
-        if (foundUser) {
+        if (foundUser && foundUser.is_verified_email) {
             throw new ConflictException(CONSTANTS.USER_ALREADY_EXIST);
+        } else if (foundUser && !foundUser.is_verified_email) {
+            return foundUser;
         } else {
             const { hash, salt } = await this.cryptography.hash({
                 plainText: registerUserDto.password,
             });
 
             let registeredUser: UsersEntity = null;
-            const randomOtp = Math.floor(
-                100000 + Math.random() * 900000,
-            ).toString();
-            await this.dataSource.transaction(async (entityManager) => {
-                registeredUser = await entityManager.save(UsersEntity, {
-                    ...registerUserDto,
-                    password: hash,
-                    salt,
-                });
-                await entityManager.insert(OtpEntity, {
-                    otp: randomOtp,
-                    user: registeredUser,
-                    otp_type: OtpTypesEnum.REGISTER_USER,
-                });
+
+            registeredUser = await this.userRepo.save({
+                ...registerUserDto,
+                password: hash,
+                salt,
             });
 
             if (registeredUser) {
+                await this.sendUserOtp({
+                    email: registeredUser.email,
+                    otp_type: OtpTypesEnum.REGISTER_USER,
+                });
+                const { deleted_at, password, salt, ...rest } = registeredUser;
+                return rest;
+            } else {
+                throw new BadRequestException(
+                    CONSTANTS.SOMETHING_WENT_WRONG_ERROR,
+                );
+            }
+        }
+    }
+
+    async sendUserOtp(sendOtpInput: SendOtpInput): Promise<IGenericResult> {
+        const foundUser = await this.userRepo.findOneBy({
+            email: sendOtpInput.email,
+        });
+        if (!foundUser) {
+            throw new NotFoundException(CONSTANTS.USER_NOT_EXIST);
+        } else {
+            if (
+                (sendOtpInput.otp_type === OtpTypesEnum.REGISTER_USER &&
+                    !foundUser.is_verified_email) ||
+                (sendOtpInput.otp_type === OtpTypesEnum.FORGOT_PASSWORD &&
+                    foundUser.is_verified_email)
+            ) {
+                const randomOtp = Math.floor(
+                    100000 + Math.random() * 900000,
+                ).toString();
+                await this.otpRepo.insert({
+                    otp: randomOtp,
+                    user: foundUser,
+                    otp_type: sendOtpInput.otp_type,
+                });
                 // await this.mailService.sendMail({
                 //     type: 'REGISTER_OTP',
                 //     to: registerUserDto.email,
@@ -87,8 +116,12 @@ export class AuthService {
                 //         otp: randomOtp,
                 //     },
                 // });
-                const { deleted_at, password, salt, ...rest } = registeredUser;
-                return rest;
+                return {
+                    message: 'Otp sent',
+                    data: {
+                        user: foundUser,
+                    },
+                };
             } else {
                 throw new BadRequestException(
                     CONSTANTS.SOMETHING_WENT_WRONG_ERROR,

@@ -22,6 +22,8 @@ import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 import ForgotPasswordDto from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { SendOtpInput } from './dto/resend-otp.dto';
+import { OtpTypesEnum } from 'src/common/enums';
 
 @Controller('auth')
 export class AuthController {
@@ -31,13 +33,13 @@ export class AuthController {
         /* Custom services */
         private readonly configService: ConfigService,
         private readonly auhService: AuthService,
-    ) { }
+    ) {}
 
     /* Google Auth*/
     @SkipAuth()
     @Get('google')
     @UseGuards(GoogleAuthGuard)
-    async googleLogin() { }
+    async googleLogin() {}
 
     /* Google Auth Callback */
     @SkipAuth()
@@ -64,6 +66,15 @@ export class AuthController {
             message: CONSTANTS.REGISTER_SUCCESS,
             data: registeredUser,
         };
+    }
+
+    @SkipAuth()
+    @Post('send-otp')
+    async sendOtp(@Body() sendOtpInput: SendOtpInput): Promise<IGenericResult> {
+        return await this.auhService.sendUserOtp({
+            ...sendOtpInput,
+            otp_type: OtpTypesEnum.REGISTER_USER,
+        });
     }
 
     @SkipAuth()
