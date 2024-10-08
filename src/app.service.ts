@@ -27,6 +27,19 @@ export class AppService {
         };
     }
 
+    async getPropertyTypes(): Promise<IGenericResult> {
+        const res = await this.dataSource.query(
+            `
+                SELECT DISTINCT (wrl.PropertyType)
+                FROM my_database.wp_realty_listingsdb wrl
+                WHERE  wrl.PropertyType IS NOT NULL;
+            `,
+        );
+        return (
+            res?.map((el: { PropertyType: string }) => el.PropertyType) ?? []
+        );
+    }
+
     async getStatesByCountry(country: string): Promise<IGenericResult> {
         const res = await this.dataSource.query(
             `

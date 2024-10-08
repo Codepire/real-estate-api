@@ -61,6 +61,7 @@ export class AppController {
             room_counts,
             bed_room_counts,
             school_districts,
+            property_types,
         ] = await Promise.all([
             this.appService.getBuilders(),
             this.appService.getMasterPlannedCommunities(),
@@ -68,10 +69,12 @@ export class AppController {
             this.appService.getRoomCount(),
             this.appService.getBedRoomCount(),
             this.appService.getSchoolDistricts(),
+            this.appService.getPropertyTypes(),
         ]);
         return {
             message: 'filter options',
             data: {
+                property_types,
                 builder_names,
                 master_planned_communities,
                 counties,

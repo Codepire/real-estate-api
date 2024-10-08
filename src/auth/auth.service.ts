@@ -31,7 +31,7 @@ export class AuthService {
         private readonly cryptography: Cryptography,
         private readonly dataSource: DataSource,
         private readonly mailService: MailService,
-    ) { }
+    ) {}
 
     /**
      * @name validateUserGoogleAuth
