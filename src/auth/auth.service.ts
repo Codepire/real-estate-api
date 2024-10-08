@@ -31,7 +31,7 @@ export class AuthService {
         private readonly cryptography: Cryptography,
         private readonly dataSource: DataSource,
         private readonly mailService: MailService,
-    ) {}
+    ) { }
 
     /**
      * @name validateUserGoogleAuth
@@ -57,6 +57,10 @@ export class AuthService {
         if (foundUser && foundUser.is_verified_email) {
             throw new ConflictException(CONSTANTS.USER_ALREADY_EXIST);
         } else if (foundUser && !foundUser.is_verified_email) {
+            await this.sendUserOtp({
+                email: foundUser.email,
+                otp_type: OtpTypesEnum.REGISTER_USER,
+            });
             return foundUser;
         } else {
             const { hash, salt } = await this.cryptography.hash({
