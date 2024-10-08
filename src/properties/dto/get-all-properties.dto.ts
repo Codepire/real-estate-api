@@ -16,7 +16,7 @@ export class GetAllPropertiesDto {
 
     area: string;
 
-    builder_name: string;
+    builder_names: string;
 
     country: string;
 

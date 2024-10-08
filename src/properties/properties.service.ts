@@ -7,7 +7,7 @@ import { GetPropertiesStateByZip } from './dto/get-properties-states.dto';
 
 @Injectable()
 export class PropertiesService {
-    constructor(private readonly dataSource: DataSource) {}
+    constructor(private readonly dataSource: DataSource) { }
 
     private getFrequentlySelectedPropertyFields(): string[] {
         return [
@@ -56,7 +56,6 @@ export class PropertiesService {
             'wrl.SchoolMiddle AS middle_school',
             'wrl.TaxAmount AS tax_amount',
             'wrl.TaxRate AS tax_rate',
-            'wrl.BuilderName AS builder_name',
             'wrl.City AS city',
             'wrl.MasterPlannedCommunity AS master_planned_community',
             'wrl.County AS county',
@@ -77,7 +76,7 @@ export class PropertiesService {
         rooms_total,
         property_types,
         area,
-        builder_name,
+        builder_names,
         country,
         state,
         city,
@@ -106,7 +105,7 @@ export class PropertiesService {
                 .split(',')
                 .map((num) => parseInt(num.trim(), 10))
                 .filter(Number.isFinite);
-            if (bedsOptions.length) {
+            if (bedsOptions.length > 0) {
                 qb.andWhere('wrl.BedsTotal IN (:...bedsOptions)', {
                     bedsOptions,
                 });
@@ -118,7 +117,7 @@ export class PropertiesService {
                 .split(',')
                 .map((num) => parseInt(num.trim(), 10))
                 .filter(Number.isFinite);
-            if (roomsOptions.length) {
+            if (roomsOptions.length > 0) {
                 qb.andWhere('wrl.RoomCount IN (:...roomsOptions)', {
                     roomsOptions,
                 });
@@ -131,7 +130,7 @@ export class PropertiesService {
                 .split(',')
                 .map((el) => el.trim().toLowerCase())
                 .filter(Boolean);
-            if (propertyTypesOptions.length) {
+            if (propertyTypesOptions.length > 0) {
                 qb.andWhere(
                     'LOWER(wrl.PropertyType) IN (:...propertyTypesOptions)',
                     { propertyTypesOptions },
@@ -150,13 +149,19 @@ export class PropertiesService {
         }
 
         // Validate and filter builder
-        if (builder_name) {
-            qb.andWhere(
-                'LOWER(wrl.BuilderName) LIKE TRIM(LOWER(:builder_name))',
-                {
-                    builder_name,
-                },
-            );
+        if (builder_names) {
+            const builderNameOptions = builder_names
+                .split(',')
+                .map((el) => el.trim().toLowerCase());
+
+            if (builderNameOptions.length > 0) {
+                qb.andWhere(
+                    'LOWER(wrl.BuilderName) IN (:...builderNameOptions)',
+                    {
+                        builderNameOptions,
+                    },
+                );
+            }
         }
 
         // Validate Country -> State -> City -> Zipcode
