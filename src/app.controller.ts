@@ -6,7 +6,7 @@ import { IGenericResult } from './common/interfaces';
 // TODO: HAVE TO FILTER THINGS ON LATITUDE LONGITUDE IN FUTURE, E.G. SCHOOL AREA
 @Controller()
 export class AppController {
-    constructor(private readonly appService: AppService) {}
+    constructor(private readonly appService: AppService) { }
 
     @Get()
     getHello(): string {
@@ -58,8 +58,8 @@ export class AppController {
             builder_names,
             master_planned_communities,
             counties,
-            room_counts,
-            bed_room_counts,
+            rooms_total,
+            beds_total,
             school_districts,
             property_types,
         ] = await Promise.all([
@@ -78,8 +78,8 @@ export class AppController {
                 builder_names,
                 master_planned_communities,
                 counties,
-                room_counts,
-                bed_room_counts,
+                rooms_total,
+                beds_total,
                 school_districts,
             },
         };

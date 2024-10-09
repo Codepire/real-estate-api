@@ -72,7 +72,7 @@ export class PropertiesService {
         longitude,
         latitude,
         radius,
-        beads_total,
+        beds_total,
         rooms_total,
         property_types,
         area,
@@ -100,8 +100,8 @@ export class PropertiesService {
             );
 
         // Validate and filter beds
-        if (beads_total) {
-            const bedsOptions = beads_total
+        if (beds_total) {
+            const bedsOptions = beds_total
                 .split(',')
                 .map((num) => parseInt(num.trim(), 10))
                 .filter(Number.isFinite);
