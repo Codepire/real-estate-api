@@ -33,13 +33,13 @@ export class AuthController {
         /* Custom services */
         private readonly configService: ConfigService,
         private readonly auhService: AuthService,
-    ) {}
+    ) { }
 
     /* Google Auth*/
     @SkipAuth()
     @Get('google')
     @UseGuards(GoogleAuthGuard)
-    async googleLogin() {}
+    async googleLogin() { }
 
     /* Google Auth Callback */
     @SkipAuth()
@@ -64,7 +64,9 @@ export class AuthController {
             await this.auhService.registerUser(registerUserDto);
         return {
             message: CONSTANTS.REGISTER_SUCCESS,
-            data: registeredUser,
+            data: {
+                user: registeredUser,
+            },
         };
     }
 
