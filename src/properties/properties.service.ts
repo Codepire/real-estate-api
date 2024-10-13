@@ -7,7 +7,7 @@ import { GetPropertiesStateByZip } from './dto/get-properties-states.dto';
 
 @Injectable()
 export class PropertiesService {
-    constructor(private readonly dataSource: DataSource) { }
+    constructor(private readonly dataSource: DataSource) {}
 
     private getFrequentlySelectedPropertyFields(): string[] {
         return [
@@ -89,6 +89,8 @@ export class PropertiesService {
         has_private_pool,
         has_tennis_area,
         is_furnished,
+        max_price,
+        min_price,
     }: GetAllPropertiesDto): Promise<IGenericResult> {
         const qb = this.dataSource
             .createQueryBuilder()
@@ -234,6 +236,13 @@ export class PropertiesService {
 
         if (Boolean(is_furnished)) {
             qb.andWhere('wrl.Furnished IS NOT NULL AND wrl.Furnished <> "0"');
+        }
+
+        if (max_price && min_price) {
+            qb.andWhere('(wrl.Price > :min_price AND wrl.Price < :max_price)', {
+                min_price: +min_price,
+                max_price: +max_price,
+            });
         }
 
         const result = await qb.getRawMany();

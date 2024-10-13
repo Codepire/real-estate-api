@@ -4,7 +4,7 @@ import { CurrentUser } from 'src/common/guards/current-user.guard';
 
 @Controller('users')
 export class UsersController {
-    constructor(private readonly usersService: UsersService) { }
+    constructor(private readonly usersService: UsersService) {}
 
     @Get('/me')
     async getProfileDetails(@CurrentUser() user: any) {

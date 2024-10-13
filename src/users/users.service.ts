@@ -10,7 +10,7 @@ export class UsersService {
     constructor(
         @InjectRepository(UsersEntity)
         private readonly usersRepo: Repository<UsersEntity>,
-    ) { }
+    ) {}
 
     async getProfileDetails(user: any): Promise<IGenericResult> {
         const foundUser: UsersEntity = await this.usersRepo.findOne({
@@ -28,7 +28,7 @@ export class UsersService {
                 phone_number: true,
                 profile_url: true,
                 role: true,
-                updated_at: true
+                updated_at: true,
             },
         });
         if (!foundUser) {
@@ -37,8 +37,8 @@ export class UsersService {
         return {
             message: 'User',
             data: {
-                user: foundUser
-            }
+                user: foundUser,
+            },
         };
     }
 }
