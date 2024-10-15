@@ -9,7 +9,7 @@ import { GetPropertiesStateByZip } from './dto/get-properties-states.dto';
 export class PropertiesService {
     constructor(private readonly dataSource: DataSource) {}
 
-    private getFrequentlySelectedPropertyFields(): string[] {
+    getFrequentlySelectedPropertyFields(): string[] {
         return [
             'wrl.listingsdb_id AS id',
             'wrl.Address AS address',

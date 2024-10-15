@@ -5,6 +5,7 @@
         "listingsdb",
         "otps",
         "sqft",
+        "subfilter",
         "typeorm",
         "zipcode"
     ]
