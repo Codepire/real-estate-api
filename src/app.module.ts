@@ -11,6 +11,7 @@ import { MailModule } from './mail/mail.module';
 import { PropertiesModule } from './properties/properties.module';
 import { BlogsModule } from './blogs/blogs.module';
 import { ContactUsModule } from './contact-us/contact-us.module';
+import { FiltersModule } from './filters/filters.module';
 
 @Module({
     imports: [
@@ -28,6 +29,7 @@ import { ContactUsModule } from './contact-us/contact-us.module';
         PropertiesModule,
         BlogsModule,
         ContactUsModule,
+        FiltersModule,
     ],
     controllers: [AppController],
     providers: [AppService],
