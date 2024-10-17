@@ -16,6 +16,19 @@ export class FiltersService {
         limit: number,
     ): Promise<IGenericResult> {
         const offset = (page - 1) * limit;
+
+        if (filter === 'builder_names') {
+            filter = 'builderName';
+        } else if (filter === 'countries') {
+            filter = 'country';
+        } else if (filter === 'states') {
+            filter = 'state';
+        } else if (filter === 'cities') {
+            filter = 'city';
+        } else if (filter === 'zips') {
+            filter = 'zips';
+        }
+
         const [foundFilters, totalCount] = await Promise.all([
             this.dataSource.query(
                 `
@@ -42,6 +55,7 @@ export class FiltersService {
                 metadata: {
                     totalCount: totalCount[0]['count'],
                     next: offset + limit < totalCount[0]['count'],
+                    totalPages: Math.ceil(totalCount[0]['count'] / limit),
                 },
             },
         };

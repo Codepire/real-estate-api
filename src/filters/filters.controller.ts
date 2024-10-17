@@ -3,11 +3,13 @@ import { FiltersService } from './filters.service';
 import { GetFiltersDto } from './dto/get-filters.dto';
 import { GetPropertiesByFilterDto } from './dto/get-properties-by-filters.dto';
 import { GetFiltersQueryDto } from './dto/pagination.dto';
+import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 
 @Controller('filters')
 export class FiltersController {
     constructor(private readonly filtersService: FiltersService) {}
 
+    @SkipAuth()
     @Get(':filter')
     async getFilteredData(
         @Param() getFilterDto: GetFiltersDto,
@@ -18,6 +20,7 @@ export class FiltersController {
         return this.filtersService.getFilteredData(filter, +page, +limit);
     }
 
+    @SkipAuth()
     @Get(':filter/:subfilter')
     async getPropertiesByFilters(
         @Param() filters: GetPropertiesByFilterDto,
