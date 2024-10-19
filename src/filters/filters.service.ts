@@ -25,7 +25,7 @@ export class FiltersService {
             filter = 'state';
         } else if (filter === 'cities') {
             filter = 'city';
-        } else if (filter === 'zips') {
+        } else if (filter === 'zipcode') {
             filter = 'zip';
         }
 
