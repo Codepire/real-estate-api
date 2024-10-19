@@ -241,7 +241,7 @@ export class PropertiesService {
         }
 
         page = parseInt(String(page), 10) || 1;
-        limit = parseInt(String(limit), 10) || 10;
+        limit = parseInt(String(limit), 10) || 100;
 
         const offset = (page - 1) * limit;
 
