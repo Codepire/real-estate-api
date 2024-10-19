@@ -26,7 +26,7 @@ export class FiltersService {
         } else if (filter === 'cities') {
             filter = 'city';
         } else if (filter === 'zips') {
-            filter = 'zips';
+            filter = 'zip';
         }
 
         const [foundFilters, totalCount] = await Promise.all([

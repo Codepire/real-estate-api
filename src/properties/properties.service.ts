@@ -91,15 +91,20 @@ export class PropertiesService {
         is_furnished,
         max_price,
         min_price,
+        page,
+        limit,
     }: GetAllPropertiesDto): Promise<IGenericResult> {
         const qb = this.dataSource
             .createQueryBuilder()
             .select(this.getFrequentlySelectedPropertyFields())
-            .from('wp_realty_listingsdb', 'wrl')
-            .where(
+            .from('wp_realty_listingsdb', 'wrl');
+
+        if (latitude && longitude && radius) {
+            qb.andWhere(
                 'ST_Distance_Sphere(point(wrl.longitude, wrl.latitude), point(:longitude, :latitude)) <= :radius',
                 { longitude, latitude, radius },
             );
+        }
 
         // Validate and filter beds
         if (beds_total) {
@@ -245,10 +250,22 @@ export class PropertiesService {
             });
         }
 
+        page = parseInt(String(page), 10) || 1;
+        limit = parseInt(String(limit), 10) || 10;
+
+        const offset = (page - 1) * limit;
+
+        qb.offset(offset).limit(limit ?? 100);
+
         const result = await qb.getRawMany();
         return {
             data: {
                 properties: result,
+                // metadata: {
+                //     totalCount: totalCount[0]['count'],
+                //     next: offset + limit < totalCount[0]['count'],
+                //     totalPages: Math.ceil(totalCount[0]['count'] / limit),
+                // },
             },
             message: 'Properties found',
         };

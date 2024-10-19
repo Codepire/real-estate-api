@@ -1,16 +1,12 @@
 import { BadRequestException } from '@nestjs/common';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty } from 'class-validator';
 
 export class GetAllPropertiesDto {
-    @IsNotEmpty()
-    longitude: string;
+    longitude?: string;
 
-    @IsNotEmpty()
-    latitude: string;
+    latitude?: string;
 
-    @IsNotEmpty()
-    radius: string;
+    radius?: string;
 
     beds_total?: string;
 
@@ -63,4 +59,8 @@ export class GetAllPropertiesDto {
         return num;
     })
     max_price?: number;
+
+    limit?: number;
+
+    page?: number;
 }
