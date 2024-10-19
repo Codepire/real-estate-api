@@ -5,7 +5,7 @@ import { GetPropertiesByFilterDto } from './dto/get-properties-by-filters.dto';
 import { GetFiltersQueryDto } from './dto/pagination.dto';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 
-@Controller('filters')
+@Controller('filters/dynamic/')
 export class FiltersController {
     constructor(private readonly filtersService: FiltersService) {}
 
