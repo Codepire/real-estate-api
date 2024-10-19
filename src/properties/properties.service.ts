@@ -171,26 +171,16 @@ export class PropertiesService {
             }
         }
 
-        // Validate Country -> State -> City -> Zipcode
-        if (country) {
-            qb.andWhere('LOWER(wrl.Country) = TRIM(LOWER(:country))', {
-                country,
+        if (city) {
+            qb.andWhere('LOWER(wrl.City) = TRIM(LOWER(:city))', {
+                city,
             });
-            if (state) {
-                qb.andWhere('LOWER(wrl.State) = TRIM(LOWER(:state))', {
-                    state,
-                });
-                if (city) {
-                    qb.andWhere('LOWER(wrl.City) = TRIM(LOWER(:city))', {
-                        city,
-                    });
-                    if (zipcode) {
-                        qb.andWhere('LOWER(wrl.Zip) = TRIM(LOWER(:zipcode))', {
-                            zipcode,
-                        });
-                    }
-                }
-            }
+        }
+
+        if (zipcode) {
+            qb.andWhere('LOWER(wrl.Zip) = TRIM(LOWER(:zipcode))', {
+                zipcode,
+            });
         }
 
         // validate county, todo: confirm if it is multiselect or not
