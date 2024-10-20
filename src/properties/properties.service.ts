@@ -57,7 +57,7 @@ export class PropertiesService {
             'wrl.TaxAmount AS tax_amount',
             'wrl.TaxRate AS tax_rate',
             'wrl.City AS city',
-            'wrl.MasterPlannedCommunity AS master_planned_community',
+            'wrl.MasterPlannedCommunity AS masterplannedcommunity',
             'wrl.County AS county',
             'wrl.SchoolDistrict AS school_district',
             'wrl.GolfCourse AS golf_course',
@@ -80,7 +80,7 @@ export class PropertiesService {
         city,
         zipcode,
         county,
-        master_planned_communities,
+        masterplannedcommunity,
         school_district,
         has_golf_course,
         has_neighborhood_pool_area,
@@ -186,10 +186,10 @@ export class PropertiesService {
             qb.andWhere('LOWER(wrl.County) = TRIM(LOWER(:county))', { county });
         }
 
-        if (master_planned_communities) {
+        if (masterplannedcommunity) {
             qb.andWhere(
-                'LOWER(wrl.MasterPlannedCommunity) = TRIM(LOWER(:master_planned_communities))',
-                { master_planned_communities },
+                'LOWER(wrl.MasterPlannedCommunity) = TRIM(LOWER(:masterplannedcommunity))',
+                { masterplannedcommunity },
             );
         }
 

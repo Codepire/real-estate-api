@@ -26,7 +26,7 @@ export class GetAllPropertiesDto {
 
     county?: string;
 
-    master_planned_communities?: string;
+    masterplannedcommunity?: string;
 
     school_district?: string;
 

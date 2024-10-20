@@ -2,6 +2,15 @@ import { IsIn, IsNotEmpty } from 'class-validator';
 
 export class GetFiltersDto {
     @IsNotEmpty()
-    @IsIn(['countries', 'states', 'cities', 'zipcode', 'builder_names'])
+    @IsIn([
+        'country',
+        'state',
+        'city',
+        'zipcode',
+        'builder_names',
+        'area',
+        'county',
+        'masterplannedcommunity'
+    ])
     filter: string;
 }

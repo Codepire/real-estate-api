@@ -56,7 +56,7 @@ export class AppController {
     async getFilterOptions(): Promise<IGenericResult> {
         const [
             builder_names,
-            master_planned_communities,
+            masterplannedcommunity,
             counties,
             rooms_total,
             beds_total,
@@ -76,7 +76,7 @@ export class AppController {
             data: {
                 property_types,
                 builder_names,
-                master_planned_communities,
+                masterplannedcommunity,
                 counties,
                 rooms_total,
                 beds_total,
