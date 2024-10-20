@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Req } from '@nestjs/common';
+import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
 import { PropertiesService } from './properties.service';
 import { GetAllPropertiesDto } from './dto/get-all-properties.dto';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
@@ -8,6 +8,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRoleEnum } from 'src/common/enums';
 import { Request } from 'express';
 import { CurrentUser } from 'src/common/guards/current-user.guard';
+import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-auth.guard';
 
 @Controller('properties')
 export class PropertiesController {
@@ -26,13 +27,13 @@ export class PropertiesController {
     }
 
     @SkipAuth()
+    @UseGuards(OptionalJwtAuthGuard)
     @Get(':id')
     async getPropertyById(
         @Param('id') id: string,
         @Req() req: Request,
         @CurrentUser() user: any,
     ): Promise<IGenericResult> {
-        console.log(req['headers'])
         let userIp = req.headers['x-forwarded-for'] || req.ip;
         userIp = Array.isArray(userIp) ? userIp[0] : userIp;
         if (userIp === '::1') userIp = '127.0.0.1';

@@ -307,7 +307,7 @@ export class PropertiesService {
         return {
             data: {
                 property: result,
-                loginRequired
+                loginRequired,
             },
             message: 'Property found',
         };
