@@ -24,7 +24,6 @@ export class UsersService {
                 first_name: true,
                 is_verified_email: true,
                 last_name: true,
-                password: true,
                 phone_number: true,
                 profile_url: true,
                 role: true,

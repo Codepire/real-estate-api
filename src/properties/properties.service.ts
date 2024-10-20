@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Ip, NotFoundException } from '@nestjs/common';
 import { GetAllPropertiesDto } from './dto/get-all-properties.dto';
 import { DataSource } from 'typeorm';
 import { IGenericResult } from 'src/common/interfaces';
@@ -77,8 +77,6 @@ export class PropertiesService {
         property_types,
         area,
         builder_names,
-        country,
-        state,
         city,
         zipcode,
         county,
@@ -261,7 +259,39 @@ export class PropertiesService {
         };
     }
 
-    async getPropertyById(propertyId: number): Promise<IGenericResult> {
+    async getPropertyById(
+        propertyId: number,
+        userIp: string,
+        user: any,
+    ): Promise<IGenericResult> {
+        let loginRequired: boolean = false;
+        if (!user) {
+            const visitCount = (
+                await this.dataSource.query(
+                    `
+                    SELECT
+                        pv.visitCount AS count
+                    FROM
+                        property_visits pv
+                    WHERE
+                        pv.ip = ?
+                `,
+                    [userIp],
+                )
+            )[0]?.count;
+            if (visitCount > 2) {
+                loginRequired = true;
+            } else {
+                await this.dataSource.query(
+                    `
+                            INSERT INTO property_visits (ip, visitCount)
+                            VALUES (?, 1)
+                            ON DUPLICATE KEY UPDATE visitCount = visitCount + 1
+                        `,
+                    [userIp],
+                );
+            }
+        }
         const qb = this.dataSource
             .createQueryBuilder()
             .select(this.getFrequentlySelectedPropertyFields())
@@ -277,6 +307,7 @@ export class PropertiesService {
         return {
             data: {
                 property: result,
+                loginRequired
             },
             message: 'Property found',
         };
