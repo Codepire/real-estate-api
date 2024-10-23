@@ -66,7 +66,8 @@ export class PropertiesService {
             'wrl.Tennis as tennis_area',
             'wrl.Furnished AS is_furnished',
             'wrl.GeoMarketArea AS geo_market_area',
-            'wrl.Style AS style'
+            'wrl.Style AS style',
+            'wrl.DwellingType AS dwelling_type',
         ];
     }
 
@@ -95,6 +96,7 @@ export class PropertiesService {
         limit,
         geo_market_area,
         style,
+        dwelling_type,
     }: GetAllPropertiesDto): Promise<IGenericResult> {
         const qb = this.dataSource
             .createQueryBuilder()
@@ -256,6 +258,16 @@ export class PropertiesService {
             qb.andWhere('(LOWER(wrl.Style) LIKE TRIM(LOWER(:style)))', {
                 style,
             });
+        }
+
+        // filter properties by dwelling type
+        if (dwelling_type) {
+            qb.andWhere(
+                '(LOWER(wrl.DwellingType) LIKE TRIM(LOWER(:dwelling_type)))',
+                {
+                    dwelling_type,
+                },
+            );
         }
 
         page = parseInt(String(page), 10) || 1;

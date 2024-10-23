@@ -16,6 +16,7 @@ export class GetFiltersDto {
         'school_district',
         'subdivision',
         'style',
+        'dwelling_type',
     ])
     filter: string;
 }
