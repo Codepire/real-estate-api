@@ -66,6 +66,7 @@ export class PropertiesService {
             'wrl.Tennis as tennis_area',
             'wrl.Furnished AS is_furnished',
             'wrl.GeoMarketArea AS geo_market_area',
+            'wrl.Style AS style'
         ];
     }
 
@@ -93,6 +94,7 @@ export class PropertiesService {
         page,
         limit,
         geo_market_area,
+        style,
     }: GetAllPropertiesDto): Promise<IGenericResult> {
         const qb = this.dataSource
             .createQueryBuilder()
@@ -183,7 +185,7 @@ export class PropertiesService {
             });
         }
 
-        // validate county, todo: confirm if it is multiselect or not
+        // validate county
         if (county) {
             qb.andWhere('LOWER(wrl.County) = TRIM(LOWER(:county))', { county });
         }
@@ -233,6 +235,7 @@ export class PropertiesService {
             qb.andWhere('wrl.Furnished IS NOT NULL AND wrl.Furnished <> "0"');
         }
 
+        // filter between price
         if (max_price && min_price) {
             qb.andWhere('(wrl.Price > :min_price AND wrl.Price < :max_price)', {
                 min_price: +min_price,
@@ -240,11 +243,19 @@ export class PropertiesService {
             });
         }
 
+        // filter geo market area
         if (geo_market_area) {
             qb.andWhere(
                 '(LOWER(wrl.GeoMarketArea) LIKE TRIM(LOWER(:geo_market_area)))',
                 { geo_market_area },
             );
+        }
+
+        // filter style of property
+        if (style) {
+            qb.andWhere('(LOWER(wrl.Style) LIKE TRIM(LOWER(:style)))', {
+                style,
+            });
         }
 
         page = parseInt(String(page), 10) || 1;

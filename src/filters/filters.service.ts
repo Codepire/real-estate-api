@@ -33,8 +33,6 @@ export class FiltersService {
             filter = 'GeoMarketArea';
         } else if (filter === 'school_district') {
             filter = 'SchoolDistrict';
-        } else if (filter === 'subdivision') {
-            filter = 'subdivision';
         }
 
         const [foundFilters, totalCount] = await Promise.all([

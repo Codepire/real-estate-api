@@ -65,4 +65,6 @@ export class GetAllPropertiesDto {
     page?: number;
 
     geo_market_area: string;
+
+    style: string;
 }
