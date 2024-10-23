@@ -33,6 +33,8 @@ export class FiltersService {
             filter = 'GeoMarketArea';
         } else if (filter === 'school_district') {
             filter = 'SchoolDistrict';
+        } else if (filter === 'subdivision') {
+            filter = 'subdivision';
         }
 
         const [foundFilters, totalCount] = await Promise.all([
@@ -45,7 +47,8 @@ export class FiltersService {
                 WHERE
                     ${filter} IS NOT NULL
                 AND
-                    ${filter} <> ''
+                    LOWER(${filter}) 
+                    NOT IN ('', 'na', 'n/a', '-', '--', '.', '*', '/na', '(Not Subdivided)', '0', '00', '000', '0000')
                 ORDER BY
                     ${filter} ASC
                 LIMIT ? OFFSET ?;

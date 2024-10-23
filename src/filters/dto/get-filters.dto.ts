@@ -14,6 +14,7 @@ export class GetFiltersDto {
         'property_types',
         'geo_market_area',
         'school_district',
+        'subdivision',
     ])
     filter: string;
 }
