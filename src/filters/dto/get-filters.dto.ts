@@ -13,6 +13,7 @@ export class GetFiltersDto {
         'masterplannedcommunity',
         'property_types',
         'geo_market_area',
+        'school_district',
     ])
     filter: string;
 }

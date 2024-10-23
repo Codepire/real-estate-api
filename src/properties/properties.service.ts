@@ -1,4 +1,4 @@
-import { Injectable, Ip, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { GetAllPropertiesDto } from './dto/get-all-properties.dto';
 import { DataSource } from 'typeorm';
 import { IGenericResult } from 'src/common/interfaces';
@@ -65,7 +65,7 @@ export class PropertiesService {
             'wrl.PoolPrivate as private_pool',
             'wrl.Tennis as tennis_area',
             'wrl.Furnished AS is_furnished',
-            'wrl.GeoMarketArea AS geo_market_area'
+            'wrl.GeoMarketArea AS geo_market_area',
         ];
     }
 

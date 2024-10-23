@@ -31,6 +31,8 @@ export class FiltersService {
             filter = 'PropertyType';
         } else if (filter === 'geo_market_area') {
             filter = 'GeoMarketArea';
+        } else if (filter === 'school_district') {
+            filter = 'SchoolDistrict';
         }
 
         const [foundFilters, totalCount] = await Promise.all([
@@ -44,6 +46,8 @@ export class FiltersService {
                     ${filter} IS NOT NULL
                 AND
                     ${filter} <> ''
+                ORDER BY
+                    ${filter} ASC
                 LIMIT ? OFFSET ?;
                 `,
                 [limit, offset],
