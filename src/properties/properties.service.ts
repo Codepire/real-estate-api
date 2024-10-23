@@ -65,6 +65,7 @@ export class PropertiesService {
             'wrl.PoolPrivate as private_pool',
             'wrl.Tennis as tennis_area',
             'wrl.Furnished AS is_furnished',
+            'wrl.GeoMarketArea AS geo_market_area'
         ];
     }
 
@@ -91,6 +92,7 @@ export class PropertiesService {
         min_price,
         page,
         limit,
+        geo_market_area,
     }: GetAllPropertiesDto): Promise<IGenericResult> {
         const qb = this.dataSource
             .createQueryBuilder()
@@ -236,6 +238,13 @@ export class PropertiesService {
                 min_price: +min_price,
                 max_price: +max_price,
             });
+        }
+
+        if (geo_market_area) {
+            qb.andWhere(
+                '(LOWER(wrl.GeoMarketArea) LIKE TRIM(LOWER(:geo_market_area)))',
+                { geo_market_area },
+            );
         }
 
         page = parseInt(String(page), 10) || 1;

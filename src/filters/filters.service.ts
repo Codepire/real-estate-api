@@ -29,6 +29,8 @@ export class FiltersService {
             filter = 'zip';
         } else if (filter === 'property_types') {
             filter = 'PropertyType';
+        } else if (filter === 'geo_market_area') {
+            filter = 'GeoMarketArea';
         }
 
         const [foundFilters, totalCount] = await Promise.all([
@@ -38,6 +40,10 @@ export class FiltersService {
                     DISTINCT ${filter}
                 FROM
                     wp_realty_listingsdb
+                WHERE
+                    ${filter} IS NOT NULL
+                AND
+                    ${filter} <> ''
                 LIMIT ? OFFSET ?;
                 `,
                 [limit, offset],

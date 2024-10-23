@@ -63,4 +63,6 @@ export class GetAllPropertiesDto {
     limit?: number;
 
     page?: number;
+
+    geo_market_area: string;
 }

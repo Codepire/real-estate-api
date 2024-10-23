@@ -12,6 +12,7 @@ export class GetFiltersDto {
         'county',
         'masterplannedcommunity',
         'property_types',
+        'geo_market_area',
     ])
     filter: string;
 }
