@@ -10,7 +10,8 @@ export class GetFiltersDto {
         'builder_names',
         'area',
         'county',
-        'masterplannedcommunity'
+        'masterplannedcommunity',
+        'property_types',
     ])
     filter: string;
 }
