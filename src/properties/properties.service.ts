@@ -4,10 +4,18 @@ import { DataSource } from 'typeorm';
 import { IGenericResult } from 'src/common/interfaces';
 import { CONSTANTS } from 'src/common/constants';
 import { GetPropertiesStateByZip } from './dto/get-properties-states.dto';
+import { HttpService } from '@nestjs/axios';
+import { catchError, firstValueFrom } from 'rxjs';
+import { AxiosError } from 'axios';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PropertiesService {
-    constructor(private readonly dataSource: DataSource) {}
+    constructor(
+        private readonly dataSource: DataSource,
+        private readonly httpService: HttpService,
+        private readonly configService: ConfigService,
+    ) {}
 
     getFrequentlySelectedPropertyFields(): string[] {
         return [
@@ -330,15 +338,29 @@ export class PropertiesService {
             .from('wp_realty_listingsdb', 'wrl')
             .where('wrl.listingsdb_id = :propertyId', { propertyId });
 
-        const result = await qb.getRawOne();
+        const foundProperty = await qb.getRawOne();
 
-        if (!result) {
+        if (!foundProperty) {
             throw new NotFoundException(CONSTANTS.PROPERTY_NOT_FOUND);
         }
 
+        const { data: walkScore } = await firstValueFrom(
+            this.httpService
+                .get(
+                    `https://api.walkscore.com/score?format=json&lat=${foundProperty.latitude}5&lon=${foundProperty.latitude}&wsapikey=${this.configService.get('walkscore.apiKey')}`,
+                )
+                .pipe(
+                    catchError((err: AxiosError) => {
+                        throw err;
+                    }),
+                ),
+        );
+
+        if (walkScore.status === 1) foundProperty['walkscore'] = walkScore;
+
         return {
             data: {
-                property: result,
+                property: foundProperty,
                 loginRequired,
             },
             message: 'Property found',

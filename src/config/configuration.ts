@@ -25,4 +25,7 @@ export default () => ({
         user: process.env.EMAIL_USERNAME,
         pass: process.env.EMAIL_PASSWORD,
     },
+    walkscore: {
+        apiKey: process.env.WALKSCORE_KEY,
+    },
 });
