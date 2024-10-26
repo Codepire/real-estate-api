@@ -59,26 +59,20 @@ export class AppController {
     @SkipAuth()
     @Get('filter-options')
     async getFilterOptions(): Promise<IGenericResult> {
-        const [
-            builder_names,
-            masterplannedcommunity,
-            counties,
-            rooms_total,
-            beds_total,
-            school_districts,
-            property_types,
-        ] = await Promise.all([
-            this.appService.getBuilders(),
-            this.appService.getMasterPlannedCommunities(),
-            this.appService.getCounties(),
-            this.appService.getRoomCount(),
-            this.appService.getBedRoomCount(),
-            this.appService.getSchoolDistricts(),
-            this.appService.getPropertyTypes(),
-        ]);
-        return {
-            message: 'filter options',
-            data: {
+        const cachedData = await this.cacheManager.get<any>('filter-options');
+        let filterOptions = {};
+        if (cachedData) {
+            filterOptions = {
+                property_types: cachedData.property_types,
+                builder_names: cachedData.builder_names,
+                masterplannedcommunity: cachedData.masterplannedcommunity,
+                counties: cachedData.counties,
+                rooms_total: cachedData.rooms_total,
+                beds_total: cachedData.beds_total,
+                school_districts: cachedData.school_districts,
+            };
+        } else {
+            const [
                 property_types,
                 builder_names,
                 masterplannedcommunity,
@@ -86,7 +80,34 @@ export class AppController {
                 rooms_total,
                 beds_total,
                 school_districts,
-            },
+            ] = await Promise.all([
+                this.appService.getBuilders(),
+                this.appService.getMasterPlannedCommunities(),
+                this.appService.getCounties(),
+                this.appService.getRoomCount(),
+                this.appService.getBedRoomCount(),
+                this.appService.getSchoolDistricts(),
+                this.appService.getPropertyTypes(),
+            ]);
+            filterOptions = {
+                property_types,
+                builder_names,
+                masterplannedcommunity,
+                counties,
+                rooms_total,
+                beds_total,
+                school_districts,
+            };
+            await this.cacheManager.set(
+                'filter-options',
+                filterOptions,
+                100000,
+            );
+        }
+
+        return {
+            message: 'filter options',
+            data: filterOptions,
         };
     }
 
@@ -98,7 +119,12 @@ export class AppController {
             topBuilders: any;
         }>('home-data');
         let resData = {};
-        if (!cachedData) {
+        if (cachedData) {
+            resData = {
+                topCities: cachedData?.topCities,
+                topBuilders: cachedData?.topBuilders,
+            };
+        } else {
             const [topCities, topBuilders] = await Promise.all([
                 this.appService.getTopCities(),
                 this.appService.getTopBuilders(),
@@ -108,16 +134,13 @@ export class AppController {
                 topBuilders,
             };
             await this.cacheManager.set('home-data', resData, 100000);
-        } else {
-            resData = {
-                topCities: cachedData?.topCities,
-                topBuilders: cachedData?.topBuilders,
-            };
         }
 
         return {
             message: 'top cities found',
-            data: resData,
+            data: {
+                homeData: resData,
+            },
         };
     }
 }
