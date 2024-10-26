@@ -114,7 +114,7 @@ export class PropertiesService {
 
         if (latitude && longitude && radius) {
             qb.andWhere(
-                'ST_Distance_Sphere(point(wrl.longitude, wrl.latitude), point(:longitude, :latitude)) <= :radius',
+                'ST_Distance_Sphere(wrl.location_point, POINT(:longitude, :latitude)) <= :radius',
                 { longitude, latitude, radius },
             );
         }
