@@ -1,12 +1,17 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Inject, Param } from '@nestjs/common';
 import { AppService } from './app.service';
 import { SkipAuth } from './common/decorators/skip-auth.decorator';
 import { IGenericResult } from './common/interfaces';
+import { Cache } from 'cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 // TODO: HAVE TO FILTER THINGS ON LATITUDE LONGITUDE IN FUTURE, E.G. SCHOOL AREA
 @Controller()
 export class AppController {
-    constructor(private readonly appService: AppService) {}
+    constructor(
+        private readonly appService: AppService,
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    ) {}
 
     @Get()
     getHello(): string {
@@ -82,6 +87,37 @@ export class AppController {
                 beds_total,
                 school_districts,
             },
+        };
+    }
+
+    @SkipAuth()
+    @Get('home-data')
+    async getTopCities(): Promise<IGenericResult> {
+        const cachedData = await this.cacheManager.get<{
+            topCities: any;
+            topBuilders: any;
+        }>('home-data');
+        let resData = {};
+        if (!cachedData) {
+            const [topCities, topBuilders] = await Promise.all([
+                this.appService.getTopCities(),
+                this.appService.getTopBuilders(),
+            ]);
+            resData = {
+                topCities,
+                topBuilders,
+            };
+            await this.cacheManager.set('home-data', resData, 100000);
+        } else {
+            resData = {
+                topCities: cachedData?.topCities,
+                topBuilders: cachedData?.topBuilders,
+            };
+        }
+
+        return {
+            message: 'top cities found',
+            data: resData,
         };
     }
 }

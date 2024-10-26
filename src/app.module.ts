@@ -12,6 +12,7 @@ import { PropertiesModule } from './properties/properties.module';
 import { BlogsModule } from './blogs/blogs.module';
 import { ContactUsModule } from './contact-us/contact-us.module';
 import { FiltersModule } from './filters/filters.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
     imports: [
@@ -30,6 +31,7 @@ import { FiltersModule } from './filters/filters.module';
         BlogsModule,
         ContactUsModule,
         FiltersModule,
+        CacheModule.register(),
     ],
     controllers: [AppController],
     providers: [AppService],
