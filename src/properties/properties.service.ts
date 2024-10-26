@@ -76,6 +76,7 @@ export class PropertiesService {
             'wrl.GeoMarketArea AS geo_market_area',
             'wrl.Style AS style',
             'wrl.DwellingType AS dwelling_type',
+            'wrl.DepositSecurity AS deposit',
         ];
     }
 

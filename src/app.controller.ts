@@ -73,13 +73,13 @@ export class AppController {
             };
         } else {
             const [
-                property_types,
                 builder_names,
                 masterplannedcommunity,
                 counties,
                 rooms_total,
                 beds_total,
                 school_districts,
+                property_types,
             ] = await Promise.all([
                 this.appService.getBuilders(),
                 this.appService.getMasterPlannedCommunities(),
