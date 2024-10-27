@@ -32,15 +32,15 @@ export class GetAllPropertiesDto {
 
     rooms_total?: string;
 
-    has_golf_course?: boolean;
+    has_golf_course?: 'true' | 'false';
 
-    has_neighborhood_pool_area?: boolean;
+    has_neighborhood_pool_area?: 'true' | 'false';
 
-    has_private_pool?: boolean;
+    has_private_pool?: 'true' | 'false';
 
-    has_tennis_area?: boolean;
+    has_tennis_area?: 'true' | 'false';
 
-    is_furnished?: boolean;
+    is_furnished?: 'true' | 'false';
 
     @Transform(({ value }) => {
         const num = parseInt(value, 10);

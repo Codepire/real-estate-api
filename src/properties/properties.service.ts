@@ -35,7 +35,6 @@ export class PropertiesService {
             'wrl.RoomCount AS rooms_total',
             'wrl.OriginalListPrice AS price',
             'wrl.SqFtTotal AS sqft_total',
-            'wrl.Furnished AS furnished',
             'wrl.Electric AS electric',
             'wrl.Appliances AS appliances',
             'wrl.StreetName AS street_name',
@@ -69,10 +68,10 @@ export class PropertiesService {
             'wrl.County AS county',
             'wrl.SchoolDistrict AS school_district',
             'wrl.GolfCourse AS golf_course',
-            'wrl.PoolArea as neighborhood_pool',
-            'wrl.PoolPrivate as private_pool',
-            'wrl.Tennis as tennis_area',
-            'wrl.Furnished AS is_furnished',
+            'CASE WHEN LOWER(COALESCE(wrl.PoolArea, "N")) = "n" THEN false ELSE true END AS neighborhood_pool',
+            'CASE WHEN LOWER(COALESCE(wrl.PoolPrivate, "N")) = "n" THEN false ELSE true END AS private_pool',
+            'CASE WHEN LOWER(COALESCE(wrl.Tennis, "N")) = "n" THEN false ELSE true END AS tennis_area',
+            'CASE WHEN COALESCE(wrl.Furnished, "0") = "0" THEN false ELSE true END AS is_furnished',
             'wrl.GeoMarketArea AS geo_market_area',
             'wrl.Style AS style',
             'wrl.DwellingType AS dwelling_type',
@@ -218,32 +217,42 @@ export class PropertiesService {
         }
 
         // validate if property has golf course
-        if (Boolean(has_golf_course)) {
+        if (has_golf_course?.toLowerCase() === 'true') {
             qb.andWhere('wrl.GolfCourse IS NOT NULL');
+        } else if (has_golf_course?.toLowerCase() === 'false') {
+            qb.andWhere('wrl.GolfCourse IS NULL');
         }
 
         // Validate pool area, or private pool
-        if (Boolean(has_neighborhood_pool_area)) {
+        if (has_neighborhood_pool_area?.toLowerCase() === 'true') {
             qb.andWhere(
-                '(wrl.PoolArea IS NOT NULL AND LOWER(wrl.PoolArea) <> LOWER("N"))',
+                '(wrl.PoolArea IS NOT NULL AND LOWER(wrl.PoolArea) = "y")',
             );
+        } else if (has_neighborhood_pool_area?.toLowerCase() === 'false') {
+            qb.andWhere('(wrl.PoolArea IS NULL OR LOWER(wrl.PoolArea) = "n")');
         }
 
-        if (Boolean(has_private_pool)) {
+        if (has_private_pool?.toLowerCase() === 'true') {
             qb.andWhere(
-                '(wrl.PoolPrivate IS NOT NULL AND LOWER(wrl.poolPrivate) <> LOWER("N"))',
+                '(wrl.PoolPrivate IS NOT NULL AND LOWER(wrl.poolPrivate) = "y")',
+            );
+        } else if (has_private_pool?.toLowerCase() === 'false') {
+            qb.andWhere(
+                '(wrl.PoolPrivate IS NULL OR LOWER(wrl.poolPrivate) = "n")',
             );
         }
 
         // Validate tennis play area
-        if (Boolean(has_tennis_area)) {
-            qb.andWhere(
-                '(wrl.Tennis IS NOT NULL AND LOWER(wrl.Tennis) <> LOWER("N"))',
-            );
+        if (has_tennis_area?.toLowerCase() === 'true') {
+            qb.andWhere('(wrl.Tennis IS NOT NULL AND LOWER(wrl.Tennis) = "y")');
+        } else if (has_tennis_area?.toLowerCase() === 'false') {
+            qb.andWhere('(wrl.Tennis IS NULL OR LOWER(wrl.Tennis) = "n")');
         }
 
-        if (Boolean(is_furnished)) {
+        if (is_furnished?.toLowerCase() === 'true') {
             qb.andWhere('wrl.Furnished IS NOT NULL AND wrl.Furnished <> "0"');
+        } else if (is_furnished?.toLowerCase() === 'false') {
+            qb.andWhere('COALESCE(wrl.Furnished, "0") = "0"');
         }
 
         // filter between price
