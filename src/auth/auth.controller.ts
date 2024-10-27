@@ -1,10 +1,12 @@
 import {
+    BadRequestException,
     Body,
     Controller,
     Get,
     Post,
     Request,
     Res,
+    UnauthorizedException,
     UseGuards,
 } from '@nestjs/common';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
@@ -46,12 +48,16 @@ export class AuthController {
     @Get('google/callback')
     @UseGuards(GoogleAuthGuard)
     googleLoginCallback(@Res() res: Response, @CurrentUser() user: any) {
-        const accessToken: string = this.JwtService.sign({
+        const tokenPayload = {
             sub: Date.now(),
             email: user.email,
             role: user.role,
+        };
+        const accessToken = this.JwtService.sign(tokenPayload);
+        const refreshToken = this.JwtService.sign(tokenPayload, {
+            expiresIn: '365d',
         });
-        const redirectUri = `${this.configService.get('frontend.uri')}/${this.configService.get('frontend.auth_callback')}?token=${accessToken}`;
+        const redirectUri = `${this.configService.get('frontend.uri')}/${this.configService.get('frontend.auth_callback')}?token=${accessToken}&refresh=${refreshToken}`;
         res.redirect(redirectUri);
     }
 
@@ -94,18 +100,55 @@ export class AuthController {
     @UseGuards(LocalAuthGuard)
     @Post('login')
     async login(@Request() req): Promise<IGenericResult> {
-        const accessToken = this.JwtService.sign({
+        const tokenPayload = {
             sub: req.user.id,
             email: req.user.email,
             role: req.user.role,
+        };
+        const accessToken = this.JwtService.sign(tokenPayload);
+        const refreshToken = this.JwtService.sign(tokenPayload, {
+            expiresIn: '365d',
         });
+
         return {
             message: CONSTANTS.LOGIN_SUCCESS,
             data: {
                 user: req.user,
                 access_token: accessToken,
+                refresh_token: refreshToken,
             },
         };
+    }
+
+    @SkipAuth()
+    @Get('get-access-token')
+    async getAccessToken(@Request() req): Promise<IGenericResult> {
+        try {
+            const token = req?.headers?.refreshtoken?.split(' ');
+            if (String(token[0]).toLowerCase() === 'bearer') {
+                const verified = this.JwtService.verify(token[1]);
+                const tokenPayload = {
+                    sub: verified.sub,
+                    email: verified.email,
+                    role: verified.role,
+                };
+                const accessToken = this.JwtService.sign(tokenPayload);
+                const refreshToken = this.JwtService.sign(tokenPayload, {
+                    expiresIn: '365d',
+                });
+                return {
+                    message: CONSTANTS.LOGIN_SUCCESS,
+                    data: {
+                        access_token: accessToken,
+                        refresh_token: refreshToken,
+                    },
+                };
+            } else {
+                throw new BadRequestException('Invalid Token');
+            }
+        } catch {
+            throw new UnauthorizedException();
+        }
     }
 
     /**
