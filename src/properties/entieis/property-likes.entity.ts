@@ -11,7 +11,7 @@ import {
 @Entity({ name: 'property_likes' })
 @Unique(['user', 'property_id'])
 export class PropertyLikesEntity {
-    @PrimaryGeneratedColumn('identity')
+    @PrimaryGeneratedColumn('increment')
     id?: number;
 
     @ManyToOne(() => UsersEntity, (userEntity) => userEntity.propertyLikes, {

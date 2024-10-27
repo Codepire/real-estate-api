@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    Injectable,
+    NotFoundException,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { GetAllPropertiesDto } from './dto/get-all-properties.dto';
 import { DataSource } from 'typeorm';
 import { IGenericResult } from 'src/common/interfaces';
@@ -8,6 +12,8 @@ import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { ConfigService } from '@nestjs/config';
+import { UsersEntity } from 'src/users/entities/user.entity';
+import { PropertyLikesEntity } from './entieis/property-likes.entity';
 
 @Injectable()
 export class PropertiesService {
@@ -79,33 +85,36 @@ export class PropertiesService {
         ];
     }
 
-    async getAllProperties({
-        longitude,
-        latitude,
-        radius,
-        beds_total,
-        rooms_total,
-        property_types,
-        area,
-        builder_names,
-        city,
-        zipcode,
-        county,
-        masterplannedcommunity,
-        school_district,
-        has_golf_course,
-        has_neighborhood_pool_area,
-        has_private_pool,
-        has_tennis_area,
-        is_furnished,
-        max_price,
-        min_price,
-        page,
-        limit,
-        geo_market_area,
-        style,
-        dwelling_type,
-    }: GetAllPropertiesDto): Promise<IGenericResult> {
+    async getAllProperties(
+        {
+            longitude,
+            latitude,
+            radius,
+            beds_total,
+            rooms_total,
+            property_types,
+            area,
+            builder_names,
+            city,
+            zipcode,
+            county,
+            masterplannedcommunity,
+            school_district,
+            has_golf_course,
+            has_neighborhood_pool_area,
+            has_private_pool,
+            has_tennis_area,
+            is_furnished,
+            max_price,
+            min_price,
+            page,
+            limit,
+            geo_market_area,
+            style,
+            dwelling_type,
+        }: GetAllPropertiesDto,
+        user: any,
+    ): Promise<IGenericResult> {
         const qb = this.dataSource
             .createQueryBuilder()
             .select(this.getFrequentlySelectedPropertyFields())
@@ -295,7 +304,27 @@ export class PropertiesService {
 
         qb.offset(offset).limit(limit ?? 100);
 
-        const result = await qb.getRawMany();
+        let result = await qb.getRawMany();
+        if (user) {
+            const likedProperties: any[] = (await this.likedProperties(user))
+                .data.likedProperties;
+            result = result.map((property) => {
+                if (
+                    likedProperties.findIndex((el) => el.id === property.id) !==
+                    -1
+                ) {
+                    return {
+                        ...property,
+                        is_liked: true,
+                    };
+                } else {
+                    return {
+                        ...property,
+                        is_liked: false,
+                    };
+                }
+            });
+        }
         return {
             data: {
                 properties: result,
@@ -349,6 +378,19 @@ export class PropertiesService {
             .where('wrl.listingsdb_id = :propertyId', { propertyId });
 
         const foundProperty = await qb.getRawOne();
+
+        if (user) {
+            const propertyLIke = await this.dataSource.query(
+                `
+                SELECT *
+                FROM property_likes
+                WHERE user_id = ?
+                AND property_id = ?
+                `,
+                [user.userId, propertyId],
+            );
+            if (propertyLIke[0]) foundProperty['is_liked'] = true;
+        }
 
         if (!foundProperty) {
             throw new NotFoundException(CONSTANTS.PROPERTY_NOT_FOUND);
@@ -406,6 +448,94 @@ export class PropertiesService {
                 states: result,
             },
             message: 'Properties states',
+        };
+    }
+
+    async like(propertyId: string, user: any): Promise<IGenericResult> {
+        const userRes = await this.dataSource
+            .createQueryBuilder()
+            .select()
+            .from(UsersEntity, 'u')
+            .where('u.email = :email', { email: user.email })
+            .getRawOne();
+        if (userRes) {
+            const foundProperty = await this.dataSource.query(
+                `
+                SELECT
+                    *
+                FROM
+                    wp_realty_listingsdb wrl
+                WHERE
+                    wrl.listingsdb_id = ?
+                `,
+                [propertyId],
+            );
+            if (foundProperty[0]) {
+                const foundPropertyLike = await this.dataSource.query(
+                    `
+                    SELECT
+                        *
+                    FROM
+                        property_likes
+                    WHERE user_id = ?
+                    AND property_id = ?
+                    `,
+                    [userRes.id, propertyId],
+                );
+                if (foundPropertyLike[0]) {
+                    // Unlike property
+                    await this.dataSource.query(
+                        `
+                        DELETE FROM
+                            property_likes
+                        WHERE property_id = ?
+                        AND user_id = ?
+                        `,
+                        [propertyId, userRes.id],
+                    );
+                } else {
+                    // Like property
+                    await this.dataSource
+                        .createQueryBuilder()
+                        .insert()
+                        .into(PropertyLikesEntity)
+                        .values({
+                            user: userRes,
+                            property_id: foundProperty[0]?.listingsdb_id,
+                        })
+                        .execute();
+                }
+                return {
+                    message: 'ok',
+                };
+            } else {
+                throw new NotFoundException(CONSTANTS.PROPERTY_NOT_FOUND);
+            }
+        } else {
+            throw new UnauthorizedException();
+        }
+    }
+
+    async likedProperties(user: any): Promise<IGenericResult> {
+        const foundLikedProperties = await this.dataSource.query(
+            `
+            SELECT
+	            ${this.getFrequentlySelectedPropertyFields()}
+            FROM
+	            wp_realty_listingsdb wrl
+            JOIN property_likes pl
+            ON pl.property_id = wrl.listingsdb_id
+            JOIN users u
+            ON u.id  = pl.user_id 
+            WHERE pl.user_id  = ?;
+            `,
+            [user.userId],
+        );
+        return {
+            message: 'Found liked properties',
+            data: {
+                likedProperties: foundLikedProperties,
+            },
         };
     }
 }

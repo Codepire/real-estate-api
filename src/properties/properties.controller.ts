@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Param,
+    Post,
+    Query,
+    Req,
+    UseGuards,
+} from '@nestjs/common';
 import { PropertiesService } from './properties.service';
 import { GetAllPropertiesDto } from './dto/get-all-properties.dto';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
@@ -15,15 +23,33 @@ export class PropertiesController {
     constructor(private readonly propertiesService: PropertiesService) {}
 
     @SkipAuth()
+    @UseGuards(OptionalJwtAuthGuard)
     @Get()
-    async getAllProperties(@Query() query: GetAllPropertiesDto) {
-        return this.propertiesService.getAllProperties(query);
+    async getAllProperties(
+        @Query() query: GetAllPropertiesDto,
+        @CurrentUser() user: any,
+    ) {
+        return this.propertiesService.getAllProperties(query, user);
     }
 
     @Roles(UserRoleEnum.ADMIN)
     @Get('properties-states')
     async getPropertiesStateByZip(@Query() query: GetPropertiesStateByZip) {
         return this.propertiesService.getPropertiesStateByZip(query);
+    }
+
+    @Get('likes')
+    async likedProperties(@CurrentUser() user: any): Promise<IGenericResult> {
+        return this.propertiesService.likedProperties(user);
+    }
+
+    /* Like or Unlike Property */
+    @Post('likes/:property_id')
+    async like(
+        @Param('property_id') propertyId: string,
+        @CurrentUser() user: any,
+    ): Promise<IGenericResult> {
+        return this.propertiesService.like(propertyId, user);
     }
 
     @SkipAuth()
