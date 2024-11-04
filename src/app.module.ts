@@ -13,6 +13,7 @@ import { BlogsModule } from './blogs/blogs.module';
 import { ContactUsModule } from './contact-us/contact-us.module';
 import { FiltersModule } from './filters/filters.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { HomeDataModule } from './home-data/home-data.module';
 
 @Module({
     imports: [
@@ -32,6 +33,7 @@ import { CacheModule } from '@nestjs/cache-manager';
         ContactUsModule,
         FiltersModule,
         CacheModule.register(),
+        HomeDataModule,
     ],
     controllers: [AppController],
     providers: [AppService],

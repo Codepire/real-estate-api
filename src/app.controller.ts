@@ -110,37 +110,4 @@ export class AppController {
             data: filterOptions,
         };
     }
-
-    @SkipAuth()
-    @Get('home-data')
-    async getTopCities(): Promise<IGenericResult> {
-        const cachedData = await this.cacheManager.get<{
-            topCities: any;
-            topBuilders: any;
-        }>('home-data');
-        let resData = {};
-        if (cachedData) {
-            resData = {
-                topCities: cachedData?.topCities,
-                topBuilders: cachedData?.topBuilders,
-            };
-        } else {
-            const [topCities, topBuilders] = await Promise.all([
-                this.appService.getTopCities(),
-                this.appService.getTopBuilders(),
-            ]);
-            resData = {
-                topCities,
-                topBuilders,
-            };
-            await this.cacheManager.set('home-data', resData, 100000);
-        }
-
-        return {
-            message: 'top cities found',
-            data: {
-                homeData: resData,
-            },
-        };
-    }
 }
