@@ -12,7 +12,7 @@ import { DataSource, Repository } from 'typeorm';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { OtpEntity } from 'src/users/entities/otp.entity';
-import { OtpTypesEnum } from 'src/common/enums';
+import { OtpTypesEnum, UserRoleEnum } from 'src/common/enums';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import ForgotPasswordDto from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -37,15 +37,29 @@ export class AuthService {
      * @name validateUserGoogleAuth
      * @description used in google strategy to register or login user.
      */
-    async validateUserGoogleAuth(user: UsersEntity): Promise<void> {
+    async validateUserGoogleAuth(
+        user: UsersEntity,
+    ): Promise<{ email: string; id: number; role: UserRoleEnum }> {
         const foundUser: UsersEntity = await this.userRepo.findOne({
             where: { email: user.email },
             withDeleted: true, // Includes soft-deleted users
         });
-        if (!foundUser) {
-            await this.userRepo.save(user);
-        } else if (foundUser.deleted_at !== null) {
-            throw new UnauthorizedException(CONSTANTS.USER_INACTIVE);
+        if (foundUser) {
+            if (foundUser.deleted_at !== null) {
+                throw new UnauthorizedException(CONSTANTS.USER_INACTIVE);
+            }
+            return {
+                email: foundUser.email,
+                id: foundUser.id,
+                role: foundUser?.role as UserRoleEnum,
+            };
+        } else {
+            const res = await this.userRepo.save(user);
+            return {
+                email: res.email,
+                id: res.id,
+                role: res?.role as UserRoleEnum,
+            };
         }
     }
 

@@ -49,7 +49,7 @@ export class AuthController {
     @UseGuards(GoogleAuthGuard)
     googleLoginCallback(@Res() res: Response, @CurrentUser() user: any) {
         const tokenPayload = {
-            sub: Date.now(),
+            sub: user.id,
             email: user.email,
             role: user.role,
         };
