@@ -1,8 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CurrentUser } from 'src/common/guards/current-user.guard';
 import { UserRoleEnum } from 'src/common/enums';
 import { Roles } from 'src/common/decorators/roles.decorator';
+import { GetUsersDto } from './dto/get-users.dto';
 
 @Controller('users')
 export class UsersController {
@@ -10,8 +11,8 @@ export class UsersController {
 
     @Get()
     @Roles(UserRoleEnum.ADMIN)
-    async getUsers() {
-        return this.usersService.getUsers();
+    async getUsers(@Query() query: GetUsersDto) {
+        return this.usersService.getUsers(query);
     }
 
     @Get('/me')
