@@ -12,6 +12,28 @@ export class UsersService {
         private readonly usersRepo: Repository<UsersEntity>,
     ) {}
 
+    async getUsers(): Promise<IGenericResult> {
+        const qb = this.usersRepo.createQueryBuilder('users');
+        const users = await qb
+            .select([
+                'users.id',
+                'users.email',
+                'users.first_name',
+                'users.last_name',
+                'users.phone_number',
+                'users.profile_url',
+                'users.created_at',
+            ])
+            .andWhere('role != :role', { role: 'admin' })
+            .getMany();
+        return {
+            message: 'Users Found',
+            data: {
+                users,
+            },
+        };
+    }
+
     async getProfileDetails(user: any): Promise<IGenericResult> {
         const foundUser: UsersEntity = await this.usersRepo.findOne({
             where: {
