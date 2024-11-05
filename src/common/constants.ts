@@ -14,4 +14,6 @@ export enum CONSTANTS {
     BLOG_NOT_FOUND = 'Blog not found',
     BLOG_URL_CONFLICT = 'A blog with this thumbnail URL already exists.',
     PROPERTY_NOT_FOUND = 'Property not found',
+    MAX_TOP_ENTITIES = 'Maximum 5 top entities can be added',
+    ENTITITY_ALREADY_EXISTS = 'Entity already exists',
 }

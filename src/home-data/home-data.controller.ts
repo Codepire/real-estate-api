@@ -1,9 +1,15 @@
-import { Controller, Get, Inject } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Post } from '@nestjs/common';
 import { HomeDataService } from './home-data.service';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 import { IGenericResult } from 'src/common/interfaces';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { UserRoleEnum } from 'src/common/enums';
+import { AddTopCityDto } from './dto/add-top-city.dto';
+import { DeleteTopCityDto } from './dto/delete-top-city.dto';
+import { AddTopBuilderDto } from './dto/add-top-builder.dto';
+import { DeleteTopBuilderDto } from './dto/delete-top-builder.dto';
 
 @Controller('home-data')
 export class HomeDataController {
@@ -14,34 +20,56 @@ export class HomeDataController {
 
     @SkipAuth()
     @Get()
-    async getTopCities(): Promise<IGenericResult> {
-        const cachedData = await this.cacheManager.get<{
-            topCities: any;
-            topBuilders: any;
-        }>('home-data');
-        let resData = {};
-        if (cachedData) {
-            resData = {
-                topCities: cachedData?.topCities,
-                topBuilders: cachedData?.topBuilders,
-            };
-        } else {
-            const [topCities, topBuilders] = await Promise.all([
-                this.homeDataService.getTopCities(),
-                this.homeDataService.getTopBuilders(),
-            ]);
-            resData = {
-                topCities,
-                topBuilders,
-            };
-            await this.cacheManager.set('home-data', resData, 100000);
-        }
-
+    async getTopEntities(): Promise<IGenericResult> {
+        const res = await this.homeDataService.getTopEntities();
         return {
-            message: 'top cities found',
+            message: 'home data found',
             data: {
-                homeData: resData,
+                homeData: res.map(
+                    (r: { alias: string; entities: string[] }) => {
+                        return { [r.alias]: r.entities ?? [] };
+                    },
+                ),
             },
         };
+    }
+
+    @Roles(UserRoleEnum.ADMIN)
+    @Post('top-city')
+    async addTopCity(@Body() body: AddTopCityDto): Promise<IGenericResult> {
+        return this.homeDataService.addTopEntity(body.city_name, 'top_cities');
+    }
+
+    @Roles(UserRoleEnum.ADMIN)
+    @Delete('top-city')
+    async deleteTopCity(
+        @Body() body: DeleteTopCityDto,
+    ): Promise<IGenericResult> {
+        return this.homeDataService.removeTopEntity(
+            body.city_name,
+            'top_cities',
+        );
+    }
+
+    @Roles(UserRoleEnum.ADMIN)
+    @Post('top-builder')
+    async addTopBuilder(
+        @Body() body: AddTopBuilderDto,
+    ): Promise<IGenericResult> {
+        return this.homeDataService.addTopEntity(
+            body.builder_name,
+            'top_builders',
+        );
+    }
+
+    @Roles(UserRoleEnum.ADMIN)
+    @Delete('top-builder')
+    async deleteTopBuilder(
+        @Body() body: DeleteTopBuilderDto,
+    ): Promise<IGenericResult> {
+        return this.homeDataService.removeTopEntity(
+            body.builder_name,
+            'top_builders',
+        );
     }
 }
