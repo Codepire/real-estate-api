@@ -28,4 +28,7 @@ export default () => ({
     walkscore: {
         apiKey: process.env.WALKSCORE_KEY,
     },
+    google_analytics: {
+        propertyId: process.env.GOOGLE_ANALYTICS_PROPERTY_ID,
+    },
 });

@@ -14,6 +14,7 @@ import { ContactUsModule } from './contact-us/contact-us.module';
 import { FiltersModule } from './filters/filters.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { HomeDataModule } from './home-data/home-data.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
     imports: [
@@ -34,6 +35,7 @@ import { HomeDataModule } from './home-data/home-data.module';
         FiltersModule,
         CacheModule.register(),
         HomeDataModule,
+        AnalyticsModule,
     ],
     controllers: [AppController],
     providers: [AppService],
