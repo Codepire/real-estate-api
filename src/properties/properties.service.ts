@@ -458,6 +458,7 @@ export class PropertiesService {
             .from(UsersEntity, 'u')
             .where('u.email = :email', { email: user.email })
             .getRawOne();
+        let isLiked: boolean = false;
         if (userRes) {
             const foundProperty = await this.dataSource.query(
                 `
@@ -504,9 +505,13 @@ export class PropertiesService {
                             property_id: foundProperty[0]?.listingsdb_id,
                         })
                         .execute();
+                    isLiked = true;
                 }
                 return {
                     message: 'ok',
+                    data: {
+                        isLiked
+                    }
                 };
             } else {
                 throw new NotFoundException(CONSTANTS.PROPERTY_NOT_FOUND);
