@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { Transform } from 'class-transformer';
+import { Min } from 'class-validator';
 
 export class GetUsersDto {
     searchText?: string;
@@ -11,6 +12,7 @@ export class GetUsersDto {
         }
         return num;
     })
+    @Min(1)
     page?: number;
 
     @Transform(({ value }) => {
@@ -20,5 +22,6 @@ export class GetUsersDto {
         }
         return num;
     })
+    @Min(1)
     limit?: number = 10;
 }
