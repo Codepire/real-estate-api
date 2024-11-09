@@ -308,6 +308,8 @@ export class PropertiesService {
         qb.offset(offset).limit(limit ?? 100);
 
         let result = await qb.getRawMany();
+
+        //todo: possiblly avoid loop
         if (user) {
             const likedProperties: any[] = (await this.likedProperties(user))
                 .data.likedProperties;

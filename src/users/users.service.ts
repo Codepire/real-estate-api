@@ -31,7 +31,7 @@ export class UsersService {
         ]).andWhere('role != :role', { role: 'admin' });
         if (searchText) {
             qb.andWhere(
-                'LOWER(first_name) LIKE :searchText OR LOWER(last_name) LIKE :searchText OR LOWER(email) LIKE :searchText',
+                `LOWER(CONCAT(first_name, ' ', last_name)) LIKE :searchText OR LOWER(email) LIKE :searchText`,
                 {
                     searchText: `%${searchText}%`.toLowerCase(),
                 },
