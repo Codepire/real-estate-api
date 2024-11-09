@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 import { IGenericResult } from 'src/common/interfaces';
@@ -29,14 +29,14 @@ export class AnalyticsController {
         );
     }
 
-    @Get('users')
+    @Get('users/:user_id')
     @Roles(UserRoleEnum.ADMIN)
     async getUserAnalytics(
-        @CurrentUser() user: any,
         @Query() query: GetUseranalyticsDto,
+        @Param('user_id') userId: string,
     ): Promise<IGenericResult> {
         if (!query.event_name) query.event_name = EventTypeEnum.PAGE_VIEW;
 
-        return this.analyticsService.getUserAnalytics(user, query);
+        return this.analyticsService.getUserAnalytics(userId, query);
     }
 }

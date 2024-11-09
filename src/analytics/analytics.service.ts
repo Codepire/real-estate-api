@@ -71,14 +71,14 @@ export class AnalyticsService {
     }
 
     async getUserAnalytics(
-        user: any,
+        userId: string,
         query: GetUseranalyticsDto,
     ): Promise<IGenericResult> {
         let qb = this.dataSource
             .getRepository('user_analytics')
             .createQueryBuilder('ua')
             .select(['ua.event_name', 'ua.event', 'COUNT(*) AS event_count'])
-            .where('ua.user_id = :userId', { userId: user.userId });
+            .where('ua.user_id = :userId', { userId });
 
         if (
             query.from_date &&
