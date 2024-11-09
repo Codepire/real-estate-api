@@ -510,8 +510,8 @@ export class PropertiesService {
                 return {
                     message: 'ok',
                     data: {
-                        isLiked
-                    }
+                        isLiked,
+                    },
                 };
             } else {
                 throw new NotFoundException(CONSTANTS.PROPERTY_NOT_FOUND);

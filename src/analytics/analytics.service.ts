@@ -5,7 +5,7 @@ import * as path from 'node:path';
 
 @Injectable()
 export class AnalyticsService {
-    private analyticsDataclient: any;
+    private analyticsDataclient: BetaAnalyticsDataClient;
 
     constructor(private readonly configService: ConfigService) {
         this.analyticsDataclient = new BetaAnalyticsDataClient({
@@ -19,13 +19,13 @@ export class AnalyticsService {
 
     async runReport() {
         const [response] = await this.analyticsDataclient.runReport({
-            property: `properties/${this.configService.get('google_analytics.propertyId')}`,
             dateRanges: [
                 {
-                    startDate: '2020-03-31',
+                    startDate: '2021-08-01',
                     endDate: 'today',
                 },
             ],
+            property: `properties/${this.configService.get('google_analytics.propertyId')}`,
             dimensions: [
                 {
                     name: 'city',
@@ -33,7 +33,7 @@ export class AnalyticsService {
             ],
             metrics: [
                 {
-                    name: 'activeUsers',
+                    name: 'screenPageViews',
                 },
             ],
         });
