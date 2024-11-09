@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CurrentUser } from 'src/common/guards/current-user.guard';
 import { UserRoleEnum } from 'src/common/enums';
@@ -18,5 +18,13 @@ export class UsersController {
     @Get('/me')
     async getProfileDetails(@CurrentUser() user: any) {
         return this.usersService.getProfileDetails(user);
+    }
+
+    @Get(':id')
+    @Roles(UserRoleEnum.ADMIN)
+    async getUserById(
+        @Param('id') id: string,
+    ) {
+        return this.usersService.getUserById(+id);
     }
 }

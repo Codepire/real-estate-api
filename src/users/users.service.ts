@@ -83,4 +83,33 @@ export class UsersService {
             },
         };
     }
+
+    async getUserById(id: number): Promise<IGenericResult> {
+        const foundUser: UsersEntity = await this.usersRepo.findOne({
+            where: {
+                id,
+            },
+            select: {
+                id: true,
+                created_at: true,
+                email: true,
+                first_name: true,
+                is_verified_email: true,
+                last_name: true,
+                phone_number: true,
+                profile_url: true,
+                role: true,
+                updated_at: true,
+            },
+        });
+        if (!foundUser) {
+            throw new NotFoundException(CONSTANTS.USER_NOT_EXIST);
+        }
+        return {
+            message: 'User',
+            data: {
+                user: foundUser,
+            },
+        };
+    }
 }
