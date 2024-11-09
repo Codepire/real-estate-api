@@ -14,6 +14,8 @@ import { AxiosError } from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { UsersEntity } from 'src/users/entities/user.entity';
 import { PropertyLikesEntity } from './entieis/property-likes.entity';
+import { AnalyticsService } from 'src/analytics/analytics.service';
+import { EventTypeEnum } from 'src/common/enums';
 
 @Injectable()
 export class PropertiesService {
@@ -21,6 +23,7 @@ export class PropertiesService {
         private readonly dataSource: DataSource,
         private readonly httpService: HttpService,
         private readonly configService: ConfigService,
+        private readonly analyticsService: AnalyticsService,
     ) {}
 
     getFrequentlySelectedPropertyFields(): string[] {
@@ -370,6 +373,11 @@ export class PropertiesService {
                     [userIp],
                 );
             }
+        } else {
+            await this.analyticsService.saveUserAnalytics(
+                { event_name: EventTypeEnum.PROPERTY_VIEW, event: String(propertyId) },
+                user,
+            );
         }
         const qb = this.dataSource
             .createQueryBuilder()

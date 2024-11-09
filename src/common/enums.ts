@@ -7,3 +7,8 @@ export enum UserRoleEnum {
     USER = 'user',
     ADMIN = 'admin',
 }
+
+export enum EventTypeEnum {
+    PAGE_VIEW = 'page_view',
+    PROPERTY_VIEW = 'property_view',
+}
