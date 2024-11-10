@@ -25,37 +25,6 @@ export class AnalyticsService {
         });
     }
 
-    async runReport() {
-        const [response] = await this.analyticsDataclient.runReport({
-            dateRanges: [
-                {
-                    startDate: '2021-08-01',
-                    endDate: 'today',
-                },
-            ],
-            property: `properties/${this.configService.get('google_analytics.propertyId')}`,
-            dimensions: [
-                {
-                    name: 'city',
-                },
-            ],
-            metrics: [
-                {
-                    name: 'screenPageViews',
-                },
-            ],
-        });
-
-        console.log('Report result:', response);
-        response.rows.forEach((row) => {
-            console.log(row.dimensionValues[0], row.metricValues[0]);
-        });
-    }
-
-    async temp() {
-        return await this.runReport();
-    }
-
     async saveUserAnalytics(
         dto: SaveUserAnalyticsDto,
         user: any,
@@ -102,7 +71,51 @@ export class AnalyticsService {
         return {
             message: 'Found user analytics',
             data: {
-                analytics: result
+                analytics: result,
+            },
+        };
+    }
+
+    async getPropertyViewAnalyticsById(
+        propertyId: string,
+    ): Promise<IGenericResult> {
+        const [analytics, totalRecievedLikes] = await Promise.all([
+            this.analyticsDataclient.runReport({
+                property: `properties/${this.configService.get('google_analytics.propertyId')}`,
+                dateRanges: [
+                    {
+                        startDate: '30daysAgo',
+                        endDate: 'today',
+                    },
+                ],
+                dimensions: [{ name: 'pagePath' }],
+                metrics: [{ name: 'screenPageViews' }],
+                dimensionFilter: {
+                    filter: {
+                        fieldName: 'pagePath',
+                        stringFilter: {
+                            matchType: 'EXACT',
+                            value: `/property-detail/${propertyId}`,
+                        },
+                    },
+                },
+            }),
+            this.dataSource.query(
+                `SELECT COUNT(*) AS total_likes FROM property_likes WHERE property_id = ?`,
+                [propertyId],
+            ),
+        ]);
+
+        return {
+            message: 'Found property analytics',
+            data: {
+                analytics: analytics[0].rows.map((el) => {
+                    return {
+                        page: el.dimensionValues[0].value,
+                        views: el.metricValues[0].value,
+                        likes: totalRecievedLikes[0].total_likes,
+                    };
+                }),
             },
         };
     }

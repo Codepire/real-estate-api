@@ -22,9 +22,7 @@ export class UsersController {
 
     @Get(':id')
     @Roles(UserRoleEnum.ADMIN)
-    async getUserById(
-        @Param('id') id: string,
-    ) {
+    async getUserById(@Param('id') id: string) {
         return this.usersService.getUserById(+id);
     }
 }

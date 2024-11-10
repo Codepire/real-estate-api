@@ -377,7 +377,10 @@ export class PropertiesService {
             }
         } else {
             await this.analyticsService.saveUserAnalytics(
-                { event_name: EventTypeEnum.PROPERTY_VIEW, event: String(propertyId) },
+                {
+                    event_name: EventTypeEnum.PROPERTY_VIEW,
+                    event: String(propertyId),
+                },
                 user,
             );
         }

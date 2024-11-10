@@ -12,12 +12,6 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 export class AnalyticsController {
     constructor(private readonly analyticsService: AnalyticsService) {}
 
-    @SkipAuth()
-    @Get()
-    async temp() {
-        return this.analyticsService.temp();
-    }
-
     @Post('users')
     async saveUserAnalytics(
         @Body() saveUserAnalyticsDto: SaveUserAnalyticsDto,
@@ -38,5 +32,13 @@ export class AnalyticsController {
         if (!query.event_name) query.event_name = EventTypeEnum.PAGE_VIEW;
 
         return this.analyticsService.getUserAnalytics(userId, query);
+    }
+
+    @Get('properties/:property_id')
+    @Roles(UserRoleEnum.ADMIN)
+    async getPropertyAnalyticsById(
+        @Param('property_id') propertyId: string,
+    ): Promise<IGenericResult> {
+        return this.analyticsService.getPropertyViewAnalyticsById(propertyId);
     }
 }
