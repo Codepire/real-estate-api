@@ -80,27 +80,10 @@ export class AnalyticsService {
     async getPropertyViewAnalyticsById(
         propertyId: string,
     ): Promise<IGenericResult> {
-        const [analytics, totalRecievedLikes] = await Promise.all([
-            this.analyticsDataclient.runReport({
-                property: `properties/${this.configService.get('google_analytics.propertyId')}`,
-                dateRanges: [
-                    {
-                        startDate: '30daysAgo',
-                        endDate: 'today',
-                    },
-                ],
-                dimensions: [{ name: 'pagePath' }],
-                metrics: [{ name: 'screenPageViews' }],
-                dimensionFilter: {
-                    filter: {
-                        fieldName: 'pagePath',
-                        stringFilter: {
-                            matchType: 'EXACT',
-                            value: `/property-detail/${propertyId}`,
-                        },
-                    },
-                },
-            }),
+        const [totoalViews, totalRecievedLikes] = await Promise.all([
+            this.dataSource.query(
+                `SELECT COUNT(*) AS property_views from user_analytics WHERE event_name = 'property_view' AND event = ?`
+            , [propertyId]),
             this.dataSource.query(
                 `SELECT COUNT(*) AS total_likes FROM property_likes WHERE property_id = ?`,
                 [propertyId],
@@ -110,13 +93,10 @@ export class AnalyticsService {
         return {
             message: 'Found property analytics',
             data: {
-                analytics: analytics[0].rows.map((el) => {
-                    return {
-                        page: el.dimensionValues[0].value,
-                        views: el.metricValues[0].value,
-                        likes: totalRecievedLikes[0].total_likes,
-                    };
-                }),
+                analytics: {
+                    property_views: totoalViews[0].property_views,
+                    total_likes: totalRecievedLikes[0].total_likes,
+                }
             },
         };
     }
