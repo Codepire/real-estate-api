@@ -82,11 +82,12 @@ export class AnalyticsService {
     ): Promise<IGenericResult> {
         const [totoalViews, totalRecievedLikes] = await Promise.all([
             this.dataSource.query(
-                `SELECT COUNT(*) AS property_views from user_analytics WHERE event_name = 'property_view' AND event = ?`
-            , [propertyId]),
-            this.dataSource.query(
-                `SELECT COUNT(*) AS total_likes FROM property_likes WHERE property_id = ?`,
+                `SELECT COUNT(*) AS property_views from user_analytics WHERE event_name = 'property_view' AND event = ?`,
                 [propertyId],
+            ),
+            this.dataSource.query(
+                `SELECT COUNT(*) AS total_likes FROM user_analytics WHERE event = ? AND event_name = ?`,
+                [propertyId, EventTypeEnum.PROPERTY_LIKE],
             ),
         ]);
 
@@ -96,7 +97,7 @@ export class AnalyticsService {
                 analytics: {
                     views: totoalViews[0].property_views,
                     likes: totalRecievedLikes[0].total_likes,
-                }
+                },
             },
         };
     }

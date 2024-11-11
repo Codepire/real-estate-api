@@ -22,7 +22,7 @@ export class PropertiesService {
         private readonly httpService: HttpService,
         private readonly configService: ConfigService,
         private readonly analyticsService: AnalyticsService,
-    ) { }
+    ) {}
 
     getFrequentlySelectedPropertyFields(): string[] {
         return [
@@ -351,8 +351,9 @@ export class PropertiesService {
         if (!user) {
             const userView = await this.dataSource.query(
                 `
-                SELECT COUNT(*) AS view_count  FROM user_analytics ua WHERE session = ?;`
-                , [sessionId]);
+                SELECT COUNT(*) AS view_count  FROM user_analytics ua WHERE session = ?;`,
+                [sessionId],
+            );
             if (userView && userView[0].view_count > 2) {
                 loginRequired = true;
             }
@@ -376,16 +377,23 @@ export class PropertiesService {
             .where('wrl.listingsdb_id = :propertyId', { propertyId });
 
         const foundProperty = await qb.getRawOne();
+        foundProperty['is_liked'] = false;
 
         if (user) {
             const propertyLIke = await this.dataSource.query(
                 `
                 SELECT *
-                FROM property_likes
-                WHERE user_id = ?
-                AND property_id = ?
+                FROM user_analytics
+                WHERE (user_id = ? OR session = ?)
+                AND event = ?
+                AND event_name = ?;
                 `,
-                [user.userId, propertyId],
+                [
+                    user.userId,
+                    sessionId,
+                    propertyId,
+                    EventTypeEnum.PROPERTY_LIKE,
+                ],
             );
             if (propertyLIke[0]) foundProperty['is_liked'] = true;
         }
@@ -449,7 +457,11 @@ export class PropertiesService {
         };
     }
 
-    async like(propertyId: string, user: any, sessionId: string): Promise<IGenericResult> {
+    async like(
+        propertyId: string,
+        user: any,
+        sessionId: string,
+    ): Promise<IGenericResult> {
         let isLiked: boolean = false;
 
         const foundProperty = await this.dataSource.query(
@@ -473,7 +485,12 @@ export class PropertiesService {
                         AND event_name = ?
                         AND (user_id = ? OR session = ?);
                     `,
-                [propertyId, EventTypeEnum.PROPERTY_LIKE, user?.userId, sessionId],
+                [
+                    propertyId,
+                    EventTypeEnum.PROPERTY_LIKE,
+                    user?.userId,
+                    sessionId,
+                ],
             );
             if (foundPropertyLike[0]) {
                 // Unlike property
@@ -485,15 +502,27 @@ export class PropertiesService {
                         AND event_name = ?
                         AND (user_id = ? OR session = ?);
                         `,
-                    [propertyId, EventTypeEnum.PROPERTY_LIKE, user?.userId, sessionId],
+                    [
+                        propertyId,
+                        EventTypeEnum.PROPERTY_LIKE,
+                        user?.userId,
+                        sessionId,
+                    ],
                 );
             } else {
                 // Like property
                 await this.dataSource.query(
-                `
+                    `
                     INSERT INTO user_analytics (user_id, event, event_name, session)
                     VALUES (?, ?, ?, ?);
-                `, [user?.userId, propertyId, EventTypeEnum.PROPERTY_LIKE, sessionId],);
+                `,
+                    [
+                        user?.userId,
+                        propertyId,
+                        EventTypeEnum.PROPERTY_LIKE,
+                        sessionId,
+                    ],
+                );
                 isLiked = true;
             }
             return {
@@ -505,23 +534,22 @@ export class PropertiesService {
         } else {
             throw new NotFoundException(CONSTANTS.PROPERTY_NOT_FOUND);
         }
-
     }
 
     async likedProperties(user: any): Promise<IGenericResult> {
         const foundLikedProperties = await this.dataSource.query(
             `
             SELECT
-	            ${this.getFrequentlySelectedPropertyFields()}
+                ${this.getFrequentlySelectedPropertyFields()}
             FROM
-	            wp_realty_listingsdb wrl
-            JOIN property_likes pl
-            ON pl.property_id = wrl.listingsdb_id
-            JOIN users u
-            ON u.id  = pl.user_id 
-            WHERE pl.user_id  = ?;
+                wp_realty_listingsdb wrl
+            INNER JOIN user_analytics ua ON ua.event = wrl.listingsdb_id
+            INNER JOIN users u ON u.id = ua.user_id 
+            WHERE 
+                ua.user_id = ?
+                AND ua.event_name = ?;
             `,
-            [user.userId],
+            [user.userId, EventTypeEnum.PROPERTY_LIKE],
         );
         return {
             message: 'Found liked properties',

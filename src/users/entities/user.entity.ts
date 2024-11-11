@@ -2,7 +2,6 @@ import { TimeStampedCommonEntities } from 'src/common/entities';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { OtpEntity } from './otp.entity';
 import { UserRoleEnum } from 'src/common/enums';
-import { PropertyLikesEntity } from 'src/properties/entieis/property-likes.entity';
 import { UserAnalyticsEntity } from 'src/analytics/entities/user-analytics.entity';
 
 @Entity({ name: 'users' })
@@ -43,9 +42,6 @@ export class UsersEntity extends TimeStampedCommonEntities {
     /* Relations */
     @OneToMany(() => OtpEntity, (otpEntity) => otpEntity.user)
     otps?: OtpEntity[];
-
-    @OneToMany(() => PropertyLikesEntity, (propertyLike) => propertyLike.user)
-    propertyLikes?: PropertyLikesEntity[];
 
     @OneToMany(() => UserAnalyticsEntity, (userAnalytics) => userAnalytics.user)
     userAnalytics?: UserAnalyticsEntity[];

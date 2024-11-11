@@ -67,6 +67,10 @@ export class PropertiesController {
     ) {
         let sessionId = req.cookies['anonymusVisiter'];
 
-        return await this.propertiesService.getPropertyById(+id, user, sessionId);
+        return await this.propertiesService.getPropertyById(
+            +id,
+            user,
+            sessionId,
+        );
     }
 }

@@ -10,6 +10,7 @@ import {
     PrimaryGeneratedColumn,
 } from 'typeorm';
 
+// todo: add indexing on event_name, session, user_id
 @Entity('user_analytics')
 export class UserAnalyticsEntity {
     @PrimaryGeneratedColumn('increment')
