@@ -94,8 +94,8 @@ export class AnalyticsService {
             message: 'Found property analytics',
             data: {
                 analytics: {
-                    property_views: totoalViews[0].property_views,
-                    total_likes: totalRecievedLikes[0].total_likes,
+                    views: totoalViews[0].property_views,
+                    likes: totalRecievedLikes[0].total_likes,
                 }
             },
         };

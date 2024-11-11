@@ -360,14 +360,16 @@ export class PropertiesService {
             }
         }
 
-        await this.analyticsService.saveUserAnalytics(
-            {
-                event_name: EventTypeEnum.PROPERTY_VIEW,
-                event: String(propertyId),
-            },
-            user,
-            sessionId,
-        );
+        if (user && user?.role !== 'admin') {
+            await this.analyticsService.saveUserAnalytics(
+                {
+                    event_name: EventTypeEnum.PROPERTY_VIEW,
+                    event: String(propertyId),
+                },
+                user,
+                sessionId,
+            );
+        }
 
         const qb = this.dataSource
             .createQueryBuilder()
