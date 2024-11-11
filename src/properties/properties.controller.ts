@@ -45,12 +45,16 @@ export class PropertiesController {
     }
 
     /* Like or Unlike Property */
+    @SkipAuth()
+    @UseGuards(OptionalJwtAuthGuard)
     @Post('likes/:property_id')
     async like(
         @Param('property_id') propertyId: string,
         @CurrentUser() user: any,
+        @Req() req: Request,
     ): Promise<IGenericResult> {
-        return this.propertiesService.like(propertyId, user);
+        const sessionId = req.cookies['anonymusVisiter'];
+        return this.propertiesService.like(propertyId, user, sessionId);
     }
 
     @SkipAuth()

@@ -11,4 +11,5 @@ export enum UserRoleEnum {
 export enum EventTypeEnum {
     PAGE_VIEW = 'page_view',
     PROPERTY_VIEW = 'property_view',
+    PROPERTY_LIKE = 'property_like',
 }

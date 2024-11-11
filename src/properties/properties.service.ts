@@ -12,8 +12,6 @@ import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { ConfigService } from '@nestjs/config';
-import { UsersEntity } from 'src/users/entities/user.entity';
-import { PropertyLikesEntity } from './entieis/property-likes.entity';
 import { AnalyticsService } from 'src/analytics/analytics.service';
 import { EventTypeEnum } from 'src/common/enums';
 
@@ -24,7 +22,7 @@ export class PropertiesService {
         private readonly httpService: HttpService,
         private readonly configService: ConfigService,
         private readonly analyticsService: AnalyticsService,
-    ) {}
+    ) { }
 
     getFrequentlySelectedPropertyFields(): string[] {
         return [
@@ -354,7 +352,7 @@ export class PropertiesService {
             const userView = await this.dataSource.query(
                 `
                 SELECT COUNT(*) AS view_count  FROM user_analytics ua WHERE session = ?;`
-            , [sessionId]);
+                , [sessionId]);
             if (userView && userView[0].view_count > 2) {
                 loginRequired = true;
             }
@@ -451,74 +449,63 @@ export class PropertiesService {
         };
     }
 
-    async like(propertyId: string, user: any): Promise<IGenericResult> {
-        const userRes = await this.dataSource
-            .createQueryBuilder()
-            .select()
-            .from(UsersEntity, 'u')
-            .where('u.email = :email', { email: user.email })
-            .getRawOne();
+    async like(propertyId: string, user: any, sessionId: string): Promise<IGenericResult> {
         let isLiked: boolean = false;
-        if (userRes) {
-            const foundProperty = await this.dataSource.query(
-                `
-                SELECT
-                    *
-                FROM
-                    wp_realty_listingsdb wrl
-                WHERE
-                    wrl.listingsdb_id = ?
+
+        const foundProperty = await this.dataSource.query(
+            `
+            SELECT
+                *
+            FROM
+                wp_realty_listingsdb wrl
+            WHERE
+                wrl.listingsdb_id = ?
                 `,
-                [propertyId],
-            );
-            if (foundProperty[0]) {
-                const foundPropertyLike = await this.dataSource.query(
-                    `
+            [propertyId],
+        );
+        if (foundProperty[0]) {
+            const foundPropertyLike = await this.dataSource.query(
+                `
                     SELECT
                         *
-                    FROM
-                        property_likes
-                    WHERE user_id = ?
-                    AND property_id = ?
+                    FROM user_analytics
+                        WHERE event = ?
+                        AND event_name = ?
+                        AND (user_id = ? OR session = ?);
                     `,
-                    [userRes.id, propertyId],
-                );
-                if (foundPropertyLike[0]) {
-                    // Unlike property
-                    await this.dataSource.query(
-                        `
+                [propertyId, EventTypeEnum.PROPERTY_LIKE, user?.userId, sessionId],
+            );
+            if (foundPropertyLike[0]) {
+                // Unlike property
+                await this.dataSource.query(
+                    `
                         DELETE FROM
-                            property_likes
-                        WHERE property_id = ?
-                        AND user_id = ?
+                            user_analytics ua
+                        WHERE event = ?
+                        AND event_name = ?
+                        AND (user_id = ? OR session = ?);
                         `,
-                        [propertyId, userRes.id],
-                    );
-                } else {
-                    // Like property
-                    await this.dataSource
-                        .createQueryBuilder()
-                        .insert()
-                        .into(PropertyLikesEntity)
-                        .values({
-                            user: userRes,
-                            property_id: foundProperty[0]?.listingsdb_id,
-                        })
-                        .execute();
-                    isLiked = true;
-                }
-                return {
-                    message: 'ok',
-                    data: {
-                        isLiked,
-                    },
-                };
+                    [propertyId, EventTypeEnum.PROPERTY_LIKE, user?.userId, sessionId],
+                );
             } else {
-                throw new NotFoundException(CONSTANTS.PROPERTY_NOT_FOUND);
+                // Like property
+                await this.dataSource.query(
+                `
+                    INSERT INTO user_analytics (user_id, event, event_name, session)
+                    VALUES (?, ?, ?, ?);
+                `, [user?.userId, propertyId, EventTypeEnum.PROPERTY_LIKE, sessionId],);
+                isLiked = true;
             }
+            return {
+                message: 'ok',
+                data: {
+                    isLiked,
+                },
+            };
         } else {
-            throw new UnauthorizedException();
+            throw new NotFoundException(CONSTANTS.PROPERTY_NOT_FOUND);
         }
+
     }
 
     async likedProperties(user: any): Promise<IGenericResult> {
