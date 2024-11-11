@@ -59,15 +59,10 @@ export class PropertiesController {
     async getPropertyById(
         @Param('id') id: string,
         @Req() req: Request,
-        @Res() res: Response,
         @CurrentUser() user: any,
     ) {
         let sessionId = req.cookies['anonymusVisiter'];
-        if (!sessionId) {
-            sessionId = v4();
-            res.cookie('anonymusVisiter', sessionId, { maxAge: 900000, httpOnly: true }); //todo: max age and httponly check
-        }
 
-        res.send(await this.propertiesService.getPropertyById(+id, user, sessionId));
+        return await this.propertiesService.getPropertyById(+id, user, sessionId);
     }
 }

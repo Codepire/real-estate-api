@@ -360,7 +360,7 @@ export class PropertiesService {
             }
         }
 
-        if (user && user?.role !== 'admin') {
+        if (user?.role !== 'admin') {
             await this.analyticsService.saveUserAnalytics(
                 {
                     event_name: EventTypeEnum.PROPERTY_VIEW,
