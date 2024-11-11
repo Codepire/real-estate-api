@@ -345,45 +345,30 @@ export class PropertiesService {
 
     async getPropertyById(
         propertyId: number,
-        userIp: string,
         user: any,
+        sessionId?: string,
     ): Promise<IGenericResult> {
         let loginRequired: boolean = false;
+
         if (!user) {
-            const visitCount = (
-                await this.dataSource.query(
-                    `
-                    SELECT
-                        pv.visitCount AS count
-                    FROM
-                        property_visits pv
-                    WHERE
-                        pv.ip = ?
-                `,
-                    [userIp],
-                )
-            )[0]?.count;
-            if (visitCount > 2) {
+            const userView = await this.dataSource.query(
+                `
+                SELECT COUNT(*) AS view_count  FROM user_analytics ua WHERE session = ?;`
+            , [sessionId]);
+            if (userView && userView[0].view_count > 2) {
                 loginRequired = true;
-            } else {
-                await this.dataSource.query(
-                    `
-                            INSERT INTO property_visits (ip, visitCount)
-                            VALUES (?, 1)
-                            ON DUPLICATE KEY UPDATE visitCount = visitCount + 1
-                        `,
-                    [userIp],
-                );
             }
-        } else {
-            await this.analyticsService.saveUserAnalytics(
-                {
-                    event_name: EventTypeEnum.PROPERTY_VIEW,
-                    event: String(propertyId),
-                },
-                user,
-            );
         }
+
+        await this.analyticsService.saveUserAnalytics(
+            {
+                event_name: EventTypeEnum.PROPERTY_VIEW,
+                event: String(propertyId),
+            },
+            user,
+            sessionId,
+        );
+
         const qb = this.dataSource
             .createQueryBuilder()
             .select(this.getFrequentlySelectedPropertyFields())

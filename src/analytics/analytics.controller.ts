@@ -12,16 +12,16 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 export class AnalyticsController {
     constructor(private readonly analyticsService: AnalyticsService) {}
 
-    @Post('users')
-    async saveUserAnalytics(
-        @Body() saveUserAnalyticsDto: SaveUserAnalyticsDto,
-        @CurrentUser() user: any,
-    ): Promise<IGenericResult> {
-        return this.analyticsService.saveUserAnalytics(
-            saveUserAnalyticsDto,
-            user,
-        );
-    }
+    // @Post('users')
+    // async saveUserAnalytics(
+    //     @Body() saveUserAnalyticsDto: SaveUserAnalyticsDto,
+    //     @CurrentUser() user: any,
+    // ): Promise<IGenericResult> {
+    //     return this.analyticsService.saveUserAnalytics(
+    //         saveUserAnalyticsDto,
+    //         user,
+    //     );
+    // }
 
     @Get('users/:user_id')
     @Roles(UserRoleEnum.ADMIN)

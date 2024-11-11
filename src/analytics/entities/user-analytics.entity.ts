@@ -23,32 +23,14 @@ export class UserAnalyticsEntity {
 
     @ManyToOne(() => UsersEntity, (user) => user.userAnalytics, {
         onDelete: 'CASCADE',
+        nullable: true,
     })
     @JoinColumn({ name: 'user_id' })
-    user: UsersEntity;
+    user?: UsersEntity;
+
+    @Column({ type: 'varchar', length: 40 })
+    session: string;
 
     @CreateDateColumn()
     created_at?: Date;
-
-    // user's ip address
-    // ip: string;
-
-    // user's user agent
-    // userAgent: string;
-
-    // // which page user was previously on
-    // referer: string;
-
-    // // which device user is using
-    // device: string;
-
-    // // which browser user is using
-    // browser: string;
-
-    // // which operating system user is using
-    // os: string;
-    // country: string;
-    // city: string;
-    // latitude: string;
-    // longitude: string;
 }

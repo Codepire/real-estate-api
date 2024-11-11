@@ -28,11 +28,12 @@ export class AnalyticsService {
     async saveUserAnalytics(
         dto: SaveUserAnalyticsDto,
         user: any,
+        sessionId: string,
     ): Promise<IGenericResult> {
         console.log(user);
         await this.dataSource.query(
-            `INSERT INTO user_analytics (user_id, event_name, event) VALUES (?, ?, ?)`,
-            [user.userId, dto.event_name, dto.event],
+            `INSERT INTO user_analytics (user_id, event_name, event, session) VALUES (?, ?, ?, ?)`,
+            [user?.userId, dto.event_name, dto.event, sessionId],
         );
         return {
             message: 'OK',
