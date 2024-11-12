@@ -46,6 +46,7 @@ export class PropertiesService {
             'wrl.StreetName AS street_name',
             'wrl.StreetSuffix AS street_suffix',
             'wrl.AcresDesciption AS acres_description',
+            'wrl.Description AS description',
             'wrl.Area AS area',
             'wrl.BathsFull AS baths_full',
             'wrl.BuilderName AS builder_name',
