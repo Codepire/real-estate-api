@@ -47,8 +47,20 @@ export class AnalyticsService {
         let qb = this.dataSource
             .getRepository('user_analytics')
             .createQueryBuilder('ua')
-            .select(['ua.event_name', 'ua.event', 'COUNT(*) AS event_count'])
-            .where('ua.user_id = :userId', { userId });
+            .select([`
+                ua.event_name, 
+                ua.event, 
+                COUNT(*) AS event_count,
+                wrl.listingsdb_id,
+                wrl.listingsdb_title AS title,
+                COALESCE(wrl.BedsTotal, 0) AS beds_total,
+                COALESCE(wrl.SqFtTotal, 0) AS sqft_total,
+                wrl.BuilderName AS builder_name,
+                wrl.Address AS address,
+                wrl.OriginalListPrice AS price
+            `])
+            .where('ua.user_id = :userId', { userId })
+            .leftJoin('wp_realty_listingsdb', 'wrl', 'ua.event = wrl.listingsdb_id')
 
         if (
             query.from_date &&
@@ -61,18 +73,42 @@ export class AnalyticsService {
             );
         }
 
-        qb = qb.andWhere('ua.event_name = :eventName', {
-            eventName: query.event_name ?? EventTypeEnum.PAGE_VIEW,
+        qb = qb.andWhere('(ua.event_name = "property_view" OR ua.event_name = "property_like")')
+        qb = qb.groupBy('ua.event_name, ua.event, wrl.listingsdb_id');
+
+        let result = await qb.getRawMany();
+
+        const analyticsResult = {
+            "property_view": {
+                "total_views": 0,
+                "unique_views": 0,
+                "properties": []
+            },
+            "property_like": {
+                "total_likes": 0,
+                "properties": []
+            }
+        }
+
+        result.forEach((item) => {
+            const { event_name, event, event_count, ...rest } = item;
+            if (event_name === 'property_view') {
+                analyticsResult.property_view.total_views += +event_count;
+                analyticsResult.property_view.unique_views++;
+                analyticsResult.property_view.properties.push({
+                    ...rest,
+                    event_count,
+                });
+            } else if (event_name === 'property_like') {
+                analyticsResult.property_like.total_likes += +event_count;
+                analyticsResult.property_like.properties.push(rest);
+            }
         });
-
-        qb = qb.groupBy('ua.event_name, ua.event');
-
-        const result = await qb.getRawMany();
 
         return {
             message: 'Found user analytics',
             data: {
-                analytics: result,
+                analytics: analyticsResult,
             },
         };
     }

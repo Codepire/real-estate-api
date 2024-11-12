@@ -1,7 +1,6 @@
 import {
     Injectable,
     NotFoundException,
-    UnauthorizedException,
 } from '@nestjs/common';
 import { GetAllPropertiesDto } from './dto/get-all-properties.dto';
 import { DataSource } from 'typeorm';
@@ -309,7 +308,7 @@ export class PropertiesService {
 
         //todo: possiblly avoid loop
         if (user) {
-            const likedProperties: any[] = (await this.likedProperties(user))
+            const likedProperties: any[] = (await this.likedProperties(user.userId))
                 .data.likedProperties;
             result = result.map((property) => {
                 if (
@@ -536,7 +535,7 @@ export class PropertiesService {
         }
     }
 
-    async likedProperties(user: any): Promise<IGenericResult> {
+    async likedProperties(userId: string): Promise<IGenericResult> {
         const foundLikedProperties = await this.dataSource.query(
             `
             SELECT
@@ -549,7 +548,7 @@ export class PropertiesService {
                 ua.user_id = ?
                 AND ua.event_name = ?;
             `,
-            [user.userId, EventTypeEnum.PROPERTY_LIKE],
+            [userId, EventTypeEnum.PROPERTY_LIKE],
         );
         return {
             message: 'Found liked properties',
