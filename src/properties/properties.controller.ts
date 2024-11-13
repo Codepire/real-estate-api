@@ -41,7 +41,7 @@ export class PropertiesController {
 
     @Get('likes')
     async likedProperties(@CurrentUser() user: any): Promise<IGenericResult> {
-        return this.propertiesService.likedProperties(user);
+        return this.propertiesService.likedProperties(user.userId);
     }
 
     /* Like or Unlike Property */
