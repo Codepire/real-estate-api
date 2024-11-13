@@ -23,6 +23,7 @@ export class PropertiesService {
         private readonly analyticsService: AnalyticsService,
     ) {}
 
+    // todo: true false not working, only 0 and 1 going
     getFrequentlySelectedPropertyFields(): string[] {
         return [
             'wrl.listingsdb_id AS id',
@@ -83,6 +84,8 @@ export class PropertiesService {
             'wrl.Style AS style',
             'wrl.DwellingType AS dwelling_type',
             'wrl.DepositSecurity AS deposit',
+            'CASE WHEN COALESCE(wrl.ForLease, "0") = "0" THEN false ELSE true END AS for_lease',
+            'CASE WHEN COALESCE(wrl.ForSale, "0") = "0" THEN false ELSE true END AS for_sale',
         ];
     }
 
