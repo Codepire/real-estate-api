@@ -10,18 +10,68 @@ import { IGenericResult } from 'src/common/interfaces';
 
 @Injectable()
 export class HomeDataService {
-    constructor(private readonly dataSource: DataSource) {}
+    constructor(private readonly dataSource: DataSource) { }
     async getTopEntities() {
-        return this.dataSource.query(
-            `
-                SELECT
-                    alias,
-                    entities
-                FROM
-                    top_entities;
-            `,
-        );
+        const res = await this.dataSource.query(`
+            SELECT alias, entities FROM top_entities;
+        `);
+    
+        const response = {
+            top_builders: [],
+            top_cities: [],
+            top_associations: [],
+        };
+    
+        for (const el of res) {
+            // Limit to top 5 entities            
+            if (el.alias === 'top_builders') {
+                const entities = el.entities.slice(0, 5);
+                const builderNames = entities.map((entity: string) => `'${entity}'`).join(",");
+                const result = await this.dataSource.query(`
+                    SELECT
+                        BuilderName AS name,
+                        SUM(CASE WHEN CompletedConstructionDate IS NULL THEN 1 ELSE 0 END) AS under_construction_projects,
+                        SUM(CASE WHEN CompletedConstructionDate IS NOT NULL THEN 1 ELSE 0 END) AS completed_projects
+                    FROM wp_realty_listingsdb
+                    WHERE BuilderName IN (${builderNames})
+                    GROUP BY BuilderName;
+                `);
+    
+                for (const el of result) {
+                    response.top_builders.push({
+                        builder_name: el.name,
+                        under_construction_projects: +el.under_construction_projects,
+                        completed_projects: +el.completed_projects,
+                        total_projects: +el.under_construction_projects + +el.completed_projects
+                    });
+                }
+            } else if (el.alias === 'top_cities') {
+                const entities = el.entities.slice(0, 5);
+
+                const cityNames = entities.map((entity: string) => `'${entity}'`).join(",");
+                const result = await this.dataSource.query(`
+                    SELECT
+                        City AS name,
+                        SUM(CASE WHEN CompletedConstructionDate IS NULL THEN 1 ELSE 0 END) AS under_construction_projects,
+                        SUM(CASE WHEN CompletedConstructionDate IS NOT NULL THEN 1 ELSE 0 END) AS completed_projects
+                    FROM wp_realty_listingsdb
+                    WHERE City IN (${cityNames})
+                    GROUP BY City;
+                `);
+    
+                for (const el of result) {
+                    response.top_cities.push({
+                        city_name: el.name,
+                        under_construction_projects: +el.under_construction_projects,
+                        completed_projects: +el.completed_projects,
+                        total_projects: +el.under_construction_projects + +el.completed_projects
+                    });
+                }
+            }
+        }
+        return response;
     }
+    
 
     async addTopEntity(
         newEntity: string,

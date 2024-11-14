@@ -25,12 +25,8 @@ export class HomeDataController {
         return {
             message: 'home data found',
             data: {
-                homeData: res.map(
-                    (r: { alias: string; entities: string[] }) => {
-                        return { [r.alias]: r.entities ?? [] };
-                    },
-                ),
-            },
+                homeData: res
+            }
         };
     }
 
