@@ -58,7 +58,7 @@ export class UsersService {
     async getProfileDetails(user: any): Promise<IGenericResult> {
         const foundUser: UsersEntity = await this.usersRepo.findOne({
             where: {
-                id: user?.id,
+                id: user?.userId,
             },
             select: {
                 id: true,
