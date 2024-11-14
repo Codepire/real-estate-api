@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { HomeDataService } from './home-data.service';
-import { HomeDataController } from './home-data.controller';
+import { HomeDataService } from './app-config.service';
+import { HomeDataController } from './app-config.controller';
 import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({

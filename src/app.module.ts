@@ -13,8 +13,8 @@ import { BlogsModule } from './blogs/blogs.module';
 import { ContactUsModule } from './contact-us/contact-us.module';
 import { FiltersModule } from './filters/filters.module';
 import { CacheModule } from '@nestjs/cache-manager';
-import { HomeDataModule } from './home-data/home-data.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { HomeDataModule } from './app-config/app-config.module';
 
 @Module({
     imports: [

@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Inject, Post } from '@nestjs/common';
-import { HomeDataService } from './home-data.service';
+import { HomeDataService } from './app-config.service';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 import { IGenericResult } from 'src/common/interfaces';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -11,7 +11,7 @@ import { DeleteTopCityDto } from './dto/delete-top-city.dto';
 import { AddTopBuilderDto } from './dto/add-top-builder.dto';
 import { DeleteTopBuilderDto } from './dto/delete-top-builder.dto';
 
-@Controller('home-data')
+@Controller('app-config')
 export class HomeDataController {
     constructor(
         private readonly homeDataService: HomeDataService,
@@ -19,13 +19,13 @@ export class HomeDataController {
     ) {}
 
     @SkipAuth()
-    @Get()
+    @Get('home-data')
     async getTopEntities(): Promise<IGenericResult> {
         const res = await this.homeDataService.getTopEntities();
         return {
             message: 'home data found',
             data: {
-                homeData: res
+                home_data: res
             }
         };
     }
