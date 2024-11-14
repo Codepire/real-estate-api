@@ -18,7 +18,7 @@ import { UserRoleEnum } from 'src/common/enums';
 import { Request, Response } from 'express';
 import { CurrentUser } from 'src/common/guards/current-user.guard';
 import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-auth.guard';
-import { v4 } from 'uuid';
+
 @Controller('properties')
 export class PropertiesController {
     constructor(private readonly propertiesService: PropertiesService) {}

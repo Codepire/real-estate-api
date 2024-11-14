@@ -83,6 +83,8 @@ export class PropertiesService {
             'wrl.GeoMarketArea AS geo_market_area',
             'wrl.Style AS style',
             'wrl.DwellingType AS dwelling_type',
+            'wrl.CompletedConstructionDate as completed_construction_date',
+            'wrl.CompletionDate as expected_completion_date',
             'wrl.DepositSecurity AS deposit',
             'CASE WHEN COALESCE(wrl.ForLease, "0") = "0" THEN false ELSE true END AS for_lease',
             'CASE WHEN COALESCE(wrl.ForSale, "0") = "0" THEN false ELSE true END AS for_sale',
