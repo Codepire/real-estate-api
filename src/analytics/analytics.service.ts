@@ -57,7 +57,9 @@ export class AnalyticsService {
                 COALESCE(wrl.SqFtTotal, 0) AS sqft_total,
                 wrl.BuilderName AS builder_name,
                 wrl.Address AS address,
-                wrl.OriginalListPrice AS price
+                wrl.OriginalListPrice AS price,
+                wrl.ForSale As for_sale,
+                wrl.ForLease As for_lease
             `])
             .where('ua.user_id = :userId', { userId })
             .leftJoin('wp_realty_listingsdb', 'wrl', 'ua.event = wrl.listingsdb_id')
