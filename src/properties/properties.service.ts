@@ -127,7 +127,11 @@ export class PropertiesService {
                 ...this.getFrequentlySelectedPropertyFields(),
                 ...(user && user.role === 'admin' ? ['wrl.is_active'] : [])
             ])
-            .from('wp_realty_listingsdb', 'wrl')
+            .from('wp_realty_listingsdb', 'wrl');
+        
+        if (user && user?.role !== 'admin') {
+            qb.andWhere('wrl.is_active = 1');
+        }
 
         if (latitude && longitude && radius) {
             qb.andWhere(
@@ -382,12 +386,15 @@ export class PropertiesService {
             .createQueryBuilder()
             .select(this.getFrequentlySelectedPropertyFields())
             .from('wp_realty_listingsdb', 'wrl')
-            .where('wrl.listingsdb_id = :propertyId', { propertyId })
+            .where('wrl.listingsdb_id = :propertyId', { propertyId });
 
         const foundProperty = await qb.getRawOne();
         foundProperty['is_liked'] = false;
 
         if (user) {
+            if (user.role !== 'admin') {
+                qb.andWhere('wrl.is_active = 1');
+            }
             const propertyLIke = await this.dataSource.query(
                 `
                 SELECT *
