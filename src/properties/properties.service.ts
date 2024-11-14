@@ -128,7 +128,6 @@ export class PropertiesService {
                 ...(user && user.role === 'admin' ? ['wrl.is_active'] : [])
             ])
             .from('wp_realty_listingsdb', 'wrl')
-            .andWhere('wrl.is_active = 1');
 
         if (latitude && longitude && radius) {
             qb.andWhere(
@@ -384,7 +383,6 @@ export class PropertiesService {
             .select(this.getFrequentlySelectedPropertyFields())
             .from('wp_realty_listingsdb', 'wrl')
             .where('wrl.listingsdb_id = :propertyId', { propertyId })
-            .andWhere('wrl.is_active = 1');
 
         const foundProperty = await qb.getRawOne();
         foundProperty['is_liked'] = false;
