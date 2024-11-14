@@ -2,10 +2,10 @@ import {
     Controller,
     Get,
     Param,
+    Patch,
     Post,
     Query,
     Req,
-    Res,
     UseGuards,
 } from '@nestjs/common';
 import { PropertiesService } from './properties.service';

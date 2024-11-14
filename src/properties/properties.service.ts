@@ -121,8 +121,12 @@ export class PropertiesService {
     ): Promise<IGenericResult> {
         const qb = this.dataSource
             .createQueryBuilder()
-            .select(this.getFrequentlySelectedPropertyFields())
-            .from('wp_realty_listingsdb', 'wrl');
+            .select([
+                ...this.getFrequentlySelectedPropertyFields(),
+                ...(user && user.role === 'admin' ? ['wrl.is_active'] : [])
+            ])
+            .from('wp_realty_listingsdb', 'wrl')
+            .andWhere('wrl.is_active = 1');
 
         if (latitude && longitude && radius) {
             qb.andWhere(
@@ -377,7 +381,8 @@ export class PropertiesService {
             .createQueryBuilder()
             .select(this.getFrequentlySelectedPropertyFields())
             .from('wp_realty_listingsdb', 'wrl')
-            .where('wrl.listingsdb_id = :propertyId', { propertyId });
+            .where('wrl.listingsdb_id = :propertyId', { propertyId })
+            .andWhere('wrl.is_active = 1');
 
         const foundProperty = await qb.getRawOne();
         foundProperty['is_liked'] = false;
@@ -550,7 +555,8 @@ export class PropertiesService {
             INNER JOIN users u ON u.id = ua.user_id 
             WHERE 
                 ua.user_id = ?
-                AND ua.event_name = ?;
+                AND ua.event_name = ?
+                AND wrl.is_active = 1;
             `,
             [userId, EventTypeEnum.PROPERTY_LIKE],
         );
