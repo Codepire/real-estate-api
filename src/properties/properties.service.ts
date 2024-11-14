@@ -561,4 +561,40 @@ export class PropertiesService {
             },
         };
     }
+
+    async activateDeactivatePropertyById(propertyId: number): Promise<IGenericResult> {
+        const foundProperty = await this.dataSource.query(
+            `
+            SELECT
+                is_active
+            FROM
+                wp_realty_listingsdb wrl
+            WHERE
+                wrl.listingsdb_id = ?
+            `,
+            [propertyId],
+        );
+
+        if (foundProperty[0]) {
+            await this.dataSource.query(
+                `
+                UPDATE
+                    wp_realty_listingsdb
+                SET
+                    is_active = ?
+                WHERE
+                    listingsdb_id = ?;
+                `,
+                [foundProperty[0].is_active ? 0 : 1, propertyId],
+            );
+        } else {
+            throw new NotFoundException(CONSTANTS.PROPERTY_NOT_FOUND);
+        }
+        return {
+            message: 'OK',
+            data: {
+                is_active: foundProperty[0].is_active ? false : true,
+            },
+        }
+    }
 }
