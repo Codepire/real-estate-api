@@ -1,12 +1,11 @@
 import {
     BadRequestException,
-    ConflictException,
     Injectable,
-    NotFoundException,
 } from '@nestjs/common';
 import { CONSTANTS } from 'src/common/constants';
 import { DataSource } from 'typeorm';
 import { IGenericResult } from 'src/common/interfaces';
+import { GetCitiesDto } from './dto/get-cities.dto';
 
 @Injectable()
 export class HomeDataService {
@@ -109,6 +108,86 @@ export class HomeDataService {
 
         return {
             message: 'Association data updated',
+        };
+    }
+
+    async getTopCities({ limit, page, searchText }: GetCitiesDto): Promise<IGenericResult> {
+        const pageInt = parseInt(page) || 1;
+        const limitInt = parseInt(limit) || 50;
+        const offset = (pageInt - 1) * limitInt;
+        const searchLowerText = searchText?.toLowerCase() || '';
+
+        let [foundCities, totalCount, topEntities] = await Promise.all([
+            this.dataSource.query(
+                `
+                SELECT
+                    city,
+                    SUM(CASE WHEN wrl.CompletedConstructionDate IS NULL THEN 1 ELSE 0 END) AS under_construction_projects,
+                    SUM(CASE WHEN wrl.CompletedConstructionDate IS NOT NULL THEN 1 ELSE 0 END) AS completed_projects,
+                    COUNT(wrl.listingsdb_id) AS total_projects,
+                    SUM(CASE WHEN ua.event_name = 'property_like' THEN 1 ELSE 0 END) AS likes,
+                    SUM(CASE WHEN ua.event_name = 'property_view' THEN 1 ELSE 0 END) AS views
+                FROM
+                    wp_realty_listingsdb wrl
+
+                LEFT JOIN
+                    user_analytics ua
+                ON
+                    (wrl.listingsdb_id = ua.event AND (ua.event_name = 'property_like' OR ua.event_name = 'property_view'))
+
+                WHERE
+                    City IS NOT NULL
+                AND
+                    LOWER(wrl.City) LIKE ?
+                GROUP BY wrl.City
+                ORDER BY
+                    wrl.City ASC
+                LIMIT ? OFFSET ?;
+                `,
+                [`%${searchLowerText?.toLowerCase()}%`, limitInt, offset]
+            ),
+            this.dataSource.query(
+                `
+                SELECT COUNT(DISTINCT City) AS count
+                    FROM wp_realty_listingsdb
+                WHERE
+                    City IS NOT NULL
+                AND
+                    LOWER(City) LIKE ?
+                `, [`%${searchLowerText?.toLowerCase()}%`, limitInt, offset]
+
+            ),
+            this.dataSource.query(
+                `
+                SELECT
+                    entities
+                FROM
+                    top_entities
+                WHERE alias = 'top_cities'
+                `
+            )
+        ]);
+
+        const entities: string[] = topEntities[0]?.entities || [];
+
+        for (let i = 0; i < foundCities.length; i++) {
+            if (entities.includes(foundCities[i].city)) {
+                foundCities[i].is_top_entity = true;
+            } else {
+                foundCities[i].is_top_entity = false;
+            }
+        }
+
+        return {
+            message: 'Cities found',
+            data: {
+                cities: foundCities,
+                metadata: {
+                    totalCount: parseInt(totalCount[0]['count']) || 0,
+                    next: offset + limitInt < totalCount[0]['count'],
+                    totalPages: Math.ceil(totalCount[0]['count'] / limitInt),
+                },
+            },
         };
     }
 }

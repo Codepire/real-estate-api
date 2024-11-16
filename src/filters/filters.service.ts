@@ -14,7 +14,7 @@ export class FiltersService {
         filter: string,
         page: number,
         limit: number,
-        searchText: string,
+        searchText?: string,
     ): Promise<IGenericResult> {
         const offset = (page - 1) * limit;
 

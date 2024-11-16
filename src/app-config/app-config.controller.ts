@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Patch} from '@nestjs/common';
+import { Body, Controller, Get, Inject, Patch, Query} from '@nestjs/common';
 import { HomeDataService } from './app-config.service';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 import { IGenericResult } from 'src/common/interfaces';
@@ -8,6 +8,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRoleEnum } from 'src/common/enums';
 import { AddTopCityDto } from './dto/add-top-city.dto';
 import { AddTopBuilderDto } from './dto/add-top-builder.dto';
+import { GetCitiesDto } from './dto/get-cities.dto';
 
 @Controller('app-config')
 export class HomeDataController {
@@ -31,6 +32,14 @@ export class HomeDataController {
                 home_data: homeData,
             },
         };
+    }
+
+    @Roles(UserRoleEnum.ADMIN)
+    @Get('home-data/top-cities')
+    async getTopCities(
+        @Query() query: GetCitiesDto
+    ): Promise<IGenericResult> {
+        return this.homeDataService.getTopCities(query);
     }
 
     @Roles(UserRoleEnum.ADMIN)
