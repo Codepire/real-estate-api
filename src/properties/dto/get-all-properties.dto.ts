@@ -72,7 +72,8 @@ export class GetAllPropertiesDto {
 
     for_sale: 'true' | 'false';
 
-    for_rent: 'true' | 'false';
+    //rent
+    for_lease: 'true' | 'false';
 
     is_liked: 'true' | 'false';
 }

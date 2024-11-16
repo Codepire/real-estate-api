@@ -31,6 +31,7 @@ export class FiltersService {
         };
     
         filter = filterMapping[filter] || filter;
+        const searchLowerText = searchText?.toLowerCase() || '';
 
         const [foundFilters, totalCount] = await Promise.all([
             this.dataSource.query(
@@ -50,7 +51,7 @@ export class FiltersService {
                     ${filter} ASC
                 LIMIT ? OFFSET ?;
                 `,
-                [`%${searchText.toLowerCase()}%`, limit, offset]
+                [`%${searchLowerText}%`, limit, offset]
             ),
             this.dataSource.query(
                 `
@@ -63,7 +64,7 @@ export class FiltersService {
                     NOT IN ('', 'na', 'n/a', '-', '--', '.', '*', '/na', '(not subdivided)', '0', '00', '000', '0000')
                 AND
                     LOWER(${filter}) LIKE ?
-                `, [`%${searchText.toLowerCase()}%`, limit, offset]
+                `, [`%${searchLowerText}%`, limit, offset]
 
             ),
         ]);

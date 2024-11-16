@@ -115,7 +115,7 @@ export class PropertiesService {
             geo_market_area,
             style,
             dwelling_type,
-            for_rent,
+            for_lease,
             for_sale,
             is_liked,
         }: GetAllPropertiesDto,
@@ -314,7 +314,7 @@ export class PropertiesService {
             qb.andWhere('wrl.ForSale = 1');
         }
 
-        if (for_rent?.toLowerCase() === 'true') {
+        if (for_lease?.toLowerCase() === 'true') {
             qb.andWhere('wrl.ForLease = 1');
         }
 
