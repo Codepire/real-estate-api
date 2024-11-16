@@ -1,7 +1,4 @@
-import {
-    Injectable,
-    NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { GetAllPropertiesDto } from './dto/get-all-properties.dto';
 import { DataSource } from 'typeorm';
 import { IGenericResult } from 'src/common/interfaces';
@@ -21,7 +18,7 @@ export class PropertiesService {
         private readonly httpService: HttpService,
         private readonly configService: ConfigService,
         private readonly analyticsService: AnalyticsService,
-    ) { }
+    ) {}
 
     // todo: true false not working, only 0 and 1 going
     getFrequentlySelectedPropertyFields(): string[] {
@@ -128,7 +125,7 @@ export class PropertiesService {
             .createQueryBuilder()
             .select([
                 ...this.getFrequentlySelectedPropertyFields(),
-                ...(user && user.role === 'admin' ? ['wrl.is_active'] : [])
+                ...(user && user.role === 'admin' ? ['wrl.is_active'] : []),
             ])
             .from('wp_realty_listingsdb', 'wrl');
 
@@ -321,6 +318,26 @@ export class PropertiesService {
             qb.andWhere('wrl.ForLease = 1');
         }
 
+        if (user) {
+            qb.leftJoin(
+                'user_analytics',
+                'ua',
+                'ua.event = wrl.listingsdb_id AND ua.event_name = :event_name AND ua.user_id = :user_id',
+            );
+
+            qb.addSelect([
+                'CASE WHEN ua.user_id = :user_id THEN true ELSE false END AS is_liked',
+            ]);
+
+            if (is_liked?.toLowerCase() === 'true') {
+                qb.andWhere('ua.event_name = :event_name');
+            }
+            qb.setParameters({
+                user_id: user.userId,
+                event_name: EventTypeEnum.PROPERTY_LIKE,
+            });
+        }
+
         page = parseInt(String(page), 10) || 1;
         limit = parseInt(String(limit), 10) || 100;
 
@@ -329,33 +346,6 @@ export class PropertiesService {
         qb.offset(offset).limit(limit ?? 100);
 
         let result = await qb.getRawMany();
-
-        //todo: possiblly avoid loop
-        if (user) {
-            const likedProperties: any[] = (await this.likedProperties(user.userId))
-                .data.likedProperties;
-            result = result.map((property) => {
-                if (
-                    likedProperties.findIndex((el) => el.id === property.id) !==
-                    -1
-                ) {
-                    return {
-                        ...property,
-                        is_liked: true,
-                    };
-                } else {
-                    return {
-                        ...property,
-                        is_liked: false,
-                    };
-                }
-            });
-
-            if (is_liked === 'true') {
-                result = result.filter((el) => el.is_liked);
-            }
-        }
-
 
         return {
             data: {
@@ -592,7 +582,9 @@ export class PropertiesService {
         };
     }
 
-    async activateDeactivatePropertyById(propertyId: number): Promise<IGenericResult> {
+    async activateDeactivatePropertyById(
+        propertyId: number,
+    ): Promise<IGenericResult> {
         const foundProperty = await this.dataSource.query(
             `
             SELECT
@@ -625,6 +617,6 @@ export class PropertiesService {
             data: {
                 is_active: foundProperty[0].is_active ? false : true,
             },
-        }
+        };
     }
 }

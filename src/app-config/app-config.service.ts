@@ -10,25 +10,27 @@ import { IGenericResult } from 'src/common/interfaces';
 
 @Injectable()
 export class HomeDataService {
-    constructor(private readonly dataSource: DataSource) { }
+    constructor(private readonly dataSource: DataSource) {}
     async getTopEntities() {
         const res = await this.dataSource.query(`
             SELECT alias, entities FROM top_entities;
         `);
-    
+
         const response = {
             top_builders: [],
             top_cities: [],
             top_associations: [],
         };
-    
+
         for (const el of res) {
             const entities = el.entities?.slice(0, 5);
             if (!el.entities[0]) {
                 continue;
             }
             if (el.alias === 'top_builders') {
-                const builderNames = entities.map((entity: string) => `'${entity}'`).join(",");
+                const builderNames = entities
+                    .map((entity: string) => `'${entity}'`)
+                    .join(',');
                 const result = await this.dataSource.query(`
                     SELECT
                         BuilderName AS name,
@@ -38,17 +40,22 @@ export class HomeDataService {
                     WHERE BuilderName IN (${builderNames})
                     GROUP BY BuilderName;
                 `);
-    
+
                 for (const el of result) {
                     response.top_builders.push({
                         builder_name: el.name,
-                        under_construction_projects: +el.under_construction_projects,
+                        under_construction_projects:
+                            +el.under_construction_projects,
                         completed_projects: +el.completed_projects,
-                        total_projects: +el.under_construction_projects + +el.completed_projects
+                        total_projects:
+                            +el.under_construction_projects +
+                            +el.completed_projects,
                     });
                 }
             } else if (el.alias === 'top_cities') {
-                const cityNames = entities.map((entity: string) => `'${entity}'`).join(",");
+                const cityNames = entities
+                    .map((entity: string) => `'${entity}'`)
+                    .join(',');
                 const result = await this.dataSource.query(`
                     SELECT
                         City AS name,
@@ -58,20 +65,22 @@ export class HomeDataService {
                     WHERE City IN (${cityNames})
                     GROUP BY City;
                 `);
-    
+
                 for (const el of result) {
                     response.top_cities.push({
                         city_name: el.name,
-                        under_construction_projects: +el.under_construction_projects,
+                        under_construction_projects:
+                            +el.under_construction_projects,
                         completed_projects: +el.completed_projects,
-                        total_projects: +el.under_construction_projects + +el.completed_projects
+                        total_projects:
+                            +el.under_construction_projects +
+                            +el.completed_projects,
                     });
                 }
             }
         }
         return response;
     }
-    
 
     async addTopEntity(
         newEntity: string,

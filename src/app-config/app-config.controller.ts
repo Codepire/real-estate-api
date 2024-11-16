@@ -29,8 +29,8 @@ export class HomeDataController {
         return {
             message: 'home data found',
             data: {
-                home_data: homeData
-            }
+                home_data: homeData,
+            },
         };
     }
 

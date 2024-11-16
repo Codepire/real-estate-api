@@ -76,9 +76,7 @@ export class PropertiesController {
 
     @Roles(UserRoleEnum.ADMIN)
     @Patch('active-deactive/:id')
-    async activateDeactivatePropertyById(
-        @Param('id') id: string,
-    ) {
+    async activateDeactivatePropertyById(@Param('id') id: string) {
         return await this.propertiesService.activateDeactivatePropertyById(+id);
     }
 }

@@ -47,7 +47,8 @@ export class AnalyticsService {
         let qb = this.dataSource
             .getRepository('user_analytics')
             .createQueryBuilder('ua')
-            .select([`
+            .select([
+                `
                 ua.event_name, 
                 ua.event, 
                 COUNT(*) AS event_count,
@@ -60,9 +61,14 @@ export class AnalyticsService {
                 wrl.OriginalListPrice AS price,
                 wrl.ForSale As for_sale,
                 wrl.ForLease As for_lease
-            `])
+            `,
+            ])
             .where('ua.user_id = :userId', { userId })
-            .leftJoin('wp_realty_listingsdb', 'wrl', 'ua.event = wrl.listingsdb_id')
+            .leftJoin(
+                'wp_realty_listingsdb',
+                'wrl',
+                'ua.event = wrl.listingsdb_id',
+            );
 
         if (
             query.from_date &&
@@ -75,22 +81,24 @@ export class AnalyticsService {
             );
         }
 
-        qb = qb.andWhere('(ua.event_name = "property_view" OR ua.event_name = "property_like")')
+        qb = qb.andWhere(
+            '(ua.event_name = "property_view" OR ua.event_name = "property_like")',
+        );
         qb = qb.groupBy('ua.event_name, ua.event, wrl.listingsdb_id');
 
         let result = await qb.getRawMany();
 
         const analyticsResult = {
-            "property_view": {
-                "total_views": 0,
-                "unique_views": 0,
-                "properties": []
+            property_view: {
+                total_views: 0,
+                unique_views: 0,
+                properties: [],
             },
-            "property_like": {
-                "total_likes": 0,
-                "properties": []
-            }
-        }
+            property_like: {
+                total_likes: 0,
+                properties: [],
+            },
+        };
 
         result.forEach((item) => {
             const { event_name, event, event_count, ...rest } = item;
