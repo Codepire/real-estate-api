@@ -8,34 +8,29 @@ export class FiltersService {
     constructor(
         private readonly dataSource: DataSource,
         private readonly propertiesService: PropertiesService,
-    ) {}
+    ) { }
 
     async getFilteredData(
         filter: string,
         page: number,
         limit: number,
+        searchText: string,
     ): Promise<IGenericResult> {
         const offset = (page - 1) * limit;
 
-        if (filter === 'builder_names') {
-            filter = 'builderName';
-        } else if (filter === 'countries') {
-            filter = 'country';
-        } else if (filter === 'states') {
-            filter = 'state';
-        } else if (filter === 'cities') {
-            filter = 'city';
-        } else if (filter === 'zipcode') {
-            filter = 'zip';
-        } else if (filter === 'property_types') {
-            filter = 'PropertyType';
-        } else if (filter === 'geo_market_area') {
-            filter = 'GeoMarketArea';
-        } else if (filter === 'school_district') {
-            filter = 'SchoolDistrict';
-        } else if (filter === 'dwelling_type') {
-            filter = 'DwellingType';
-        }
+        const filterMapping: Record<string, string> = {
+            builder_names: 'builderName',
+            countries: 'country',
+            states: 'state',
+            cities: 'city',
+            zipcodes: 'zip',
+            property_types: 'PropertyType',
+            geo_market_area: 'GeoMarketArea',
+            school_district: 'SchoolDistrict',
+            dwelling_type: 'DwellingType',
+        };
+    
+        filter = filterMapping[filter] || filter;
 
         const [foundFilters, totalCount] = await Promise.all([
             this.dataSource.query(
@@ -48,18 +43,28 @@ export class FiltersService {
                     ${filter} IS NOT NULL
                 AND
                     LOWER(${filter}) 
-                    NOT IN ('', 'na', 'n/a', '-', '--', '.', '*', '/na', '(Not Subdivided)', '0', '00', '000', '0000')
+                    NOT IN ('', 'na', 'n/a', '-', '--', '.', '*', '/na', '(not subdivided)', '0', '00', '000', '0000')
+                AND
+                    LOWER(${filter}) LIKE ?
                 ORDER BY
                     ${filter} ASC
                 LIMIT ? OFFSET ?;
                 `,
-                [limit, offset],
+                [`%${searchText.toLowerCase()}%`, limit, offset]
             ),
             this.dataSource.query(
                 `
-                    SELECT COUNT(DISTINCT ${filter}) AS count
+                SELECT COUNT(DISTINCT ${filter}) AS count
                     FROM wp_realty_listingsdb
-                    `,
+                WHERE
+                    ${filter} IS NOT NULL
+                AND
+                    LOWER(${filter}) 
+                    NOT IN ('', 'na', 'n/a', '-', '--', '.', '*', '/na', '(not subdivided)', '0', '00', '000', '0000')
+                AND
+                    LOWER(${filter}) LIKE ?
+                `, [`%${searchText.toLowerCase()}%`, limit, offset]
+
             ),
         ]);
 
@@ -68,7 +73,7 @@ export class FiltersService {
             data: {
                 filters: foundFilters.map((el: any) => el[filter]),
                 metadata: {
-                    totalCount: totalCount[0]['count'],
+                    totalCount: parseInt(totalCount[0]['count']) || 0,
                     next: offset + limit < totalCount[0]['count'],
                     totalPages: Math.ceil(totalCount[0]['count'] / limit),
                 },

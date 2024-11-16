@@ -16,8 +16,8 @@ export class FiltersController {
         @Query() getFiltersQuery: GetFiltersQueryDto,
     ) {
         const { filter } = getFilterDto;
-        const { limit, page } = getFiltersQuery;
-        return this.filtersService.getFilteredData(filter, +page, +limit);
+        const { limit, page, searchText } = getFiltersQuery;
+        return this.filtersService.getFilteredData(filter, parseInt(page, 10) || 1, parseInt(limit, 10) || 50, searchText);
     }
 
     @SkipAuth()

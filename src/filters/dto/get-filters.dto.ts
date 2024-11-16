@@ -3,20 +3,19 @@ import { IsIn, IsNotEmpty } from 'class-validator';
 export class GetFiltersDto {
     @IsNotEmpty()
     @IsIn([
-        'country',
-        'state',
-        'city',
-        'zipcode',
         'builder_names',
-        'area',
-        'county',
-        'masterplannedcommunity',
+        'countries',
+        'states',
+        'cities',
+        'zipcodes',
         'property_types',
         'geo_market_area',
         'school_district',
+        'dwelling_type',
+        'area',
+        'masterplannedcommunity',
         'subdivision',
         'style',
-        'dwelling_type',
     ])
     filter: string;
 }

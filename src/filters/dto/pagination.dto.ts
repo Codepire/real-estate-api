@@ -1,6 +1,8 @@
 // TODO: Add validation
 export class GetFiltersQueryDto {
-    page: number = 1;
+    page: string = '1';
 
-    limit: number = 100;
+    limit: string = '100';
+
+    searchText: string;
 }
