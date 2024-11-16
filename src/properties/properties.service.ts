@@ -21,7 +21,7 @@ export class PropertiesService {
         private readonly httpService: HttpService,
         private readonly configService: ConfigService,
         private readonly analyticsService: AnalyticsService,
-    ) {}
+    ) { }
 
     // todo: true false not working, only 0 and 1 going
     getFrequentlySelectedPropertyFields(): string[] {
@@ -119,7 +119,8 @@ export class PropertiesService {
             style,
             dwelling_type,
             for_rent,
-            for_sale
+            for_sale,
+            is_liked,
         }: GetAllPropertiesDto,
         user: any,
     ): Promise<IGenericResult> {
@@ -130,7 +131,7 @@ export class PropertiesService {
                 ...(user && user.role === 'admin' ? ['wrl.is_active'] : [])
             ])
             .from('wp_realty_listingsdb', 'wrl');
-        
+
         if (user && user?.role !== 'admin') {
             qb.andWhere('wrl.is_active = 1');
         }
@@ -349,7 +350,13 @@ export class PropertiesService {
                     };
                 }
             });
+
+            if (is_liked === 'true') {
+                result = result.filter((el) => el.is_liked);
+            }
         }
+
+
         return {
             data: {
                 properties: result,
