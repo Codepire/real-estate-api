@@ -118,6 +118,8 @@ export class PropertiesService {
             geo_market_area,
             style,
             dwelling_type,
+            for_rent,
+            for_sale
         }: GetAllPropertiesDto,
         user: any,
     ): Promise<IGenericResult> {
@@ -308,6 +310,14 @@ export class PropertiesService {
                     dwelling_type,
                 },
             );
+        }
+
+        if (for_sale?.toLowerCase() === 'true') {
+            qb.andWhere('wrl.ForSale = 1');
+        }
+
+        if (for_rent?.toLowerCase() === 'true') {
+            qb.andWhere('wrl.ForLease = 1');
         }
 
         page = parseInt(String(page), 10) || 1;

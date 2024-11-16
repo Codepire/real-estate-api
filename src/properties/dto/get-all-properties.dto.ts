@@ -69,4 +69,8 @@ export class GetAllPropertiesDto {
     style?: string;
 
     dwelling_type?: string;
+
+    for_sale: 'true' | 'false';
+
+    for_rent: 'true' | 'false';
 }
