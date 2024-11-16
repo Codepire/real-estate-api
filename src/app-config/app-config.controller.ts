@@ -21,11 +21,15 @@ export class HomeDataController {
     @SkipAuth()
     @Get('home-data')
     async getTopEntities(): Promise<IGenericResult> {
-        const res = await this.homeDataService.getTopEntities();
+        let homeData = await this.cacheManager.get('home_data');
+        if (!homeData) {
+            homeData = await this.homeDataService.getTopEntities();
+            await this.cacheManager.set('home_data', homeData, 3600000); //1 hour caching
+        }
         return {
             message: 'home data found',
             data: {
-                home_data: res
+                home_data: homeData
             }
         };
     }

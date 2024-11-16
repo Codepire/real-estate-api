@@ -23,9 +23,11 @@ export class HomeDataService {
         };
     
         for (const el of res) {
-            // Limit to top 5 entities            
+            const entities = el.entities?.slice(0, 5);
+            if (!el.entities[0]) {
+                continue;
+            }
             if (el.alias === 'top_builders') {
-                const entities = el.entities.slice(0, 5);
                 const builderNames = entities.map((entity: string) => `'${entity}'`).join(",");
                 const result = await this.dataSource.query(`
                     SELECT
@@ -46,8 +48,6 @@ export class HomeDataService {
                     });
                 }
             } else if (el.alias === 'top_cities') {
-                const entities = el.entities.slice(0, 5);
-
                 const cityNames = entities.map((entity: string) => `'${entity}'`).join(",");
                 const result = await this.dataSource.query(`
                     SELECT
