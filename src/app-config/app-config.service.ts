@@ -82,8 +82,8 @@ export class HomeDataService {
         return response;
     }
 
-    async addTopEntity(
-        newEntity: string,
+    async addOrRemoveTopEntity(
+        entity: string,
         alias: string,
     ): Promise<IGenericResult> {
         const currentEntitiesResult = await this.dataSource.query(
@@ -92,40 +92,15 @@ export class HomeDataService {
         );
         const currentEntities = currentEntitiesResult[0]?.entities || [];
 
-        if (currentEntities.length >= 5) {
-            throw new BadRequestException(CONSTANTS.MAX_TOP_ENTITIES);
-        }
-        if (currentEntities.includes(newEntity)) {
-            throw new ConflictException(CONSTANTS.ENTITITY_ALREADY_EXISTS);
-        }
-
-        currentEntities.push(newEntity);
-
-        await this.dataSource.query(
-            `UPDATE top_entities SET entities = ? WHERE alias = ?`,
-            [JSON.stringify(currentEntities), alias],
-        );
-
-        return {
-            message: 'Entity added',
-        };
-    }
-    async removeTopEntity(
-        entityToRemove: string,
-        alias: string,
-    ): Promise<IGenericResult> {
-        const currentEntitiesResult = await this.dataSource.query(
-            `SELECT entities FROM top_entities WHERE alias = ?`,
-            [alias],
-        );
-        const currentEntities = currentEntitiesResult[0]?.entities || [];
-
-        const entityIndex = currentEntities.indexOf(entityToRemove);
+        const entityIndex = currentEntities.indexOf(entity);
         if (entityIndex === -1) {
-            throw new NotFoundException('Entity not found in the list');
+            if (currentEntities.length >= 5) {
+                throw new BadRequestException(CONSTANTS.MAX_TOP_ENTITIES);
+            }
+            currentEntities.push(entity);
+        } else {
+            currentEntities.splice(entityIndex, 1);
         }
-
-        currentEntities.splice(entityIndex, 1);
 
         await this.dataSource.query(
             `UPDATE top_entities SET entities = ? WHERE alias = ?`,
@@ -133,7 +108,7 @@ export class HomeDataService {
         );
 
         return {
-            message: 'Entity removed',
+            message: 'Association data updated',
         };
     }
 }

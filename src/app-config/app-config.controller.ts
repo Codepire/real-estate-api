@@ -24,7 +24,8 @@ export class HomeDataController {
         let homeData = await this.cacheManager.get('home_data');
         if (!homeData) {
             homeData = await this.homeDataService.getTopEntities();
-            await this.cacheManager.set('home_data', homeData, 3600000); //1 hour caching
+            // todo: uncomment this line before production
+            // await this.cacheManager.set('home_data', homeData, 3600000); //1 hour caching
         }
         return {
             message: 'home data found',
@@ -35,39 +36,17 @@ export class HomeDataController {
     }
 
     @Roles(UserRoleEnum.ADMIN)
-    @Post('top-city')
+    @Post('home-data/top-city')
     async addTopCity(@Body() body: AddTopCityDto): Promise<IGenericResult> {
-        return this.homeDataService.addTopEntity(body.city_name, 'top_cities');
+        return this.homeDataService.addOrRemoveTopEntity(body.city_name, 'top_cities');
     }
 
     @Roles(UserRoleEnum.ADMIN)
-    @Delete('top-city')
-    async deleteTopCity(
-        @Body() body: DeleteTopCityDto,
-    ): Promise<IGenericResult> {
-        return this.homeDataService.removeTopEntity(
-            body.city_name,
-            'top_cities',
-        );
-    }
-
-    @Roles(UserRoleEnum.ADMIN)
-    @Post('top-builder')
+    @Post('home-data/top-builder')
     async addTopBuilder(
         @Body() body: AddTopBuilderDto,
     ): Promise<IGenericResult> {
-        return this.homeDataService.addTopEntity(
-            body.builder_name,
-            'top_builders',
-        );
-    }
-
-    @Roles(UserRoleEnum.ADMIN)
-    @Delete('top-builder')
-    async deleteTopBuilder(
-        @Body() body: DeleteTopBuilderDto,
-    ): Promise<IGenericResult> {
-        return this.homeDataService.removeTopEntity(
+        return this.homeDataService.addOrRemoveTopEntity(
             body.builder_name,
             'top_builders',
         );
