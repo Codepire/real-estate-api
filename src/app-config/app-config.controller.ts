@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Inject, Post } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Patch} from '@nestjs/common';
 import { HomeDataService } from './app-config.service';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 import { IGenericResult } from 'src/common/interfaces';
@@ -7,9 +7,7 @@ import { Cache } from 'cache-manager';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRoleEnum } from 'src/common/enums';
 import { AddTopCityDto } from './dto/add-top-city.dto';
-import { DeleteTopCityDto } from './dto/delete-top-city.dto';
 import { AddTopBuilderDto } from './dto/add-top-builder.dto';
-import { DeleteTopBuilderDto } from './dto/delete-top-builder.dto';
 
 @Controller('app-config')
 export class HomeDataController {
@@ -36,13 +34,13 @@ export class HomeDataController {
     }
 
     @Roles(UserRoleEnum.ADMIN)
-    @Post('home-data/top-city')
+    @Patch('home-data/top-city')
     async addTopCity(@Body() body: AddTopCityDto): Promise<IGenericResult> {
         return this.homeDataService.addOrRemoveTopEntity(body.city_name, 'top_cities');
     }
 
     @Roles(UserRoleEnum.ADMIN)
-    @Post('home-data/top-builder')
+    @Patch('home-data/top-builder')
     async addTopBuilder(
         @Body() body: AddTopBuilderDto,
     ): Promise<IGenericResult> {

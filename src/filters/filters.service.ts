@@ -20,10 +20,7 @@ export class FiltersService {
 
         const filterMapping: Record<string, string> = {
             builder_names: 'builderName',
-            countries: 'country',
-            states: 'state',
-            cities: 'city',
-            zipcodes: 'zip',
+            zipcode: 'zip',
             property_types: 'PropertyType',
             geo_market_area: 'GeoMarketArea',
             school_district: 'SchoolDistrict',

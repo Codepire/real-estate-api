@@ -4,10 +4,10 @@ export class GetFiltersDto {
     @IsNotEmpty()
     @IsIn([
         'builder_names',
-        'countries',
-        'states',
-        'cities',
-        'zipcodes',
+        'country',
+        'state',
+        'city',
+        'zipcode',
         'property_types',
         'geo_market_area',
         'school_district',
@@ -16,6 +16,7 @@ export class GetFiltersDto {
         'masterplannedcommunity',
         'subdivision',
         'style',
+        'county'
     ])
     filter: string;
 }
