@@ -115,8 +115,7 @@ export class PropertiesService {
             geo_market_area,
             style,
             dwelling_type,
-            for_lease,
-            for_sale,
+            property_sale_type,
             is_liked,
             searchText,
         }: GetAllPropertiesDto,
@@ -311,12 +310,14 @@ export class PropertiesService {
             );
         }
 
-        if (for_sale?.toLowerCase() === 'true') {
-            qb.andWhere('wrl.ForSale = 1');
-        }
-
-        if (for_lease?.toLowerCase() === 'true') {
-            qb.andWhere('wrl.ForLease = 1');
+        if (property_sale_type) {
+            const saleTypeOptions = String(property_sale_type).split(',');
+            if (saleTypeOptions?.includes('sale')) {
+                qb.andWhere('wrl.ForSale = 1');
+            }
+            if (saleTypeOptions?.includes('lease')) {
+                qb.andWhere('wrl.ForLease = 1');
+            }
         }
 
         if (searchText) {

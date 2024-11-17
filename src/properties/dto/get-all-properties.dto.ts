@@ -70,10 +70,7 @@ export class GetAllPropertiesDto {
 
     dwelling_type?: string;
 
-    for_sale: 'true' | 'false';
-
-    //rent
-    for_lease: 'true' | 'false';
+    property_sale_type?: string[];
 
     is_liked: 'true' | 'false';
 
