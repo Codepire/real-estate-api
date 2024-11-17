@@ -15,7 +15,7 @@ import { IGenericResult } from 'src/common/interfaces';
 import { GetPropertiesStateByZip } from './dto/get-properties-states.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRoleEnum } from 'src/common/enums';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { CurrentUser } from 'src/common/guards/current-user.guard';
 import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-auth.guard';
 

@@ -118,6 +118,7 @@ export class PropertiesService {
             for_lease,
             for_sale,
             is_liked,
+            searchText,
         }: GetAllPropertiesDto,
         user: any,
     ): Promise<IGenericResult> {
@@ -316,6 +317,15 @@ export class PropertiesService {
 
         if (for_lease?.toLowerCase() === 'true') {
             qb.andWhere('wrl.ForLease = 1');
+        }
+
+        if (searchText) {
+            qb.andWhere(
+                '(LOWER(wrl.listingsdb_title) LIKE TRIM(LOWER(:searchText)) OR LOWER(wrl.Address) LIKE TRIM(LOWER(:searchText)) OR LOWER(wrl.StreetName) LIKE TRIM(LOWER(:searchText)))',
+                {
+                    searchText: `%${searchText}%`,
+                },
+            );
         }
 
         if (user) {

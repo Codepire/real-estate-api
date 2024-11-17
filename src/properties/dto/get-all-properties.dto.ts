@@ -76,4 +76,6 @@ export class GetAllPropertiesDto {
     for_lease: 'true' | 'false';
 
     is_liked: 'true' | 'false';
+
+    searchText?: string;
 }
