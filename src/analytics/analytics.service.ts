@@ -134,7 +134,8 @@ export class AnalyticsService {
                     COUNT(*) AS event_count,
                     CONCAT(u.first_name,' ', u.last_name) AS username,
                     u.email,
-                    u.created_at
+                    u.created_at,
+                    u.profile_url
                 FROM 
                     user_analytics ua
                 INNER JOIN
