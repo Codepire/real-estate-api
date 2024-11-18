@@ -28,7 +28,7 @@ export class FiltersService {
         };
     
         filter = filterMapping[filter] || filter;
-        const searchLowerText = searchText?.toLowerCase() || '';
+        const searchLowerText = searchText?.toLowerCase()?.trim() || '';
 
         const [foundFilters, totalCount] = await Promise.all([
             this.dataSource.query(
