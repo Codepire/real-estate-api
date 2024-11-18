@@ -126,24 +126,57 @@ export class AnalyticsService {
     async getPropertyViewAnalyticsById(
         propertyId: string,
     ): Promise<IGenericResult> {
-        const [totoalViews, totalRecievedLikes] = await Promise.all([
-            this.dataSource.query(
-                `SELECT COUNT(*) AS property_views from user_analytics WHERE event_name = 'property_view' AND event = ?`,
-                [propertyId],
-            ),
-            this.dataSource.query(
-                `SELECT COUNT(*) AS total_likes FROM user_analytics WHERE event = ? AND event_name = ?`,
-                [propertyId, EventTypeEnum.PROPERTY_LIKE],
-            ),
-        ]);
+        const result = await this.dataSource.query(
+            `
+                SELECT
+                    u.id,
+                    ua.event_name,
+                    COUNT(*) AS event_count,
+                    CONCAT(u.first_name,' ', u.last_name) AS username,
+                    u.email,
+                    u.created_at
+                FROM 
+                    user_analytics ua
+                INNER JOIN
+                    users u 
+                ON 
+                    ua.user_id = u.id
+                    AND ua.event_name IN ('property_view', 'property_like')
+                    AND ua.event = ?
+                GROUP BY
+                    u.id, ua.event_name;
+
+                `,
+            [propertyId],
+        );
+
+        const analytics = {
+            user_view: {
+                total_views: 0,
+                unique_views: 0,
+                users: [],
+            },
+            user_likes: {
+                total_likes: 0,
+                users: []
+            },
+        }
+
+        for (let el of result) {
+            if (el.event_name === 'property_view') {
+                analytics.user_view.total_views += parseInt(el.event_count || 0);
+                analytics.user_view.unique_views++;
+                analytics.user_view.users.push(el);
+            } else if (el.event_name === 'property_like') {
+                analytics.user_likes.total_likes++;
+                analytics.user_likes.users.push(el);
+            }
+        }
 
         return {
             message: 'Found property analytics',
             data: {
-                analytics: {
-                    views: totoalViews[0].property_views,
-                    likes: totalRecievedLikes[0].total_likes,
-                },
+                analytics
             },
         };
     }
