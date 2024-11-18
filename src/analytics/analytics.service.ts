@@ -107,7 +107,7 @@ export class AnalyticsService {
                 analyticsResult.property_view.unique_views++;
                 analyticsResult.property_view.properties.push({
                     ...rest,
-                    event_count,
+                    event_count: parseInt(event_count) || 0,
                 });
             } else if (event_name === 'property_like') {
                 analyticsResult.property_like.total_likes += +event_count;
@@ -164,10 +164,14 @@ export class AnalyticsService {
         }
 
         for (let el of result) {
+            const { event_name, event, event_count, ...rest } = el;
             if (el.event_name === 'property_view') {
                 analytics.user_view.total_views += parseInt(el.event_count || 0);
                 analytics.user_view.unique_views++;
-                analytics.user_view.users.push(el);
+                analytics.user_view.users.push({
+                    ...rest,
+                    event_count: parseInt(event_count) || 0
+                });
             } else if (el.event_name === 'property_like') {
                 analytics.user_likes.total_likes++;
                 analytics.user_likes.users.push(el);
