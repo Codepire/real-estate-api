@@ -272,11 +272,11 @@ export class HomeDataService {
             message: 'Builders found',
             data: {
                 builders: foundBuilders,
-                // metadata: {
-                //     totalCount: parseInt(totalCount[0]['count']) || 0,
-                //     next: offset + limitInt < totalCount[0]['count'],
-                //     totalPages: Math.ceil(totalCount[0]['count'] / limitInt),
-                // },
+                metadata: {
+                    totalCount: parseInt(totalCount[0]['count']) || 0,
+                    next: offset + limitInt < totalCount[0]['count'],
+                    totalPages: Math.ceil(totalCount[0]['count'] / limitInt),
+                },
             },
         };
     }
