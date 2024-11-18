@@ -353,19 +353,20 @@ export class PropertiesService {
         limit = parseInt(String(limit), 10) || 100;
 
         const offset = (page - 1) * limit;
-
+        
+        const aggregateQb = qb.clone().select('COUNT(*)', 'count')
         qb.offset(offset).limit(limit ?? 100);
 
-        let result = await qb.getRawMany();
+        let [result, totalCount] = await Promise.all([qb.getRawMany(), aggregateQb.execute()]);
 
         return {
             data: {
                 properties: result,
-                // metadata: {
-                //     totalCount: totalCount[0]['count'],
-                //     next: offset + limit < totalCount[0]['count'],
-                //     totalPages: Math.ceil(totalCount[0]['count'] / limit),
-                // },
+                metadata: {
+                    totalCount: parseInt(totalCount[0]['count']) || 0,
+                    next: offset + limit < totalCount[0]['count'],
+                    totalPages: Math.ceil(totalCount[0]['count'] / limit),
+                },
             },
             message: 'Properties found',
         };
