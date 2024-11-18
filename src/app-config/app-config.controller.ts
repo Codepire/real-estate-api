@@ -8,7 +8,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRoleEnum } from 'src/common/enums';
 import { AddTopCityDto } from './dto/add-top-city.dto';
 import { AddTopBuilderDto } from './dto/add-top-builder.dto';
-import { GetCitiesDto } from './dto/get-cities.dto';
+import { QueryFiltersDto } from './dto/get-data-with-filters.dto';
 
 @Controller('app-config')
 export class HomeDataController {
@@ -37,7 +37,7 @@ export class HomeDataController {
     @Roles(UserRoleEnum.ADMIN)
     @Get('home-data/top-cities')
     async getTopCities(
-        @Query() query: GetCitiesDto
+        @Query() query: QueryFiltersDto
     ): Promise<IGenericResult> {
         return this.homeDataService.getTopCities(query);
     }
@@ -57,5 +57,13 @@ export class HomeDataController {
             body.builder_name,
             'top_builders',
         );
+    }
+
+    @Roles(UserRoleEnum.ADMIN)
+    @Get('home-data/top-builders')
+    async getTopBuilders(
+        @Query() query: QueryFiltersDto
+    ): Promise<IGenericResult> {
+        return this.homeDataService.getTopBuilders(query);
     }
 }

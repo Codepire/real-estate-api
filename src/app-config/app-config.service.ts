@@ -5,7 +5,7 @@ import {
 import { CONSTANTS } from 'src/common/constants';
 import { DataSource } from 'typeorm';
 import { IGenericResult } from 'src/common/interfaces';
-import { GetCitiesDto } from './dto/get-cities.dto';
+import { QueryFiltersDto } from './dto/get-data-with-filters.dto';
 
 @Injectable()
 export class HomeDataService {
@@ -111,11 +111,16 @@ export class HomeDataService {
         };
     }
 
-    async getTopCities({ limit, page, searchText }: GetCitiesDto): Promise<IGenericResult> {
+    /**
+     * 
+     * @name getTopCities 
+     * @description returns all distinct cities from properties database with some analytics of city
+     */
+    async getTopCities({ limit, page, searchText }: QueryFiltersDto): Promise<IGenericResult> {
         const pageInt = parseInt(page) || 1;
         const limitInt = parseInt(limit) || 50;
         const offset = (pageInt - 1) * limitInt;
-        const searchLowerText = searchText?.toLowerCase() || '';
+        const searchLowerText = searchText?.toLowerCase()?.trim() || '';
 
         let [foundCities, totalCount, topEntities] = await Promise.all([
             this.dataSource.query(
@@ -144,7 +149,7 @@ export class HomeDataService {
                     wrl.City ASC
                 LIMIT ? OFFSET ?;
                 `,
-                [`%${searchLowerText?.toLowerCase()}%`, limitInt, offset]
+                [`%${searchLowerText}%`, limitInt, offset]
             ),
             this.dataSource.query(
                 `
@@ -154,7 +159,7 @@ export class HomeDataService {
                     City IS NOT NULL
                 AND
                     LOWER(City) LIKE ?
-                `, [`%${searchLowerText?.toLowerCase()}%`, limitInt, offset]
+                `, [`%${searchLowerText}%`, limitInt, offset]
 
             ),
             this.dataSource.query(
@@ -187,6 +192,91 @@ export class HomeDataService {
                     next: offset + limitInt < totalCount[0]['count'],
                     totalPages: Math.ceil(totalCount[0]['count'] / limitInt),
                 },
+            },
+        };
+    }
+
+    /**
+     * 
+     * @name getTopBuilders 
+     * @description returns all distinct builders from properties database with some analytics of builder
+     */
+    async getTopBuilders({ limit, page, searchText }: QueryFiltersDto): Promise<IGenericResult> {
+        const pageInt = parseInt(page) || 1;
+        const limitInt = parseInt(limit) || 50;
+        const offset = (pageInt - 1) * limitInt;
+        const searchLowerText = searchText?.toLowerCase()?.trim() || '';
+
+        let [foundBuilders, totalCount, topEntities] = await Promise.all([
+            this.dataSource.query(
+                `
+                SELECT
+                    BuilderName as builder_name,
+                    SUM(CASE WHEN wrl.CompletedConstructionDate IS NULL THEN 1 ELSE 0 END) AS under_construction_projects,
+                    SUM(CASE WHEN wrl.CompletedConstructionDate IS NOT NULL THEN 1 ELSE 0 END) AS completed_projects,
+                    COUNT(wrl.listingsdb_id) AS total_projects,
+                    SUM(CASE WHEN ua.event_name = 'property_like' THEN 1 ELSE 0 END) AS likes,
+                    SUM(CASE WHEN ua.event_name = 'property_view' THEN 1 ELSE 0 END) AS views
+                FROM
+                    wp_realty_listingsdb wrl
+
+                LEFT JOIN
+                    user_analytics ua
+                ON
+                    (wrl.listingsdb_id = ua.event AND (ua.event_name = 'property_like' OR ua.event_name = 'property_view'))
+
+                WHERE
+                    BuilderName IS NOT NULL
+                AND
+                    LOWER(wrl.BuilderName) LIKE ?
+                GROUP BY wrl.BuilderName
+                ORDER BY
+                    wrl.BuilderName ASC
+                LIMIT ? OFFSET ?;
+                `,
+                [`%${searchLowerText}%`, limitInt, offset]
+            ),
+            this.dataSource.query(
+                `
+                SELECT COUNT(DISTINCT BuilderName) AS count
+                    FROM wp_realty_listingsdb
+                WHERE
+                    BuilderName IS NOT NULL
+                AND
+                    LOWER(BuilderName) LIKE ?
+                `, [`%${searchLowerText}%`, limitInt, offset]
+
+            ),
+            this.dataSource.query(
+                `
+                SELECT
+                    entities
+                FROM
+                    top_entities
+                WHERE alias = 'top_builders'
+                `
+            )
+        ]);
+
+        const entities: string[] = topEntities[0]?.entities || [];
+
+        for (let i = 0; i < foundBuilders.length; i++) {
+            if (entities.includes(foundBuilders[i].builder_name)) {
+                foundBuilders[i].is_top_entity = true;
+            } else {
+                foundBuilders[i].is_top_entity = false;
+            }
+        }
+
+        return {
+            message: 'Builders found',
+            data: {
+                builders: foundBuilders,
+                // metadata: {
+                //     totalCount: parseInt(totalCount[0]['count']) || 0,
+                //     next: offset + limitInt < totalCount[0]['count'],
+                //     totalPages: Math.ceil(totalCount[0]['count'] / limitInt),
+                // },
             },
         };
     }
