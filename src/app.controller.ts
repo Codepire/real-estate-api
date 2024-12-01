@@ -13,9 +13,10 @@ export class AppController {
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) {}
 
-    @Get()
-    getHello(): string {
-        return this.appService.getHello();
+    @Get('healthcheck')
+    @SkipAuth()
+    healthcheck(): string {
+        return this.appService.healthcheck();
     }
 
     @SkipAuth()
