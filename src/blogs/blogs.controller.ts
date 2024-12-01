@@ -15,6 +15,7 @@ import GetBlogsDto from './dto/get-blogs.dto';
 import { IGenericResult } from 'src/common/interfaces';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRoleEnum } from 'src/common/enums';
+import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 
 @Controller('blogs')
 export class BlogsController {
@@ -28,7 +29,7 @@ export class BlogsController {
         return this.blogsService.createBlog(createBlogDto);
     }
 
-    @Roles(UserRoleEnum.USER)
+    @SkipAuth()
     @Get()
     async findAll(@Query() query: GetBlogsDto): Promise<IGenericResult> {
         return this.blogsService.findAllBlogs(query);
