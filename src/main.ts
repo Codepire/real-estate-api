@@ -7,17 +7,16 @@ import * as cookieParser from 'cookie-parser';
 import { SessionInterceptor } from './common/interceptors/session.interceptor';
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule, {
-        cors: {
-            origin: 'http://localhost:3000',
-            credentials: true,
-        },
-    });
+    const app = await NestFactory.create(AppModule);
+    const configService = app.get(ConfigService);
+    app.enableCors({
+        credentials: true,
+        origin: configService.get<string>('cors.origins')?.split(',')
+    })
     app.use(helmet());
     app.useGlobalPipes(new ValidationPipe());
     app.use(cookieParser());
     app.useGlobalInterceptors(new SessionInterceptor());
-    const configService = app.get(ConfigService);
     await app.listen(configService.get<number>('PORT') || 8000);
 }
 bootstrap();
