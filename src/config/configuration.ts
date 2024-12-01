@@ -31,4 +31,7 @@ export default () => ({
     google_analytics: {
         propertyId: process.env.GOOGLE_ANALYTICS_PROPERTY_ID,
     },
+    cors: {
+        origins: process.env.CORS_ORIGINS
+    }
 });
