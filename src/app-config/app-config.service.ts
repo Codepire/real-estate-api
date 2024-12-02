@@ -6,10 +6,11 @@ import { CONSTANTS } from 'src/common/constants';
 import { DataSource } from 'typeorm';
 import { IGenericResult } from 'src/common/interfaces';
 import { QueryFiltersDto } from './dto/get-data-with-filters.dto';
+import { AddTopAssociationsDto } from './dto/add-top-associations.dto';
 
 @Injectable()
 export class HomeDataService {
-    constructor(private readonly dataSource: DataSource) {}
+    constructor(private readonly dataSource: DataSource) { }
     async getTopEntities() {
         const res = await this.dataSource.query(`
             SELECT alias, entities FROM top_entities;
@@ -280,4 +281,57 @@ export class HomeDataService {
             },
         };
     }
+
+    async addTopAssociation({ association_name, association_img_url }: AddTopAssociationsDto): Promise<IGenericResult> {
+        const foundAssociations = await this.dataSource.query(
+            `
+                SELECT entities FROM top_entities WHERE alias = 'top_associations';
+            `
+        );
+
+        if (foundAssociations[0]?.entities?.length > 4) {
+            throw new BadRequestException(CONSTANTS.MAX_TOP_ENTITIES);
+        }
+
+        if (foundAssociations[0]?.entities?.findIndex((el: { association_name: string, association_img_url: string }) => el.association_name === association_name) !== -1) {
+            throw new BadRequestException(CONSTANTS.ASSOCIATION_ALREADY_EXIST);
+        }
+
+        await this.dataSource.query(
+            `
+                UPDATE top_entities
+                SET entities = JSON_ARRAY_APPEND(entities, '$', JSON_OBJECT('association_name', ?, 'association_img_url', ?))
+                WHERE alias = ?;
+            `,
+            [association_name, association_img_url, 'top_associations']
+        );
+
+        return {
+            message: 'Association data'
+        }
+    }
+
+    async deleteTopAssociation(association_name: string): Promise<IGenericResult> {
+        await this.dataSource.query(
+            `
+            UPDATE top_entities
+            SET entities = (
+                SELECT JSON_ARRAYAGG(JSON_OBJECT('association_name', jt.association_name, 'association_img_url', jt.association_img_url))
+                FROM JSON_TABLE(
+                    entities, '$[*]'
+                    COLUMNS(
+                        association_name VARCHAR(255) PATH '$.association_name',
+                        association_img_url VARCHAR(255) PATH '$.association_img_url'
+                    )
+                ) AS jt
+                WHERE jt.association_name != ?
+            )
+            WHERE alias = ?;
+            `,
+            [association_name, 'top_associations']
+        );
+        return {
+            message: 'Association deleted',
+        };
+    }    
 }

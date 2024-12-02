@@ -16,4 +16,5 @@ export enum CONSTANTS {
     PROPERTY_NOT_FOUND = 'Property not found',
     MAX_TOP_ENTITIES = 'Maximum 5 top entities can be added',
     ENTITITY_ALREADY_EXISTS = 'Entity already exists',
+    ASSOCIATION_ALREADY_EXIST = 'Association already exists'
 }

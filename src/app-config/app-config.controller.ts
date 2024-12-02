@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Patch, Query} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Patch, Query} from '@nestjs/common';
 import { HomeDataService } from './app-config.service';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 import { IGenericResult } from 'src/common/interfaces';
@@ -9,6 +9,8 @@ import { UserRoleEnum } from 'src/common/enums';
 import { AddTopCityDto } from './dto/add-top-city.dto';
 import { AddTopBuilderDto } from './dto/add-top-builder.dto';
 import { QueryFiltersDto } from './dto/get-data-with-filters.dto';
+import { AddTopAssociationsDto } from './dto/add-top-associations.dto';
+import { DeleteTopAssociationDto } from './dto/delete-top-associations.dto';
 
 @Controller('app-config')
 export class HomeDataController {
@@ -65,5 +67,25 @@ export class HomeDataController {
         @Query() query: QueryFiltersDto
     ): Promise<IGenericResult> {
         return this.homeDataService.getTopBuilders(query);
+    }
+
+    @SkipAuth()
+    @Patch('home-data/top-associations')
+    async addTopAssociations(
+        @Body() body: AddTopAssociationsDto,
+    ): Promise<IGenericResult> {
+        return this.homeDataService.addTopAssociation(
+            body
+        );
+    }
+
+    @SkipAuth()
+    @Delete('home-data/top-association')
+    async deleteTopAssociation(
+        @Body() body: DeleteTopAssociationDto,
+    ): Promise<IGenericResult> {
+        return this.homeDataService.deleteTopAssociation(
+            body.association_name
+        );
     }
 }
