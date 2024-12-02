@@ -90,10 +90,15 @@ export class AuthController {
     async verifyEmail(
         @Body() verifyEmailDto: VerifyEmailDto,
     ): Promise<IGenericResult> {
-        await this.auhService.verifyEmail(verifyEmailDto);
-        return {
-            message: CONSTANTS.EMAIL_VERIFIED,
-        };
+        try {
+
+            await this.auhService.verifyEmail(verifyEmailDto);
+            return {
+                message: CONSTANTS.EMAIL_VERIFIED,
+            };
+        } catch (err) {
+            console.log(err)
+        }
     }
 
     @SkipAuth()
