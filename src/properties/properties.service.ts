@@ -475,7 +475,7 @@ export class PropertiesService {
                 COALESCE(ROUND(AVG(wrl.OriginalListPrice / wrl.SqFtTotal), 2), 0 ) AS avg_price_per_sqft,
                 COALESCE(ROUND(AVG(DATEDIFF(CURDATE(), wrl.ActiveDate)), 2), 0 ) AS avg_active_days
             FROM
-                my_database.wp_realty_listingsdb wrl
+                wp_realty_listingsdb wrl
             WHERE
                 wrl.Zip = ?;
 

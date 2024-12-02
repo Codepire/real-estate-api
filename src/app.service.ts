@@ -31,7 +31,7 @@ export class AppService {
         const res = await this.dataSource.query(
             `
                 SELECT DISTINCT (wrl.PropertyType)
-                FROM my_database.wp_realty_listingsdb wrl
+                FROM wp_realty_listingsdb wrl
                 WHERE  wrl.PropertyType IS NOT NULL;
             `,
         );
@@ -78,7 +78,7 @@ export class AppService {
         const res = await this.dataSource.query(
             `
                 SELECT DISTINCT (wrl.builderName)
-                FROM my_database.wp_realty_listingsdb wrl
+                FROM wp_realty_listingsdb wrl
                 WHERE wrl.BuilderName IS NOT NULL;
             `,
         );
@@ -88,7 +88,7 @@ export class AppService {
     async getMasterPlannedCommunities(): Promise<string[]> {
         const res = await this.dataSource.query(`
                 SELECT DISTINCT (wrl.MasterPlannedCommunity)
-                FROM my_database.wp_realty_listingsdb wrl
+                FROM wp_realty_listingsdb wrl
                 WHERE wrl.MasterPlannedCommunity IS NOT NULL;
             `);
 
@@ -103,7 +103,7 @@ export class AppService {
     async getCounties(): Promise<string[]> {
         const res = await this.dataSource.query(`
                 SELECT DISTINCT (wrl.County)
-                FROM my_database.wp_realty_listingsdb wrl
+                FROM wp_realty_listingsdb wrl
                 WHERE wrl.County IS NOT NULL;
             `);
 
@@ -122,7 +122,7 @@ export class AppService {
     async getBedRoomCount(): Promise<number[]> {
         const res = await this.dataSource.query(`
             SELECT DISTINCT (wrl.BedsTotaL)
-            FROM my_database.wp_realty_listingsdb wrl 
+            FROM wp_realty_listingsdb wrl 
             WHERE wrl.BedsTotal IS NOT NULL;
     `);
         return res?.map((el: { BedsTotaL: number }) => el.BedsTotaL) ?? [];
@@ -133,7 +133,7 @@ export class AppService {
             SELECT 
                 DISTINCT (wrl.SchoolDistrict)
             FROM
-                my_database.wp_realty_listingsdb wrl 
+                wp_realty_listingsdb wrl 
             WHERE
                 wrl.SchoolDistrict IS NOT NULL;
     `);
@@ -149,7 +149,7 @@ export class AppService {
         SELECT
             DISTINCT(wrl.GeoMarketArea)
         FROM 
-            my_database.wp_realty_listingsdb wrl
+            wp_realty_listingsdb wrl
         WHERE 
             wrl.GeoMarketArea IS NOT NULL
         AND
@@ -175,7 +175,7 @@ export class AppService {
             SELECT
                 DISTINCT (wrl.Zip)
             FROM
-                my_database.wp_realty_listingsdb wrl
+                wp_realty_listingsdb wrl
             WHERE
                 wrl.Zip IS NOT NULL
             AND
