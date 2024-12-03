@@ -97,7 +97,10 @@ export class HomeDataService {
 
         const entityIndex = currentEntities.indexOf(entity);
         if (entityIndex === -1) {
-            if (currentEntities.length >= 5) {
+            if (
+                (alias !== 'top_builders' && currentEntities.length >= 5) ||
+                (currentEntities.length >= 6 && alias === 'top_builders')
+            ) {
                 throw new BadRequestException(CONSTANTS.MAX_TOP_ENTITIES);
             }
             currentEntities.push(entity);
@@ -113,6 +116,26 @@ export class HomeDataService {
         return {
             message: 'Association data updated',
         };
+    }
+
+    async getTopProperties(): Promise<IGenericResult> {
+        const result = await this.dataSource.query(
+            `
+            SELECT
+                entities
+            FROM
+                top_entities
+            WHERE
+                alias = 'top_properties'
+            `
+        )
+
+        return {
+            message: 'Found top properties',
+            data: {
+                top_properties: result[0]?.entities ?? [],
+            }
+        }
     }
 
     /**
@@ -348,7 +371,7 @@ export class HomeDataService {
             })
         }
 
-        const filteredAssociatin = result?.entities?.filter((el) => 
+        const filteredAssociatin = result?.entities?.filter((el) =>
             el.association_name !== association_name
         )
 

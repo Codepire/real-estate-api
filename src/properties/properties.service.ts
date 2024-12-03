@@ -330,6 +330,7 @@ export class PropertiesService {
             );
         }
 
+        // if logged in user requests the properties, attach if this property is liked or not
         if (user) {
             qb.leftJoin(
                 'user_analytics',

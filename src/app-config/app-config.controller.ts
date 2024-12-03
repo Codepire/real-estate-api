@@ -15,6 +15,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { CONSTANTS } from 'src/common/constants';
+import { AddTopPropertyDto } from './dto/add-top-property.dto';
 
 @Controller('app-config')
 export class HomeDataController {
@@ -65,6 +66,23 @@ export class HomeDataController {
         );
     }
 
+    // available for front and admin both user type
+    @Roles(UserRoleEnum.ADMIN)
+    @Patch('home-data/top-property')
+    async addTopProperty(
+        @Body() body: AddTopPropertyDto,
+    ): Promise<IGenericResult> {
+        return this.homeDataService.addOrRemoveTopEntity(
+            body.property_id,
+            'top_properties',
+        );
+    }
+
+    @Get('home-data/top-property')
+    async getTopProperty(): Promise<IGenericResult> {
+        return this.homeDataService.getTopProperties();
+    }
+
     @Roles(UserRoleEnum.ADMIN)
     @Get('home-data/top-builders')
     async getTopBuilders(
@@ -73,7 +91,7 @@ export class HomeDataController {
         return this.homeDataService.getTopBuilders(query);
     }
 
-    @SkipAuth()
+    @Roles(UserRoleEnum.ADMIN)
     @Patch('home-data/top-associations')
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
@@ -103,13 +121,13 @@ export class HomeDataController {
         );
     }
 
+    @Roles(UserRoleEnum.ADMIN)
     @Get('home-data/top-associations')
-    @SkipAuth()
     async getTopAssociations() {
         return await this.homeDataService.getTopAssociations();
     }
 
-    @SkipAuth()
+    @Roles(UserRoleEnum.ADMIN)
     @Delete('home-data/top-associations')
     async deleteTopAssociation(
         @Body() body: DeleteTopAssociationDto,
