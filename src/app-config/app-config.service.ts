@@ -78,6 +78,8 @@ export class HomeDataService {
                             +el.completed_projects,
                     });
                 }
+            } else if (el.alias === 'top_associations') {
+                response.top_associations.push((await this.getTopAssociations()).data?.top_associations)
             }
         }
         return response;
