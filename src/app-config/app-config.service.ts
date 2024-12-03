@@ -315,47 +315,32 @@ export class HomeDataService {
     }
 
     async deleteTopAssociation(association_name: string): Promise<IGenericResult> {
-        const [result] = await this.dataSource.query(
+
+        const result = (await this.dataSource.query(
             `
-            SELECT jt.association_img_url AS imageUrl
-            FROM top_entities,
-            JSON_TABLE(
-                entities, '$[*]'
-                COLUMNS(
-                    association_name VARCHAR(255) PATH '$.association_name',
-                    association_img_url VARCHAR(255) PATH '$.association_img_url'
-                )
-            ) AS jt
-            WHERE jt.association_name = ?
-            AND alias = 'top_associations';
-            `,
-            [association_name]
-        );
-        
-        if (fs.existsSync(result?.imageUrl)) {
-            fs.unlink(result?.imageUrl, (err) => {
-                if (err) console.error('error in deleting this file', result?.imageUrl)
+            SELECT * FROM top_entities WHERE alias = 'top_associations'
+        `))[0]
+
+        const foundAssociation = result?.entities?.find((el) =>
+            el.association_name === association_name
+        )
+
+        if (fs.existsSync(foundAssociation?.association_img_url)) {
+            fs.unlink(foundAssociation?.association_img_url, (err) => {
+                if (err) console.error('error in deleting this file', foundAssociation?.association_img_url)
             })
         }
 
-        await this.dataSource.query(
-            `
+        const filteredAssociatin = result?.entities?.filter((el) => 
+            el.association_name !== association_name
+        )
+
+        await this.dataSource.query(`
             UPDATE top_entities
-            SET entities = (
-                SELECT JSON_ARRAYAGG(JSON_OBJECT('association_name', jt.association_name, 'association_img_url', jt.association_img_url))
-                FROM JSON_TABLE(
-                    entities, '$[*]'
-                    COLUMNS(
-                        association_name VARCHAR(255) PATH '$.association_name',
-                        association_img_url VARCHAR(255) PATH '$.association_img_url'
-                    )
-                ) AS jt
-                WHERE jt.association_name != ?
-            )
-            WHERE alias = ?;
-            `,
-            [association_name, 'top_associations']
-        );
+            SET entities = ?
+            WHERE alias = 'top_associations'
+        `, [JSON.stringify(filteredAssociatin)])
+
         return {
             message: 'Association deleted',
         };
