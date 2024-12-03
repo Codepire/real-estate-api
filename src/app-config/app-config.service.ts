@@ -21,6 +21,7 @@ export class HomeDataService {
             top_builders: [],
             top_cities: [],
             top_associations: [],
+            top_properties: []
         };
 
         for (const el of res) {
@@ -29,18 +30,15 @@ export class HomeDataService {
                 continue;
             }
             if (el.alias === 'top_builders') {
-                const builderNames = entities
-                    .map((entity: string) => `'${entity}'`)
-                    .join(',');
                 const result = await this.dataSource.query(`
                     SELECT
                         BuilderName AS name,
                         SUM(CASE WHEN CompletedConstructionDate IS NULL THEN 1 ELSE 0 END) AS under_construction_projects,
                         SUM(CASE WHEN CompletedConstructionDate IS NOT NULL THEN 1 ELSE 0 END) AS completed_projects
                     FROM wp_realty_listingsdb
-                    WHERE BuilderName IN (${builderNames})
+                    WHERE BuilderName IN (${entities.map(e => '?')})
                     GROUP BY BuilderName;
-                `);
+                `, [...entities]);
 
                 for (const el of result) {
                     response.top_builders.push({
@@ -54,18 +52,15 @@ export class HomeDataService {
                     });
                 }
             } else if (el.alias === 'top_cities') {
-                const cityNames = entities
-                    .map((entity: string) => `'${entity}'`)
-                    .join(',');
                 const result = await this.dataSource.query(`
                     SELECT
                         City AS name,
                         SUM(CASE WHEN CompletedConstructionDate IS NULL THEN 1 ELSE 0 END) AS under_construction_projects,
                         SUM(CASE WHEN CompletedConstructionDate IS NOT NULL THEN 1 ELSE 0 END) AS completed_projects
                     FROM wp_realty_listingsdb
-                    WHERE City IN (${cityNames})
+                    WHERE City IN (${entities.map(e => '?')})
                     GROUP BY City;
-                `);
+                `, [...entities]);
 
                 for (const el of result) {
                     response.top_cities.push({
@@ -79,7 +74,33 @@ export class HomeDataService {
                     });
                 }
             } else if (el.alias === 'top_associations') {
-                response.top_associations = ((await this.getTopAssociations()).data?.top_associations)
+                response.top_associations = ((await this.getTopAssociations()).data?.top_associations) || [];
+            } else if (el.alias === 'top_properties') {
+                const foundPropertiesRes = await this.dataSource.query(
+                    `
+                    SELECT
+                      wrl.listingsdb_id,
+                      wrl.Matrix_Unique_ID AS matrix_unique_id,
+                      wrl.listingsdb_title AS title,
+                      wrl.Address AS address,
+                      wrl.OriginalListPrice AS price,
+                      wrl.BuilderName AS builder_name,
+                      wrl.BedsTotal AS beds_total,
+                      wrl.BathsFull AS baths_full,
+                      wrl.SqFtTotal AS sqft_total,
+                      wrl.City AS city,
+                      wrl.State AS state,
+                      wrl.Country AS country,
+                      CASE WHEN COALESCE(wrl.ForLease, "0") = "0" THEN false ELSE true END AS for_lease,
+                      CASE WHEN COALESCE(wrl.ForSale, "0") = "0" THEN false ELSE true END AS for_sale,
+                      wrl.NoOfGarageCap AS no_of_garage_cap
+                    FROM
+                        wp_realty_listingsdb wrl
+                    WHERE
+                        wrl.listingsdb_id IN (${entities.map(e => '?')})
+                    `, [...entities]
+                )
+                response.top_properties = foundPropertiesRes || [];
             }
         }
         return response;
