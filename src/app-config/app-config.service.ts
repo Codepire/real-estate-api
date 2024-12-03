@@ -25,7 +25,7 @@ export class HomeDataService {
 
         for (const el of res) {
             const entities = el.entities?.slice(0, 5);
-            if (!el.entities[0]) {
+            if (!el.entities || el.entities?.length < 1) {
                 continue;
             }
             if (el.alias === 'top_builders') {
