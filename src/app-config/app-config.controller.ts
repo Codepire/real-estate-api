@@ -76,7 +76,7 @@ export class HomeDataController {
     @Patch('home-data/top-associations')
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
-            destination: './public',
+            destination: './public/home-data/top-associations',
             filename: (req, file, callback) => {
                 const uniqueSuffix = file.originalname.replaceAll(' ', '-') + '-' + Math.round(Math.random() * 1e9);
                 const fileExt = extname(file.originalname);
