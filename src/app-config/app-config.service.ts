@@ -7,6 +7,7 @@ import { DataSource } from 'typeorm';
 import { IGenericResult } from 'src/common/interfaces';
 import { QueryFiltersDto } from './dto/get-data-with-filters.dto';
 import { AddTopAssociationsDto } from './dto/add-top-associations.dto';
+import * as fs from 'node:fs';
 
 @Injectable()
 export class HomeDataService {
@@ -293,7 +294,9 @@ export class HomeDataService {
             throw new BadRequestException(CONSTANTS.MAX_TOP_ENTITIES);
         }
 
-        if (foundAssociations[0]?.entities?.findIndex((el: { association_name: string, association_img_url: string }) => el.association_name === association_name) !== -1) {
+        const foundIndex = foundAssociations[0]?.entities?.findIndex((el: { association_name: string, association_img_url: string }) => el.association_name === association_name)
+
+        if (foundIndex !== -1 || !!!foundIndex) {
             throw new BadRequestException(CONSTANTS.ASSOCIATION_ALREADY_EXIST);
         }
 
@@ -312,6 +315,29 @@ export class HomeDataService {
     }
 
     async deleteTopAssociation(association_name: string): Promise<IGenericResult> {
+        const [result] = await this.dataSource.query(
+            `
+            SELECT jt.association_img_url AS imageUrl
+            FROM top_entities,
+            JSON_TABLE(
+                entities, '$[*]'
+                COLUMNS(
+                    association_name VARCHAR(255) PATH '$.association_name',
+                    association_img_url VARCHAR(255) PATH '$.association_img_url'
+                )
+            ) AS jt
+            WHERE jt.association_name = ?
+            AND alias = 'top_associations';
+            `,
+            [association_name]
+        );
+        
+        if (fs.existsSync(result?.imageUrl)) {
+            fs.unlink(result?.imageUrl, (err) => {
+                if (err) console.error('error in deleting this file', result?.imageUrl)
+            })
+        }
+
         await this.dataSource.query(
             `
             UPDATE top_entities
