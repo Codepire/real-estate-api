@@ -314,6 +314,21 @@ export class HomeDataService {
         }
     }
 
+    async getTopAssociations(): Promise<IGenericResult> {
+        const result = await this.dataSource.query(
+            `
+                SELECT * FROM top_entities
+                WHERE alias = 'top_associations'
+            `
+        )
+        return {
+            message: 'Found top associations',
+            data: {
+                top_associations: result[0]?.entities ?? []
+            }
+        }
+    }
+
     async deleteTopAssociation(association_name: string): Promise<IGenericResult> {
 
         const result = (await this.dataSource.query(

@@ -88,18 +88,26 @@ export class HomeDataController {
         @Body() body: AddTopAssociationsDto,
         @UploadedFile() file: Express.Multer.File,
     ): Promise<IGenericResult> {
+        body.association_name = body.association_name?.trim()?.toLowerCase();
         return this.homeDataService.addTopAssociation(
             body, file
         );
     }
 
+    @Get('home-data/top-associations')
     @SkipAuth()
-    @Delete('home-data/top-association')
+    async getTopAssociations() {
+        return await this.homeDataService.getTopAssociations();
+    }
+
+    @SkipAuth()
+    @Delete('home-data/top-associations')
     async deleteTopAssociation(
         @Body() body: DeleteTopAssociationDto,
     ): Promise<IGenericResult> {
+        const association_name = body.association_name?.trim()?.toLowerCase();
         return this.homeDataService.deleteTopAssociation(
-            body.association_name
+            association_name
         );
     }
 }
