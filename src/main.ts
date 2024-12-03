@@ -5,9 +5,12 @@ import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
 import { SessionInterceptor } from './common/interceptors/session.interceptor';
+import * as express from 'express';
+import { join } from 'node:path';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
+    app.use('/public', express.static(join(__dirname, '..', 'public')));
     const configService = app.get(ConfigService);
     app.enableCors({
         credentials: true,

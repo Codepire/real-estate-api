@@ -62,3 +62,5 @@ data/
 *.txt
 
 credentials/
+
+public/

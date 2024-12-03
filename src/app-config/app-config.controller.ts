@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Inject, Patch, Query} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Patch, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { HomeDataService } from './app-config.service';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 import { IGenericResult } from 'src/common/interfaces';
@@ -11,13 +11,16 @@ import { AddTopBuilderDto } from './dto/add-top-builder.dto';
 import { QueryFiltersDto } from './dto/get-data-with-filters.dto';
 import { AddTopAssociationsDto } from './dto/add-top-associations.dto';
 import { DeleteTopAssociationDto } from './dto/delete-top-associations.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Controller('app-config')
 export class HomeDataController {
     constructor(
         private readonly homeDataService: HomeDataService,
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    ) {}
+    ) { }
 
     @SkipAuth()
     @Get('home-data')
@@ -71,11 +74,22 @@ export class HomeDataController {
 
     @SkipAuth()
     @Patch('home-data/top-associations')
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+            destination: './public',
+            filename: (req, file, callback) => {
+                const uniqueSuffix = file.originalname.replaceAll(' ', '-') + '-' + Math.round(Math.random() * 1e9);
+                const fileExt = extname(file.originalname);
+                callback(null, `${uniqueSuffix}${fileExt}`)
+            }
+        })
+    }))
     async addTopAssociations(
         @Body() body: AddTopAssociationsDto,
+        @UploadedFile() file: Express.Multer.File,
     ): Promise<IGenericResult> {
         return this.homeDataService.addTopAssociation(
-            body
+            body, file
         );
     }
 
