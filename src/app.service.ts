@@ -21,8 +21,8 @@ export class AppService {
             message: 'Countries found',
             data: {
                 countries: res?.map(
-                    (el: { Country: string }) => el.Country ?? [],
-                ),
+                    (el: { Country: string }) => el.Country,
+                )?.sort() ?? [],
             },
         };
     }
@@ -36,7 +36,7 @@ export class AppService {
             `,
         );
         return (
-            res?.map((el: { PropertyType: string }) => el.PropertyType) ?? []
+            res?.map((el: { PropertyType: string }) => el.PropertyType)?.sort() ?? []
         );
     }
 
@@ -52,7 +52,7 @@ export class AppService {
         return {
             message: 'States found',
             data: {
-                states: res?.map((el: { State: string }) => el.State) ?? [],
+                states: res?.map((el: { State: string }) => el.State)?.sort() ?? [],
             },
         };
     }
@@ -69,7 +69,7 @@ export class AppService {
         return {
             message: 'Cities found',
             data: {
-                cities: res?.map((el: { City: string }) => el.City) ?? [],
+                cities: res?.map((el: { City: string }) => el.City)?.sort() ?? [],
             },
         };
     }
@@ -82,7 +82,7 @@ export class AppService {
                 WHERE wrl.BuilderName IS NOT NULL;
             `,
         );
-        return res?.map((el: { builderName: string }) => el.builderName) ?? [];
+        return res?.map((el: { builderName: string }) => el.builderName)?.sort() ?? [];
     }
 
     async getMasterPlannedCommunities(): Promise<string[]> {
@@ -96,7 +96,7 @@ export class AppService {
             res?.map(
                 (el: { MasterPlannedCommunity: string }) =>
                     el.MasterPlannedCommunity,
-            ) ?? []
+            )?.sort() ?? []
         );
     }
 
@@ -107,7 +107,7 @@ export class AppService {
                 WHERE wrl.County IS NOT NULL;
             `);
 
-        return res?.map((el: { County: string }) => el.County) ?? [];
+        return res?.map((el: { County: string }) => el.County)?.sort() ?? [];
     }
 
     async getRoomCount(): Promise<number[]> {
@@ -116,7 +116,7 @@ export class AppService {
                 from wp_realty_listingsdb wrl
                 WHERE wrl.RoomCount IS NOT NULL;
         `);
-        return res?.map((el: { RoomCount: number }) => el.RoomCount) ?? [];
+        return res?.map((el: { RoomCount: number }) => el.RoomCount)?.sort((a: number, b: number) => a - b) ?? [];
     }
 
     async getBedRoomCount(): Promise<number[]> {
@@ -125,7 +125,7 @@ export class AppService {
             FROM wp_realty_listingsdb wrl 
             WHERE wrl.BedsTotal IS NOT NULL;
     `);
-        return res?.map((el: { BedsTotaL: number }) => el.BedsTotaL) ?? [];
+        return res?.map((el: { BedsTotaL: number }) => el.BedsTotaL)?.sort((a: number, b: number) => a - b) ?? [];
     }
 
     async getSchoolDistricts(): Promise<any[]> {
@@ -138,7 +138,7 @@ export class AppService {
                 wrl.SchoolDistrict IS NOT NULL;
     `);
         return (
-            res?.map((el: { SchoolDistrict: string }) => el.SchoolDistrict) ??
+            res?.map((el: { SchoolDistrict: string }) => el.SchoolDistrict)?.sort() ??
             []
         );
     }
@@ -164,7 +164,7 @@ export class AppService {
                 geo_market_areas:
                     res?.map(
                         (el: { GeoMarketArea: string }) => el.GeoMarketArea,
-                    ) ?? [],
+                    )?.sort() ?? [],
             },
         };
     }
