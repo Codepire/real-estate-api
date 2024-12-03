@@ -85,6 +85,7 @@ export class PropertiesService {
             'wrl.DepositSecurity AS deposit',
             'CASE WHEN COALESCE(wrl.ForLease, "0") = "0" THEN false ELSE true END AS for_lease',
             'CASE WHEN COALESCE(wrl.ForSale, "0") = "0" THEN false ELSE true END AS for_sale',
+            'wrl.Matrix_Unique_ID AS matrix_unique_id',
         ];
     }
 
