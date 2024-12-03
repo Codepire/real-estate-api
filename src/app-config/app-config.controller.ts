@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Inject, Patch, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Inject, Patch, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { HomeDataService } from './app-config.service';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 import { IGenericResult } from 'src/common/interfaces';
@@ -14,6 +14,7 @@ import { DeleteTopAssociationDto } from './dto/delete-top-associations.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { CONSTANTS } from 'src/common/constants';
 
 @Controller('app-config')
 export class HomeDataController {
@@ -82,7 +83,15 @@ export class HomeDataController {
                 const fileExt = extname(file.originalname);
                 callback(null, `${uniqueSuffix}${fileExt}`)
             }
-        })
+        }),
+        fileFilter: (req, file, callback) => {
+            const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            if (allowedMimeTypes.includes(file.mimetype)) {
+                callback(null, true);
+            } else {
+                callback(new BadRequestException(CONSTANTS.INVALID_FILE_TYPE), false); // Reject the file
+            }
+        },
     }))
     async addTopAssociations(
         @Body() body: AddTopAssociationsDto,

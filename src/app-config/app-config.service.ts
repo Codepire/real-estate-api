@@ -79,7 +79,7 @@ export class HomeDataService {
                     });
                 }
             } else if (el.alias === 'top_associations') {
-                response.top_associations.push((await this.getTopAssociations()).data?.top_associations)
+                response.top_associations = ((await this.getTopAssociations()).data?.top_associations)
             }
         }
         return response;
