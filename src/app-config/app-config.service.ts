@@ -119,8 +119,9 @@ export class HomeDataService {
         const entityIndex = currentEntities.indexOf(entity);
         if (entityIndex === -1) {
             if (
-                (alias !== 'top_builders' && currentEntities.length >= 5) ||
-                (currentEntities.length >= 6 && alias === 'top_builders')
+                (currentEntities.length >= 6 && alias === 'top_builders') ||
+                (currentEntities.length >= 4 && alias === 'top_properties') ||
+                (currentEntities.length >= 5 && alias === 'top_cities')
             ) {
                 throw new BadRequestException(CONSTANTS.MAX_TOP_ENTITIES);
             }
@@ -338,9 +339,7 @@ export class HomeDataService {
             `
         );
 
-        if (
-        (foundAssociations[0]?.entities?.length > 4 && foundAssociations[0].alias ==='top_cities') ||
-        (foundAssociations[0]?.entities?.length > 5 && foundAssociations[0].alias ==='top_builders')) {
+        if (foundAssociations[0]?.entities?.length > 4) {
             throw new BadRequestException(CONSTANTS.MAX_TOP_ENTITIES);
         }
 
