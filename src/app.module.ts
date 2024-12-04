@@ -15,6 +15,8 @@ import { FiltersModule } from './filters/filters.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { HomeDataModule } from './app-config/app-config.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronModule } from './cron/cron.module';
 
 @Module({
     imports: [
@@ -27,6 +29,7 @@ import { HomeDataModule } from './app-config/app-config.module';
         TypeOrmModule.forRootAsync({
             useClass: TypeormConfigService,
         }),
+        ScheduleModule.forRoot(),
         UsersModule,
         MailModule,
         PropertiesModule,
@@ -36,6 +39,7 @@ import { HomeDataModule } from './app-config/app-config.module';
         CacheModule.register(),
         HomeDataModule,
         AnalyticsModule,
+        CronModule,
     ],
     controllers: [AppController],
     providers: [AppService],

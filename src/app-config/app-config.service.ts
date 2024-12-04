@@ -80,7 +80,7 @@ export class HomeDataService {
                     `
                     SELECT
                       wrl.listingsdb_id,
-                      wrl.Matrix_Unique_ID AS matrix_unique_id,
+                      wrl.property_images as property_images,
                       wrl.listingsdb_title AS title,
                       wrl.Address AS address,
                       wrl.OriginalListPrice AS price,

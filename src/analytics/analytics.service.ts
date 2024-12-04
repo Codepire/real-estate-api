@@ -60,7 +60,8 @@ export class AnalyticsService {
                 wrl.Address AS address,
                 wrl.OriginalListPrice AS price,
                 wrl.ForSale As for_sale,
-                wrl.ForLease As for_lease
+                wrl.ForLease As for_lease,
+                wrl.property_images as property_images
             `,
             ])
             .where('ua.user_id = :userId', { userId })
