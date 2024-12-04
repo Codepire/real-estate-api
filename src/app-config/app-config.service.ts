@@ -239,6 +239,7 @@ export class HomeDataService {
                     totalCount: parseInt(totalCount[0]['count']) || 0,
                     next: offset + limitInt < totalCount[0]['count'],
                     totalPages: Math.ceil(totalCount[0]['count'] / limitInt),
+                    totalTopCities: entities?.length || 0,
                 },
             },
         };
@@ -324,6 +325,7 @@ export class HomeDataService {
                     totalCount: parseInt(totalCount[0]['count']) || 0,
                     next: offset + limitInt < totalCount[0]['count'],
                     totalPages: Math.ceil(totalCount[0]['count'] / limitInt),
+                    totalTopBuilders: entities?.length || 0,
                 },
             },
         };
@@ -336,7 +338,9 @@ export class HomeDataService {
             `
         );
 
-        if (foundAssociations[0]?.entities?.length > 4) {
+        if (
+        (foundAssociations[0]?.entities?.length > 4 && foundAssociations[0].alias ==='top_cities') ||
+        (foundAssociations[0]?.entities?.length > 5 && foundAssociations[0].alias ==='top_builders')) {
             throw new BadRequestException(CONSTANTS.MAX_TOP_ENTITIES);
         }
 
