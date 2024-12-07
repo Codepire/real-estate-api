@@ -160,18 +160,20 @@ export class AnalyticsService {
             },
             user_likes: {
                 total_likes: 0,
-                users: []
+                users: [],
             },
-        }
+        };
 
         for (let el of result) {
             const { event_name, event, event_count, ...rest } = el;
             if (el.event_name === 'property_view') {
-                analytics.user_view.total_views += parseInt(el.event_count || 0);
+                analytics.user_view.total_views += parseInt(
+                    el.event_count || 0,
+                );
                 analytics.user_view.unique_views++;
                 analytics.user_view.users.push({
                     ...rest,
-                    event_count: parseInt(event_count) || 0
+                    event_count: parseInt(event_count) || 0,
                 });
             } else if (el.event_name === 'property_like') {
                 analytics.user_likes.total_likes++;
@@ -182,7 +184,7 @@ export class AnalyticsService {
         return {
             message: 'Found property analytics',
             data: {
-                analytics
+                analytics,
             },
         };
     }

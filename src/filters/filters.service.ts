@@ -8,7 +8,7 @@ export class FiltersService {
     constructor(
         private readonly dataSource: DataSource,
         private readonly propertiesService: PropertiesService,
-    ) { }
+    ) {}
 
     async getFilteredData(
         filter: string,
@@ -26,7 +26,7 @@ export class FiltersService {
             school_district: 'SchoolDistrict',
             dwelling_type: 'DwellingType',
         };
-    
+
         filter = filterMapping[filter] || filter;
         const searchLowerText = searchText?.toLowerCase()?.trim() || '';
 
@@ -48,7 +48,7 @@ export class FiltersService {
                     ${filter} ASC
                 LIMIT ? OFFSET ?;
                 `,
-                [`%${searchLowerText}%`, limit, offset]
+                [`%${searchLowerText}%`, limit, offset],
             ),
             this.dataSource.query(
                 `
@@ -61,8 +61,8 @@ export class FiltersService {
                     NOT IN ('', 'na', 'n/a', '-', '--', '.', '*', '/na', '(not subdivided)', '0', '00', '000', '0000')
                 AND
                     LOWER(${filter}) LIKE ?
-                `, [`%${searchLowerText}%`, limit, offset]
-
+                `,
+                [`%${searchLowerText}%`, limit, offset],
             ),
         ]);
 

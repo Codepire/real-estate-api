@@ -1,7 +1,4 @@
-import {
-    BadRequestException,
-    Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CONSTANTS } from 'src/common/constants';
 import { DataSource } from 'typeorm';
 import { IGenericResult } from 'src/common/interfaces';
@@ -11,7 +8,7 @@ import * as fs from 'node:fs';
 
 @Injectable()
 export class HomeDataService {
-    constructor(private readonly dataSource: DataSource) { }
+    constructor(private readonly dataSource: DataSource) {}
     async getTopEntities() {
         const res = await this.dataSource.query(`
             SELECT alias, entities FROM top_entities;
@@ -21,7 +18,7 @@ export class HomeDataService {
             top_builders: [],
             top_cities: [],
             top_associations: [],
-            top_properties: []
+            top_properties: [],
         };
 
         for (const el of res) {
@@ -30,15 +27,18 @@ export class HomeDataService {
                 continue;
             }
             if (el.alias === 'top_builders') {
-                const result = await this.dataSource.query(`
+                const result = await this.dataSource.query(
+                    `
                     SELECT
                         BuilderName AS name,
                         SUM(CASE WHEN CompletedConstructionDate IS NULL THEN 1 ELSE 0 END) AS under_construction_projects,
                         SUM(CASE WHEN CompletedConstructionDate IS NOT NULL THEN 1 ELSE 0 END) AS completed_projects
                     FROM wp_realty_listingsdb
-                    WHERE BuilderName IN (${entities.map(e => '?')})
+                    WHERE BuilderName IN (${entities.map((e) => '?')})
                     GROUP BY BuilderName;
-                `, [...entities]);
+                `,
+                    [...entities],
+                );
 
                 for (const el of result) {
                     response.top_builders.push({
@@ -52,15 +52,18 @@ export class HomeDataService {
                     });
                 }
             } else if (el.alias === 'top_cities') {
-                const result = await this.dataSource.query(`
+                const result = await this.dataSource.query(
+                    `
                     SELECT
                         City AS name,
                         SUM(CASE WHEN CompletedConstructionDate IS NULL THEN 1 ELSE 0 END) AS under_construction_projects,
                         SUM(CASE WHEN CompletedConstructionDate IS NOT NULL THEN 1 ELSE 0 END) AS completed_projects
                     FROM wp_realty_listingsdb
-                    WHERE City IN (${entities.map(e => '?')})
+                    WHERE City IN (${entities.map((e) => '?')})
                     GROUP BY City;
-                `, [...entities]);
+                `,
+                    [...entities],
+                );
 
                 for (const el of result) {
                     response.top_cities.push({
@@ -74,7 +77,9 @@ export class HomeDataService {
                     });
                 }
             } else if (el.alias === 'top_associations') {
-                response.top_associations = ((await this.getTopAssociations()).data?.top_associations) || [];
+                response.top_associations =
+                    (await this.getTopAssociations()).data?.top_associations ||
+                    [];
             } else if (el.alias === 'top_properties') {
                 const foundPropertiesRes = await this.dataSource.query(
                     `
@@ -97,9 +102,10 @@ export class HomeDataService {
                     FROM
                         wp_realty_listingsdb wrl
                     WHERE
-                        wrl.listingsdb_id IN (${entities.map(e => '?')})
-                    `, [...entities]
-                )
+                        wrl.listingsdb_id IN (${entities.map((e) => '?')})
+                    `,
+                    [...entities],
+                );
                 response.top_properties = foundPropertiesRes || [];
             }
         }
@@ -149,23 +155,27 @@ export class HomeDataService {
                 top_entities
             WHERE
                 alias = 'top_properties'
-            `
-        )
+            `,
+        );
 
         return {
             message: 'Found top properties',
             data: {
                 top_properties: result[0]?.entities ?? [],
-            }
-        }
+            },
+        };
     }
 
     /**
-     * 
-     * @name getTopCities 
+     *
+     * @name getTopCities
      * @description returns all distinct cities from properties database with some analytics of city
      */
-    async getTopCities({ limit, page, searchText }: QueryFiltersDto): Promise<IGenericResult> {
+    async getTopCities({
+        limit,
+        page,
+        searchText,
+    }: QueryFiltersDto): Promise<IGenericResult> {
         const pageInt = parseInt(page) || 1;
         const limitInt = parseInt(limit) || 50;
         const offset = (pageInt - 1) * limitInt;
@@ -198,7 +208,7 @@ export class HomeDataService {
                     wrl.City ASC
                 LIMIT ? OFFSET ?;
                 `,
-                [`%${searchLowerText}%`, limitInt, offset]
+                [`%${searchLowerText}%`, limitInt, offset],
             ),
             this.dataSource.query(
                 `
@@ -208,8 +218,8 @@ export class HomeDataService {
                     City IS NOT NULL
                 AND
                     LOWER(City) LIKE ?
-                `, [`%${searchLowerText}%`, limitInt, offset]
-
+                `,
+                [`%${searchLowerText}%`, limitInt, offset],
             ),
             this.dataSource.query(
                 `
@@ -218,8 +228,8 @@ export class HomeDataService {
                 FROM
                     top_entities
                 WHERE alias = 'top_cities'
-                `
-            )
+                `,
+            ),
         ]);
 
         const entities: string[] = topEntities[0]?.entities || [];
@@ -247,11 +257,15 @@ export class HomeDataService {
     }
 
     /**
-     * 
-     * @name getTopBuilders 
+     *
+     * @name getTopBuilders
      * @description returns all distinct builders from properties database with some analytics of builder
      */
-    async getTopBuilders({ limit, page, searchText }: QueryFiltersDto): Promise<IGenericResult> {
+    async getTopBuilders({
+        limit,
+        page,
+        searchText,
+    }: QueryFiltersDto): Promise<IGenericResult> {
         const pageInt = parseInt(page) || 1;
         const limitInt = parseInt(limit) || 50;
         const offset = (pageInt - 1) * limitInt;
@@ -284,7 +298,7 @@ export class HomeDataService {
                     wrl.BuilderName ASC
                 LIMIT ? OFFSET ?;
                 `,
-                [`%${searchLowerText}%`, limitInt, offset]
+                [`%${searchLowerText}%`, limitInt, offset],
             ),
             this.dataSource.query(
                 `
@@ -294,8 +308,8 @@ export class HomeDataService {
                     BuilderName IS NOT NULL
                 AND
                     LOWER(BuilderName) LIKE ?
-                `, [`%${searchLowerText}%`, limitInt, offset]
-
+                `,
+                [`%${searchLowerText}%`, limitInt, offset],
             ),
             this.dataSource.query(
                 `
@@ -304,8 +318,8 @@ export class HomeDataService {
                 FROM
                     top_entities
                 WHERE alias = 'top_builders'
-                `
-            )
+                `,
+            ),
         ]);
 
         const entities: string[] = topEntities[0]?.entities || [];
@@ -332,18 +346,24 @@ export class HomeDataService {
         };
     }
 
-    async addTopAssociation({ association_name, association_url }: AddTopAssociationsDto, file: Express.Multer.File): Promise<IGenericResult> {
+    async addTopAssociation(
+        { association_name, association_url }: AddTopAssociationsDto,
+        file: Express.Multer.File,
+    ): Promise<IGenericResult> {
         const foundAssociations = await this.dataSource.query(
             `
                 SELECT entities FROM top_entities WHERE alias = 'top_associations';
-            `
+            `,
         );
 
         if (foundAssociations[0]?.entities?.length > 4) {
             throw new BadRequestException(CONSTANTS.MAX_TOP_ENTITIES);
         }
 
-        const foundIndex = foundAssociations[0]?.entities?.findIndex((el: { association_name: string, association_img_url: string }) => el.association_name === association_name)
+        const foundIndex = foundAssociations[0]?.entities?.findIndex(
+            (el: { association_name: string; association_img_url: string }) =>
+                el.association_name === association_name,
+        );
 
         if (foundIndex !== -1 || !!!foundIndex) {
             throw new BadRequestException(CONSTANTS.ASSOCIATION_ALREADY_EXIST);
@@ -355,12 +375,12 @@ export class HomeDataService {
                 SET entities = JSON_ARRAY_APPEND(entities, '$', JSON_OBJECT('association_name', ?, 'association_url', ?, 'association_img_url', ?))
                 WHERE alias = ?;
             `,
-            [association_name, association_url, file.path, 'top_associations']
+            [association_name, association_url, file.path, 'top_associations'],
         );
 
         return {
-            message: 'Association data'
-        }
+            message: 'Association data',
+        };
     }
 
     async getTopAssociations(): Promise<IGenericResult> {
@@ -368,42 +388,53 @@ export class HomeDataService {
             `
                 SELECT * FROM top_entities
                 WHERE alias = 'top_associations'
-            `
-        )
+            `,
+        );
         return {
             message: 'Found top associations',
             data: {
-                top_associations: result[0]?.entities ?? []
-            }
-        }
+                top_associations: result[0]?.entities ?? [],
+            },
+        };
     }
 
-    async deleteTopAssociation(association_name: string): Promise<IGenericResult> {
-
-        const result = (await this.dataSource.query(
-            `
+    async deleteTopAssociation(
+        association_name: string,
+    ): Promise<IGenericResult> {
+        const result = (
+            await this.dataSource.query(
+                `
             SELECT * FROM top_entities WHERE alias = 'top_associations'
-        `))[0]
+        `,
+            )
+        )[0];
 
-        const foundAssociation = result?.entities?.find((el) =>
-            el.association_name === association_name
-        )
+        const foundAssociation = result?.entities?.find(
+            (el) => el.association_name === association_name,
+        );
 
         if (fs.existsSync(foundAssociation?.association_img_url)) {
             fs.unlink(foundAssociation?.association_img_url, (err) => {
-                if (err) console.error('error in deleting this file', foundAssociation?.association_img_url)
-            })
+                if (err)
+                    console.error(
+                        'error in deleting this file',
+                        foundAssociation?.association_img_url,
+                    );
+            });
         }
 
-        const filteredAssociatin = result?.entities?.filter((el) =>
-            el.association_name !== association_name
-        )
+        const filteredAssociatin = result?.entities?.filter(
+            (el) => el.association_name !== association_name,
+        );
 
-        await this.dataSource.query(`
+        await this.dataSource.query(
+            `
             UPDATE top_entities
             SET entities = ?
             WHERE alias = 'top_associations'
-        `, [JSON.stringify(filteredAssociatin)])
+        `,
+            [JSON.stringify(filteredAssociatin)],
+        );
 
         return {
             message: 'Association deleted',

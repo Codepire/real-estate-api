@@ -1,4 +1,16 @@
-import { BadRequestException, Body, Controller, Delete, Get, Inject, Patch, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+    BadRequestException,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Inject,
+    Patch,
+    Post,
+    Query,
+    UploadedFile,
+    UseInterceptors,
+} from '@nestjs/common';
 import { HomeDataService } from './app-config.service';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
 import { IGenericResult } from 'src/common/interfaces';
@@ -22,7 +34,7 @@ export class HomeDataController {
     constructor(
         private readonly homeDataService: HomeDataService,
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    ) { }
+    ) {}
 
     @SkipAuth()
     @Get('home-data')
@@ -44,7 +56,7 @@ export class HomeDataController {
     @Roles(UserRoleEnum.ADMIN)
     @Get('home-data/top-cities')
     async getTopCities(
-        @Query() query: QueryFiltersDto
+        @Query() query: QueryFiltersDto,
     ): Promise<IGenericResult> {
         return this.homeDataService.getTopCities(query);
     }
@@ -52,7 +64,10 @@ export class HomeDataController {
     @Roles(UserRoleEnum.ADMIN)
     @Patch('home-data/top-city')
     async addTopCity(@Body() body: AddTopCityDto): Promise<IGenericResult> {
-        return this.homeDataService.addOrRemoveTopEntity(body.city_name, 'top_cities');
+        return this.homeDataService.addOrRemoveTopEntity(
+            body.city_name,
+            'top_cities',
+        );
     }
 
     @Roles(UserRoleEnum.ADMIN)
@@ -86,40 +101,50 @@ export class HomeDataController {
     @Roles(UserRoleEnum.ADMIN)
     @Get('home-data/top-builders')
     async getTopBuilders(
-        @Query() query: QueryFiltersDto
+        @Query() query: QueryFiltersDto,
     ): Promise<IGenericResult> {
         return this.homeDataService.getTopBuilders(query);
     }
 
     @Roles(UserRoleEnum.ADMIN)
     @Patch('home-data/top-associations')
-    @UseInterceptors(FileInterceptor('file', {
-        storage: diskStorage({
-            destination: './public/home-data/top-associations',
-            filename: (req, file, callback) => {
-                const uniqueSuffix = file.originalname.replaceAll(' ', '-') + '-' + Math.round(Math.random() * 1e9);
-                const fileExt = extname(file.originalname);
-                callback(null, `${uniqueSuffix}${fileExt}`)
-            }
+    @UseInterceptors(
+        FileInterceptor('file', {
+            storage: diskStorage({
+                destination: './public/home-data/top-associations',
+                filename: (req, file, callback) => {
+                    const uniqueSuffix =
+                        file.originalname.replaceAll(' ', '-') +
+                        '-' +
+                        Math.round(Math.random() * 1e9);
+                    const fileExt = extname(file.originalname);
+                    callback(null, `${uniqueSuffix}${fileExt}`);
+                },
+            }),
+            fileFilter: (req, file, callback) => {
+                const allowedMimeTypes = [
+                    'image/jpeg',
+                    'image/png',
+                    'image/jpg',
+                ];
+                if (allowedMimeTypes.includes(file.mimetype)) {
+                    callback(null, true);
+                } else {
+                    callback(
+                        new BadRequestException(CONSTANTS.INVALID_FILE_TYPE),
+                        false,
+                    ); // Reject the file
+                }
+            },
         }),
-        fileFilter: (req, file, callback) => {
-            const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-            if (allowedMimeTypes.includes(file.mimetype)) {
-                callback(null, true);
-            } else {
-                callback(new BadRequestException(CONSTANTS.INVALID_FILE_TYPE), false); // Reject the file
-            }
-        },
-    }))
+    )
     async addTopAssociations(
         @Body() body: AddTopAssociationsDto,
         @UploadedFile() file: Express.Multer.File,
     ): Promise<IGenericResult> {
         body.association_name = body.association_name?.trim()?.toLowerCase();
         body.association_url = body.association_url?.trim()?.toLowerCase();
-        return this.homeDataService.addTopAssociation(
-            body, file
-        );
+        return this.homeDataService.addTopAssociation(body, file);
     }
 
     @Roles(UserRoleEnum.ADMIN)
@@ -134,8 +159,6 @@ export class HomeDataController {
         @Body() body: DeleteTopAssociationDto,
     ): Promise<IGenericResult> {
         const association_name = body.association_name?.trim()?.toLowerCase();
-        return this.homeDataService.deleteTopAssociation(
-            association_name
-        );
+        return this.homeDataService.deleteTopAssociation(association_name);
     }
 }

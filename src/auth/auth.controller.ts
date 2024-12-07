@@ -91,14 +91,13 @@ export class AuthController {
         @Body() verifyEmailDto: VerifyEmailDto,
     ): Promise<IGenericResult> {
         try {
-
             await this.auhService.verifyEmail(verifyEmailDto);
             return {
                 message: CONSTANTS.EMAIL_VERIFIED,
             };
         } catch (err) {
-            console.log(err)
-            throw err
+            console.log(err);
+            throw err;
         }
     }
 

@@ -14,8 +14,8 @@ async function bootstrap() {
     const configService = app.get(ConfigService);
     app.enableCors({
         credentials: true,
-        origin: configService.get<string>('cors.origins')?.split(',')
-    })
+        origin: configService.get<string>('cors.origins')?.split(','),
+    });
     app.use(helmet());
     app.useGlobalPipes(new ValidationPipe());
     app.use(cookieParser());

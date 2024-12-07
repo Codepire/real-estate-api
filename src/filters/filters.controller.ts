@@ -17,7 +17,12 @@ export class FiltersController {
     ) {
         const { filter } = getFilterDto;
         const { limit, page, searchText } = getFiltersQuery;
-        return this.filtersService.getFilteredData(filter, parseInt(page, 10) || 1, parseInt(limit, 10) || 50, searchText);
+        return this.filtersService.getFilteredData(
+            filter,
+            parseInt(page, 10) || 1,
+            parseInt(limit, 10) || 50,
+            searchText,
+        );
     }
 
     @SkipAuth()

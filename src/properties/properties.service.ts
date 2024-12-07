@@ -86,7 +86,7 @@ export class PropertiesService {
             'CASE WHEN COALESCE(wrl.ForLease, "0") = "0" THEN false ELSE true END AS for_lease',
             'CASE WHEN COALESCE(wrl.ForSale, "0") = "0" THEN false ELSE true END AS for_sale',
             'wrl.property_images AS property_images',
-            'wrl.Directions AS directions'
+            'wrl.Directions AS directions',
         ];
     }
 
@@ -356,11 +356,14 @@ export class PropertiesService {
         limit = parseInt(String(limit), 10) || 100;
 
         const offset = (page - 1) * limit;
-        
-        const aggregateQb = qb.clone().select('COUNT(*)', 'count')
+
+        const aggregateQb = qb.clone().select('COUNT(*)', 'count');
         qb.offset(offset).limit(limit ?? 100);
 
-        let [result, totalCount] = await Promise.all([qb.getRawMany(), aggregateQb.execute()]);
+        let [result, totalCount] = await Promise.all([
+            qb.getRawMany(),
+            aggregateQb.execute(),
+        ]);
 
         return {
             data: {
@@ -415,7 +418,9 @@ export class PropertiesService {
             throw new NotFoundException(CONSTANTS.PROPERTY_NOT_FOUND);
         }
 
-        const marketStatesByZip = await this.getPropertiesStateByZip({ zipcode: foundProperty.zipcode });
+        const marketStatesByZip = await this.getPropertiesStateByZip({
+            zipcode: foundProperty.zipcode,
+        });
 
         foundProperty['market_states'] = marketStatesByZip.data.states[0];
         foundProperty['is_liked'] = false;

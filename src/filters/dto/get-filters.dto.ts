@@ -16,7 +16,7 @@ export class GetFiltersDto {
         'masterplannedcommunity',
         'subdivision',
         'style',
-        'county'
+        'county',
     ])
     filter: string;
 }

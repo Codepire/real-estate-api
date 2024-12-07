@@ -20,9 +20,9 @@ export class AppService {
         return {
             message: 'Countries found',
             data: {
-                countries: res?.map(
-                    (el: { Country: string }) => el.Country,
-                )?.sort() ?? [],
+                countries:
+                    res?.map((el: { Country: string }) => el.Country)?.sort() ??
+                    [],
             },
         };
     }
@@ -36,7 +36,9 @@ export class AppService {
             `,
         );
         return (
-            res?.map((el: { PropertyType: string }) => el.PropertyType)?.sort() ?? []
+            res
+                ?.map((el: { PropertyType: string }) => el.PropertyType)
+                ?.sort() ?? []
         );
     }
 
@@ -52,7 +54,8 @@ export class AppService {
         return {
             message: 'States found',
             data: {
-                states: res?.map((el: { State: string }) => el.State)?.sort() ?? [],
+                states:
+                    res?.map((el: { State: string }) => el.State)?.sort() ?? [],
             },
         };
     }
@@ -69,7 +72,8 @@ export class AppService {
         return {
             message: 'Cities found',
             data: {
-                cities: res?.map((el: { City: string }) => el.City)?.sort() ?? [],
+                cities:
+                    res?.map((el: { City: string }) => el.City)?.sort() ?? [],
             },
         };
     }
@@ -82,7 +86,10 @@ export class AppService {
                 WHERE wrl.BuilderName IS NOT NULL;
             `,
         );
-        return res?.map((el: { builderName: string }) => el.builderName)?.sort() ?? [];
+        return (
+            res?.map((el: { builderName: string }) => el.builderName)?.sort() ??
+            []
+        );
     }
 
     async getMasterPlannedCommunities(): Promise<string[]> {
@@ -93,10 +100,12 @@ export class AppService {
             `);
 
         return (
-            res?.map(
-                (el: { MasterPlannedCommunity: string }) =>
-                    el.MasterPlannedCommunity,
-            )?.sort() ?? []
+            res
+                ?.map(
+                    (el: { MasterPlannedCommunity: string }) =>
+                        el.MasterPlannedCommunity,
+                )
+                ?.sort() ?? []
         );
     }
 
@@ -116,7 +125,11 @@ export class AppService {
                 from wp_realty_listingsdb wrl
                 WHERE wrl.RoomCount IS NOT NULL;
         `);
-        return res?.map((el: { RoomCount: number }) => el.RoomCount)?.sort((a: number, b: number) => a - b) ?? [];
+        return (
+            res
+                ?.map((el: { RoomCount: number }) => el.RoomCount)
+                ?.sort((a: number, b: number) => a - b) ?? []
+        );
     }
 
     async getBedRoomCount(): Promise<number[]> {
@@ -125,7 +138,11 @@ export class AppService {
             FROM wp_realty_listingsdb wrl 
             WHERE wrl.BedsTotal IS NOT NULL;
     `);
-        return res?.map((el: { BedsTotaL: number }) => el.BedsTotaL)?.sort((a: number, b: number) => a - b) ?? [];
+        return (
+            res
+                ?.map((el: { BedsTotaL: number }) => el.BedsTotaL)
+                ?.sort((a: number, b: number) => a - b) ?? []
+        );
     }
 
     async getSchoolDistricts(): Promise<any[]> {
@@ -138,8 +155,9 @@ export class AppService {
                 wrl.SchoolDistrict IS NOT NULL;
     `);
         return (
-            res?.map((el: { SchoolDistrict: string }) => el.SchoolDistrict)?.sort() ??
-            []
+            res
+                ?.map((el: { SchoolDistrict: string }) => el.SchoolDistrict)
+                ?.sort() ?? []
         );
     }
 
@@ -162,9 +180,11 @@ export class AppService {
             message: 'Geo market area found',
             data: {
                 geo_market_areas:
-                    res?.map(
-                        (el: { GeoMarketArea: string }) => el.GeoMarketArea,
-                    )?.sort() ?? [],
+                    res
+                        ?.map(
+                            (el: { GeoMarketArea: string }) => el.GeoMarketArea,
+                        )
+                        ?.sort() ?? [],
             },
         };
     }

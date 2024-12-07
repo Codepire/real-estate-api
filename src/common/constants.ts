@@ -17,5 +17,5 @@ export enum CONSTANTS {
     MAX_TOP_ENTITIES = 'Maximum 5 top entities can be added',
     ENTITITY_ALREADY_EXISTS = 'Entity already exists',
     ASSOCIATION_ALREADY_EXIST = 'Association already exists',
-    INVALID_FILE_TYPE='Only JPG, JPEG, and PNG files are allowed'
+    INVALID_FILE_TYPE = 'Only JPG, JPEG, and PNG files are allowed',
 }
