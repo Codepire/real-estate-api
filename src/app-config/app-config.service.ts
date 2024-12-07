@@ -79,7 +79,7 @@ export class HomeDataService {
                 const foundPropertiesRes = await this.dataSource.query(
                     `
                     SELECT
-                      wrl.listingsdb_id,
+                      wrl.listingsdb_id AS id,
                       wrl.property_images as property_images,
                       wrl.listingsdb_title AS title,
                       wrl.Address AS address,
