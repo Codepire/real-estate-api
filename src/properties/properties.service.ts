@@ -410,6 +410,13 @@ export class PropertiesService {
             .where('wrl.listingsdb_id = :propertyId', { propertyId });
 
         const foundProperty = await qb.getRawOne();
+        if (!foundProperty) {
+            throw new NotFoundException(CONSTANTS.PROPERTY_NOT_FOUND);
+        }
+
+        const marketStatesByZip = await this.getPropertiesStateByZip({ zipcode: foundProperty.zipcode });
+
+        foundProperty['market_states'] = marketStatesByZip.data.states[0];
         foundProperty['is_liked'] = false;
 
         if (user) {
@@ -432,10 +439,6 @@ export class PropertiesService {
                 ],
             );
             if (propertyLIke[0]) foundProperty['is_liked'] = true;
-        }
-
-        if (!foundProperty) {
-            throw new NotFoundException(CONSTANTS.PROPERTY_NOT_FOUND);
         }
 
         const { data: walkScore } = await firstValueFrom(
