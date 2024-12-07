@@ -85,7 +85,8 @@ export class PropertiesService {
             'wrl.DepositSecurity AS deposit',
             'CASE WHEN COALESCE(wrl.ForLease, "0") = "0" THEN false ELSE true END AS for_lease',
             'CASE WHEN COALESCE(wrl.ForSale, "0") = "0" THEN false ELSE true END AS for_sale',
-            'wrl.property_images as property_images'
+            'wrl.property_images AS property_images',
+            'wrl.Directions AS directions'
         ];
     }
 
