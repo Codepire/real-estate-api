@@ -22,7 +22,7 @@ export class HomeDataService {
         };
 
         for (const el of res) {
-            const entities = el.entities?.slice(0, 5);
+            const entities = el.entities;
             if (!el.entities || el.entities?.length < 1) {
                 continue;
             }
