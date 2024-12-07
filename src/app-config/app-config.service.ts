@@ -332,7 +332,7 @@ export class HomeDataService {
         };
     }
 
-    async addTopAssociation({ association_name }: AddTopAssociationsDto, file: Express.Multer.File): Promise<IGenericResult> {
+    async addTopAssociation({ association_name, association_url }: AddTopAssociationsDto, file: Express.Multer.File): Promise<IGenericResult> {
         const foundAssociations = await this.dataSource.query(
             `
                 SELECT entities FROM top_entities WHERE alias = 'top_associations';
@@ -352,10 +352,10 @@ export class HomeDataService {
         await this.dataSource.query(
             `
                 UPDATE top_entities
-                SET entities = JSON_ARRAY_APPEND(entities, '$', JSON_OBJECT('association_name', ?, 'association_img_url', ?))
+                SET entities = JSON_ARRAY_APPEND(entities, '$', JSON_OBJECT('association_name', ?, 'association_url', ?, 'association_img_url', ?))
                 WHERE alias = ?;
             `,
-            [association_name, file.path, 'top_associations']
+            [association_name, association_url, file.path, 'top_associations']
         );
 
         return {

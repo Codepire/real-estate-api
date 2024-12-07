@@ -116,6 +116,7 @@ export class HomeDataController {
         @UploadedFile() file: Express.Multer.File,
     ): Promise<IGenericResult> {
         body.association_name = body.association_name?.trim()?.toLowerCase();
+        body.association_url = body.association_url?.trim()?.toLowerCase();
         return this.homeDataService.addTopAssociation(
             body, file
         );
