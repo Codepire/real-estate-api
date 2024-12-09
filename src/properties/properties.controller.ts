@@ -1,4 +1,5 @@
 import {
+    Body,
     Controller,
     Get,
     Param,
@@ -18,6 +19,7 @@ import { UserRoleEnum } from 'src/common/enums';
 import { Request } from 'express';
 import { CurrentUser } from 'src/common/guards/current-user.guard';
 import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-auth.guard';
+import { AddCommentDto } from './dto/add.comment.dto';
 
 @Controller('properties')
 export class PropertiesController {
@@ -78,5 +80,14 @@ export class PropertiesController {
     @Patch('active-deactive/:id')
     async activateDeactivatePropertyById(@Param('id') id: string) {
         return await this.propertiesService.activateDeactivatePropertyById(+id);
+    }
+
+    @SkipAuth()
+    @Post('comments/:property_id')
+    async addComment(
+        @Body() addCommentDto: AddCommentDto,
+        @Param('property_id') propertyId: string,
+    ) {
+        return await this.propertiesService.addComment(propertyId, addCommentDto)
     }
 }

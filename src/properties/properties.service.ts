@@ -10,6 +10,7 @@ import { AxiosError } from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { AnalyticsService } from 'src/analytics/analytics.service';
 import { EventTypeEnum } from 'src/common/enums';
+import { AddCommentDto } from './dto/add.comment.dto';
 
 @Injectable()
 export class PropertiesService {
@@ -18,7 +19,7 @@ export class PropertiesService {
         private readonly httpService: HttpService,
         private readonly configService: ConfigService,
         private readonly analyticsService: AnalyticsService,
-    ) {}
+    ) { }
 
     // todo: true false not working, only 0 and 1 going
     getFrequentlySelectedPropertyFields(): string[] {
@@ -641,5 +642,19 @@ export class PropertiesService {
                 is_active: foundProperty[0].is_active ? false : true,
             },
         };
+    }
+
+    async addComment(propertyId: string, addCommentDto: AddCommentDto) {
+        const foundProperty = await this.dataSource.query(`
+            SELECT * FROM wp_realty_listingsdb WHERE listingsdb_id = ?;
+            `, [propertyId]);
+
+        if (!(foundProperty.length > 0)) throw new NotFoundException(CONSTANTS.PROPERTY_NOT_FOUND);
+
+        await this.dataSource.query(`
+            INSERT INTO property_comment (comment, propertyId, name, email)
+            VALUES (?, ?, ?, ?);
+        `, [addCommentDto.comment, propertyId, addCommentDto.name, addCommentDto.email]);
+        return 'ok';
     }
 }
