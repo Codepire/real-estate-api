@@ -20,6 +20,7 @@ import { Request } from 'express';
 import { CurrentUser } from 'src/common/guards/current-user.guard';
 import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-auth.guard';
 import { AddCommentDto } from './dto/add.comment.dto';
+import { GetCommentsDto } from './dto/get-comments.dto';
 
 @Controller('properties')
 export class PropertiesController {
@@ -57,6 +58,14 @@ export class PropertiesController {
     ): Promise<IGenericResult> {
         const sessionId = req.cookies['anonymusVisiter'];
         return this.propertiesService.like(propertyId, user, sessionId);
+    }
+
+    @SkipAuth()
+    @Get('comments')
+    async getComments(
+        @Query() addCommentDto: GetCommentsDto,
+    ) {
+        return await this.propertiesService.getComments(addCommentDto);
     }
 
     @SkipAuth()

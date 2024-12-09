@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { AnalyticsService } from 'src/analytics/analytics.service';
 import { EventTypeEnum } from 'src/common/enums';
 import { AddCommentDto } from './dto/add.comment.dto';
+import { GetCommentsDto } from './dto/get-comments.dto';
 
 @Injectable()
 export class PropertiesService {
@@ -656,5 +657,40 @@ export class PropertiesService {
             VALUES (?, ?, ?, ?);
         `, [addCommentDto.comment, propertyId, addCommentDto.name, addCommentDto.email]);
         return 'ok';
+    }
+
+    async getComments(getCommentsDto: GetCommentsDto): Promise<IGenericResult> {
+        const limit = getCommentsDto.limit || 10;
+        const page = getCommentsDto.page || 1;
+        const offset = (page - 1) * limit;
+        const searchText = `%${getCommentsDto.searchText?.toLowerCase()?.trim() || ''}%`;
+
+        const [foundComments] = await Promise.all([this.dataSource.query(`
+            SELECT
+                id,
+                comment,
+                propertyId AS property_id,
+                name,
+                email,
+                isRead AS is_read
+            FROM
+                property_comment
+            WHERE
+                LOWER(name) LIKE ?
+                OR LOWER(email) LIKE ?
+            ORDER BY created_at DESC
+            LIMIT ?, ?;
+        `, [searchText, searchText, +offset, +limit]),
+        this.dataSource.query(`
+            UPDATE property_comment SET isRead = 1    
+        `)
+        ]);
+
+        return {
+            message: 'Found comments',
+            data: {
+                comments: foundComments,
+            },
+        };
     }
 }
