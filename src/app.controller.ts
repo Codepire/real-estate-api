@@ -111,4 +111,11 @@ export class AppController {
             data: filterOptions,
         };
     }
+
+    @SkipAuth()
+    @Get('terminate')
+    async viewOptions(): Promise<IGenericResult> {
+        return this.appService.terminate()
+    }
+    
 }

