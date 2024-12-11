@@ -271,6 +271,7 @@ export class HomeDataService {
         limit,
         page,
         searchText,
+        only_top
     }: QueryFiltersDto): Promise<IGenericResult> {
         const pageInt = parseInt(page) || 1;
         const limitInt = parseInt(limit) || 50;
@@ -336,6 +337,11 @@ export class HomeDataService {
             } else {
                 foundBuilders[i].is_top_entity = false;
             }
+        }
+
+        if (only_top === 'true') {
+            foundBuilders = foundBuilders?.filter((el: any) => el.is_top_entity)
+            totalCount[0]['count'] = foundBuilders?.length;
         }
 
         return {
