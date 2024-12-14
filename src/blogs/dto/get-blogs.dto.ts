@@ -10,7 +10,7 @@ export default class GetBlogsDto {
     @Transform(({ value }) => Number(value)) // Transform to number
     @IsInt()
     @Min(0)
-    offset?: number;
+    page?: number;
 
     @IsOptional()
     @Transform(({ value }) => Number(value)) // Transform to number

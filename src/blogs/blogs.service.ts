@@ -45,10 +45,15 @@ export class BlogsService {
     }
 
     async findAllBlogs(getBlogsDto: GetBlogsDto): Promise<IGenericResult> {
+        const page = parseInt(String(getBlogsDto.page), 10) || 1;
+        const limit = parseInt(String(getBlogsDto.limit), 10) || 100;
+
+        const offset = (page - 1) * limit
+
         const qb = this.blogsRepo
             .createQueryBuilder('blogs')
-            .offset(getBlogsDto.offset)
-            .limit(getBlogsDto.limit);
+            .offset(offset)
+            .limit(limit);
 
         if (getBlogsDto.search) {
             const search = `%${getBlogsDto.search.toLowerCase()}%`;
@@ -59,7 +64,14 @@ export class BlogsService {
 
         const [foundBlogs, count] = await qb.getManyAndCount();
         return {
-            data: { blogs: foundBlogs, count },
+            data: {
+                blogs: foundBlogs,
+                meatadata: {
+                    total: count,
+                    totalPages: Math.ceil(count / limit),
+                    next: page < Math.ceil(count / limit)
+                }
+            },
             message: 'Blogs found',
         };
     }
