@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString } from "class-validator";
 
 export class AddCommentDto {
     @IsNotEmpty()
@@ -8,6 +8,9 @@ export class AddCommentDto {
     @IsNotEmpty()
     @IsString()
     name: string;
+
+    @IsPhoneNumber('US')
+    phone_number: string;
 
     @IsNotEmpty()
     @IsString()

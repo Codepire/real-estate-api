@@ -680,14 +680,14 @@ export class PropertiesService {
         if (!(foundProperty.length > 0)) throw new NotFoundException(CONSTANTS.PROPERTY_NOT_FOUND);
 
         await this.dataSource.query(`
-            INSERT INTO property_comment (comment, propertyId, name, email)
-            VALUES (?, ?, ?, ?);
-        `, [addCommentDto.comment, propertyId, addCommentDto.name, addCommentDto.email]);
+            INSERT INTO property_comment (comment, propertyId, name, email, phone_number)
+            VALUES (?, ?, ?, ?, ?);
+        `, [addCommentDto.comment, propertyId, addCommentDto.name, addCommentDto.email, addCommentDto.phone_number]);
         return 'ok';
     }
 
     async getComments(getCommentsDto: GetCommentsDto): Promise<IGenericResult> {
-        const limit = getCommentsDto.limit || 10;
+        const limit = +getCommentsDto.limit || 10;
         const page = getCommentsDto.page || 1;
         const offset = (page - 1) * limit;
         const searchText = `%${getCommentsDto.searchText?.toLowerCase()?.trim() || ''}%`;
@@ -700,6 +700,7 @@ export class PropertiesService {
                 propertyId AS property_id,
                 name,
                 email,
+                phone_number,
                 isRead AS is_read
             FROM
                 property_comment
@@ -717,15 +718,13 @@ export class PropertiesService {
             WHERE
                 LOWER(name) LIKE ?
                 OR LOWER(email) LIKE ?
-            LIMIT ?, ?;
-        `, [searchText, searchText, +offset, +limit]),
+        `, [searchText, searchText]),
         this.dataSource.query(`
             UPDATE property_comment SET isRead = 1    
         `)
         ]);
 
-        const totalCount = aggregate?.[0]?.count || 0;
-
+        const totalCount = +aggregate?.[0]?.count || 0;
         return {
             message: 'Found comments',
             data: {
@@ -733,7 +732,7 @@ export class PropertiesService {
                 metadata: {
                     totalCount,
                     totalPages: Math.ceil(totalCount / limit),
-                    next: offset + limit < totalCount,
+                    next: (offset + limit) < totalCount,
                 }
             },
         };

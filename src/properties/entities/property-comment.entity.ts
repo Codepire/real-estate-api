@@ -18,6 +18,9 @@ export class PropertyComment extends TimeStampedCommonEntities{
     @Column()
     email: string;
 
+    @Column()
+    phone_number: string;
+
     @Column({default: false})
     isRead: boolean;
 }
