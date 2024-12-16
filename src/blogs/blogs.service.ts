@@ -66,7 +66,7 @@ export class BlogsService {
         return {
             data: {
                 blogs: foundBlogs,
-                meatadata: {
+                metadata: {
                     total: count,
                     totalPages: Math.ceil(count / limit),
                     next: page < Math.ceil(count / limit)

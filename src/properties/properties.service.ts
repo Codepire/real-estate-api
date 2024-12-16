@@ -665,7 +665,8 @@ export class PropertiesService {
         const offset = (page - 1) * limit;
         const searchText = `%${getCommentsDto.searchText?.toLowerCase()?.trim() || ''}%`;
 
-        const [foundComments] = await Promise.all([this.dataSource.query(`
+        const [foundComments, aggregate] = await Promise.all([
+        this.dataSource.query(`
             SELECT
                 id,
                 comment,
@@ -682,14 +683,31 @@ export class PropertiesService {
             LIMIT ?, ?;
         `, [searchText, searchText, +offset, +limit]),
         this.dataSource.query(`
+            SELECT
+                COUNT(*) AS count
+            FROM
+                property_comment
+            WHERE
+                LOWER(name) LIKE ?
+                OR LOWER(email) LIKE ?
+            LIMIT ?, ?;
+        `, [searchText, searchText, +offset, +limit]),
+        this.dataSource.query(`
             UPDATE property_comment SET isRead = 1    
         `)
         ]);
+
+        const totalCount = aggregate?.[0]?.count || 0;
 
         return {
             message: 'Found comments',
             data: {
                 comments: foundComments,
+                metadata: {
+                    totalCount,
+                    totalPages: Math.ceil(totalCount / limit),
+                    next: offset + limit < totalCount,
+                }
             },
         };
     }
