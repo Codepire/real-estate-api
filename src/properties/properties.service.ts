@@ -367,6 +367,32 @@ export class PropertiesService {
             aggregateQb.execute(),
         ]);
 
+        let totalTopProperties = 0;
+        if (user && user.role === 'admin') {
+            const foundTopProertiesRes = await this.dataSource.query(
+                `
+                SELECT
+                    entities
+                FROM
+                    top_entities
+                WHERE
+                    alias = 'top_properties'
+                `,
+                [EventTypeEnum.PROPERTY_LIKE],
+            );
+            const topPropertiesArr = foundTopProertiesRes[0]?.entities || [];
+            totalTopProperties = topPropertiesArr.length;
+            result = result.map((property) => {
+                const foundProperty = topPropertiesArr.find(
+                    (topProperty: string) => topProperty === property.id,
+                );
+                return {
+                    ...property,
+                    is_top: foundProperty ? '1' : '0',
+                };
+            });
+        }
+
         return {
             data: {
                 properties: result,
@@ -374,6 +400,7 @@ export class PropertiesService {
                     totalCount: parseInt(totalCount[0]['count']) || 0,
                     next: offset + limit < totalCount[0]['count'],
                     totalPages: Math.ceil(totalCount[0]['count'] / limit),
+                    ...(user && user.role === 'admin' && { totalTopProperties })
                 },
             },
             message: 'Properties found',
