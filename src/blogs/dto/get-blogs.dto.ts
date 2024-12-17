@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, Length, Min } from 'class-validator';
+import { IsIn, IsInt, IsOptional, Length, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export default class GetBlogsDto {
@@ -17,4 +17,8 @@ export default class GetBlogsDto {
     @IsInt()
     @Min(1)
     limit?: number;
+
+    @IsOptional()
+    @IsIn(['true', 'false'])
+    only_top: string;
 }

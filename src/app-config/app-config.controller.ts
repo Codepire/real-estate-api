@@ -171,4 +171,10 @@ export class HomeDataController {
     ) {
         return this.homeDataService.addTopBlog({ blog_id: body.blog_id });
     }
+
+    @SkipAuth()
+    @Get('home-data/top-blogs')
+    async getTopBlogs() {
+        return this.homeDataService.getTopBlogs();
+    }
 }

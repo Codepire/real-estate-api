@@ -464,7 +464,7 @@ export class HomeDataService {
         let isStarred = false;
 
         if (foundEneities.length >= 4) {
-            throw new BadRequestException(CONSTANTS.MAX_TOP_ENTITIES);
+            throw new BadRequestException(CONSTANTS.MAX_TOP_ENTITIES_4);
         }
 
         const foundIndex = foundEneities.findIndex(
@@ -473,7 +473,7 @@ export class HomeDataService {
         );
 
         if (foundIndex !== -1 || !!!foundIndex) {
-            throw new BadRequestException(CONSTANTS.MAX_TOP_ENTITIES_4);
+            throw new BadRequestException(CONSTANTS.ENTITITY_ALREADY_EXISTS);
         }
 
         if (foundEneities.length > 2 && foundEneities.every(el => !el.isStarred)) {
@@ -492,5 +492,37 @@ export class HomeDataService {
         return {
             message: 'Blog added',
         }
+    }
+
+    async getTopBlogs(): Promise<IGenericResult> {
+        const foundTopBlogsRes = await this.dataSource.query(
+            `
+                SELECT * FROM top_entities
+                WHERE alias = 'top_blogs'
+            `,
+        );
+
+        const foundTopBlogsIds = foundTopBlogsRes[0]?.entities ?? [];
+
+        const topBlogs = await this.dataSource.query(`
+            SELECT
+                created_at,
+                updated_at,
+                id,
+                title,
+                body,
+                thumbnail_url
+            FROM
+                blogs
+            WHERE
+                id IN (${foundTopBlogsIds.map((e) => '?')})
+            `, [...foundTopBlogsIds.map((e) => e.id)]);
+
+        return {
+            message: 'Found top blogs',
+            data: {
+                top_blogs: topBlogs,
+            },
+        };
     }
 }
