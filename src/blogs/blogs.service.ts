@@ -8,7 +8,7 @@ import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { IGenericResult } from 'src/common/interfaces';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { BlogsEntity } from './entities/blogs.entity';
 import GetBlogsDto from './dto/get-blogs.dto';
 import { CONSTANTS } from 'src/common/constants';
@@ -18,6 +18,8 @@ export class BlogsService {
     constructor(
         @InjectRepository(BlogsEntity)
         private readonly blogsRepo: Repository<BlogsEntity>,
+
+        private readonly dataSource: DataSource
     ) {}
 
     private async findBlogById(id: string): Promise<BlogsEntity> {
@@ -62,14 +64,38 @@ export class BlogsService {
                 .orWhere('LOWER(tag) LIKE :tagSearch', { tagSearch: search });
         }
 
-        const [foundBlogs, count] = await qb.getManyAndCount();
+        
+        let [foundTopBlogs, [foundBlogs, count]] = await Promise.all([
+            this.dataSource.query(`
+                SELECT entities FROM top_entities WHERE alias = 'top_blogs'
+                `),
+                await qb.getManyAndCount()
+                
+            ]);
+        const foundEneities = foundTopBlogs[0].entities;
+
+        foundBlogs = foundBlogs.map((blog: any) => {
+            if (foundEneities.some(el => el.id === blog.id)) {
+                return {
+                    ...blog,
+                    is_top: true
+                }
+            } else {
+                return {
+                    ...blog,
+                    is_top: false
+                };
+            }
+        })
+
         return {
             data: {
                 blogs: foundBlogs,
                 metadata: {
                     total: count,
                     totalPages: Math.ceil(count / limit),
-                    next: page < Math.ceil(count / limit)
+                    next: page < Math.ceil(count / limit),
+                    totalTopBlogs: foundEneities?.length,
                 }
             },
             message: 'Blogs found',
