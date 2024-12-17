@@ -57,12 +57,15 @@ export class HomeDataService {
                 const result = await this.dataSource.query(
                     `
                     SELECT
-                        City AS name,
+                        wrl.City AS name,
                         SUM(CASE WHEN CompletedConstructionDate IS NULL THEN 1 ELSE 0 END) AS under_construction_projects,
-                        SUM(CASE WHEN CompletedConstructionDate IS NOT NULL THEN 1 ELSE 0 END) AS completed_projects
-                    FROM wp_realty_listingsdb
-                    WHERE City IN (${entities.map((e) => '?')})
-                    GROUP BY City;
+                        SUM(CASE WHEN CompletedConstructionDate IS NOT NULL THEN 1 ELSE 0 END) AS completed_projects,
+                        cim.imageUrl AS image_url
+                    FROM wp_realty_listingsdb wrl
+                    LEFT JOIN city_image_mapping cim
+                    ON LOWER(wrl.City) = LOWER(cim.city)
+                    WHERE wrl.City IN (${entities.map((e) => '?')})
+                    GROUP BY wrl.City, cim.imageUrl;
                 `,
                     [...entities],
                 );
@@ -76,6 +79,7 @@ export class HomeDataService {
                         total_projects:
                             +el.under_construction_projects +
                             +el.completed_projects,
+                        image_url: el.image_url,
                     });
                 }
             } else if (el.alias === 'top_associations') {

@@ -17,6 +17,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { HomeDataModule } from './app-config/app-config.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronModule } from './cron/cron.module';
+import { CityImageModule } from './city-image/city-image.module';
 
 @Module({
     imports: [
@@ -40,6 +41,7 @@ import { CronModule } from './cron/cron.module';
         HomeDataModule,
         AnalyticsModule,
         CronModule,
+        CityImageModule,
     ],
     controllers: [AppController],
     providers: [AppService],
