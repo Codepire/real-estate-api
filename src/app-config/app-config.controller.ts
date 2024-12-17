@@ -165,7 +165,7 @@ export class HomeDataController {
     }
 
     @Roles(UserRoleEnum.ADMIN)
-    @Put('home-data/top-blogs')
+    @Patch('home-data/top-blogs')
     async addTopBlog(
         @Body() body: AddTopBlogDto,
     ) {
