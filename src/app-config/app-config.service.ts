@@ -466,10 +466,6 @@ export class HomeDataService {
         const foundEneities: [{ id: number, isStarred: boolean }] = result[0].entities;
         let isStarred = false;
 
-        if (foundEneities.length >= 4) {
-            throw new BadRequestException(CONSTANTS.MAX_TOP_ENTITIES_4);
-        }
-
         const foundIndex = foundEneities.findIndex(
             (el: { id: number, isStarred: boolean }) =>
                 el.id === blog_id,
@@ -489,6 +485,10 @@ export class HomeDataService {
             return {
                 message: 'blog deleted'
             }
+        }
+
+        if (foundEneities.length >= 4) {
+            throw new BadRequestException(CONSTANTS.MAX_TOP_ENTITIES_4);
         }
 
         if (foundEneities.length > 2 && foundEneities.every(el => !el.isStarred)) {
