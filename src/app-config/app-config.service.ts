@@ -5,6 +5,7 @@ import { IGenericResult } from 'src/common/interfaces';
 import { QueryFiltersDto } from './dto/get-data-with-filters.dto';
 import { AddTopAssociationsDto } from './dto/add-top-associations.dto';
 import * as fs from 'node:fs';
+import { AddTopBlogDto } from './dto/add-top-blog.dto';
 
 @Injectable()
 export class HomeDataService {
@@ -451,5 +452,45 @@ export class HomeDataService {
         return {
             message: 'Association deleted',
         };
+    }
+
+    async addTopBlog({ blog_id }: AddTopBlogDto): Promise<IGenericResult> {
+        const result = await this.dataSource.query(
+            `
+            SELECT entities FROM top_entities WHERE alias = 'top_blogs'
+        `,
+        );
+        const foundEneities: [{ id: number, isStarred: boolean }] = result[0].entities;
+        let isStarred = false;
+
+        if (foundEneities.length >= 4) {
+            throw new BadRequestException(CONSTANTS.MAX_TOP_ENTITIES);
+        }
+
+        const foundIndex = foundEneities.findIndex(
+            (el: { id: number, isStarred: boolean }) =>
+                el.id === blog_id,
+        );
+
+        if (foundIndex !== -1 || !!!foundIndex) {
+            throw new BadRequestException(CONSTANTS.MAX_TOP_ENTITIES_4);
+        }
+
+        if (foundEneities.length > 2 && foundEneities.every(el => !el.isStarred)) {
+            isStarred = true;
+        }
+
+        await this.dataSource.query(
+            `
+                UPDATE top_entities
+                SET entities = JSON_ARRAY_APPEND(entities, '$', JSON_OBJECT('id', ?, 'isStarred', ?))
+                WHERE alias = ?;
+            `,
+            [blog_id, isStarred, 'top_blogs'],
+        );
+
+        return {
+            message: 'Blog added',
+        }
     }
 }

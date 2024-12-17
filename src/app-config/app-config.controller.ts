@@ -28,6 +28,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { CONSTANTS } from 'src/common/constants';
 import { AddTopPropertyDto } from './dto/add-top-property.dto';
+import { AddTopBlogDto } from './dto/add-top-blog.dto';
 
 @Controller('app-config')
 export class HomeDataController {
@@ -160,5 +161,14 @@ export class HomeDataController {
     ): Promise<IGenericResult> {
         const association_name = body.association_name?.trim()?.toLowerCase();
         return this.homeDataService.deleteTopAssociation(association_name);
+    }
+
+    // @Roles(UserRoleEnum.ADMIN)
+    @SkipAuth()
+    @Post('home-data/top-blogs')
+    async addTopBlog(
+        @Body() body: AddTopBlogDto,
+    ) {
+        return this.homeDataService.addTopBlog({ blog_id: body.blog_id });
     }
 }
