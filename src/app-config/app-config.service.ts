@@ -476,7 +476,19 @@ export class HomeDataService {
         );
 
         if (foundIndex !== -1 || !!!foundIndex) {
-            throw new BadRequestException(CONSTANTS.ENTITITY_ALREADY_EXISTS);
+            const filteredEntities = foundEneities.filter(el => el.id !== blog_id);
+            await this.dataSource.query(
+                `
+                UPDATE top_entities
+                SET entities = ?
+                WHERE alias = 'top_blogs';
+            `,
+                [JSON.stringify(filteredEntities)],
+            );
+
+            return {
+                message: 'blog deleted'
+            }
         }
 
         if (foundEneities.length > 2 && foundEneities.every(el => !el.isStarred)) {

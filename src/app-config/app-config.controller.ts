@@ -7,6 +7,7 @@ import {
     Inject,
     Patch,
     Post,
+    Put,
     Query,
     UploadedFile,
     UseInterceptors,
@@ -163,16 +164,14 @@ export class HomeDataController {
         return this.homeDataService.deleteTopAssociation(association_name);
     }
 
-    // @Roles(UserRoleEnum.ADMIN)
-    @SkipAuth()
-    @Post('home-data/top-blogs')
+    @Roles(UserRoleEnum.ADMIN)
+    @Put('home-data/top-blogs')
     async addTopBlog(
         @Body() body: AddTopBlogDto,
     ) {
         return this.homeDataService.addTopBlog({ blog_id: body.blog_id });
     }
 
-    @SkipAuth()
     @Get('home-data/top-blogs')
     async getTopBlogs() {
         return this.homeDataService.getTopBlogs();
