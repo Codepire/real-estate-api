@@ -20,6 +20,7 @@ export class HomeDataService {
             top_cities: [],
             top_associations: [],
             top_properties: [],
+            top_blogs: [],
         };
 
         for (const el of res) {
@@ -108,6 +109,8 @@ export class HomeDataService {
                     [...entities],
                 );
                 response.top_properties = foundPropertiesRes || [];
+            } else if (el.alias === 'top_blogs') {
+                response.top_blogs.push(await this.getTopBlogs());
             }
         }
         return response;
