@@ -75,4 +75,6 @@ export class GetAllPropertiesDto {
     is_liked: 'true' | 'false';
 
     searchText?: string;
+
+    subdivision: string;
 }

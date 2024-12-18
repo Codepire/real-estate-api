@@ -122,6 +122,7 @@ export class PropertiesService {
             property_sale_type,
             is_liked,
             searchText,
+            subdivision
         }: GetAllPropertiesDto,
         user: any,
     ): Promise<IGenericResult> {
@@ -155,6 +156,15 @@ export class PropertiesService {
                     bedsOptions,
                 });
             }
+        }
+
+        if (subdivision) {
+            qb.andWhere(
+                'LOWER(wrl.Subdivision) LIKE TRIM(LOWER(:subdivision))',
+                {
+                    subdivision,
+                },
+            );
         }
 
         if (rooms_total) {
