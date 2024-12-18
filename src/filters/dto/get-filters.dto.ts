@@ -17,6 +17,9 @@ export class GetFiltersDto {
         'subdivision',
         'style',
         'county',
+        'beds_total',
+        'golf_course',
+        'location',
     ])
     filter: string;
 }

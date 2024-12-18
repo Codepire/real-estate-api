@@ -25,6 +25,9 @@ export class FiltersService {
             geo_market_area: 'GeoMarketArea',
             school_district: 'SchoolDistrict',
             dwelling_type: 'DwellingType',
+            beds_total: 'BedsTotal',
+            golf_course: 'GolfCourse',
+            location: 'Location',
         };
 
         filter = filterMapping[filter] || filter;
