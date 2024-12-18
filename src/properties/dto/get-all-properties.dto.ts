@@ -77,4 +77,8 @@ export class GetAllPropertiesDto {
     searchText?: string;
 
     subdivision: string;
+
+    golf_course: string;
+
+    location: string;
 }

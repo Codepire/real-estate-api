@@ -122,7 +122,9 @@ export class PropertiesService {
             property_sale_type,
             is_liked,
             searchText,
-            subdivision
+            subdivision,
+            golf_course,
+            location
         }: GetAllPropertiesDto,
         user: any,
     ): Promise<IGenericResult> {
@@ -163,6 +165,24 @@ export class PropertiesService {
                 'LOWER(wrl.Subdivision) LIKE TRIM(LOWER(:subdivision))',
                 {
                     subdivision,
+                },
+            );
+        }
+
+        if (golf_course) {
+            qb.andWhere(
+                'LOWER(wrl.GolfCourse) LIKE TRIM(LOWER(:golf_course))',
+                {
+                    golf_course,
+                },
+            );
+        }
+
+        if (location) {
+            qb.andWhere(
+                'LOWER(wrl.Address) LIKE TRIM(LOWER(:location)) OR LOWER(wrl.StreetName) LIKE TRIM(LOWER(:location))',
+                {
+                    location,
                 },
             );
         }
