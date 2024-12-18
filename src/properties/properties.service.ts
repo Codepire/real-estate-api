@@ -180,7 +180,7 @@ export class PropertiesService {
 
         if (location) {
             qb.andWhere(
-                'LOWER(wrl.Address) LIKE TRIM(LOWER(:location)) OR LOWER(wrl.StreetName) LIKE TRIM(LOWER(:location))',
+                'LOWER(Location) LIKE TRIM(LOWER(:location))',
                 {
                     location,
                 },
