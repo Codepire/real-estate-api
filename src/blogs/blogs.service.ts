@@ -59,19 +59,20 @@ export class BlogsService {
 
         if (getBlogsDto.search) {
             const search = `%${getBlogsDto.search.toLowerCase()}%`;
-            qb.where('LOWER(title) LIKE :titleSearch', { titleSearch: search })
-                .orWhere('LOWER(body) LIKE :bodySearch', { bodySearch: search })
-                .orWhere('LOWER(tag) LIKE :tagSearch', { tagSearch: search });
+            qb.where('(LOWER(title) LIKE :searchText OR LOWER(body) LIKE :searchText)', { searchText: search })
         }
 
-        
-        let [foundTopBlogs, [foundBlogs, count]] = await Promise.all([
-            this.dataSource.query(`
+        const foundTopBlogs = await this.dataSource.query(`
                 SELECT entities FROM top_entities WHERE alias = 'top_blogs'
-                `),
-                await qb.getManyAndCount()
-                
-            ]);
+            `);
+
+        if (getBlogsDto.only_top === 'true') {
+            console.log('true')
+            qb.andWhere('id IN (:...ids)', {ids: foundTopBlogs[0].entities.map((el: any) => el.id)});
+        }
+        
+        let  [foundBlogs, count] = await qb.getManyAndCount();
+
         const foundEneities = foundTopBlogs[0].entities;
 
         foundBlogs = foundBlogs.map((blog: any) => {
