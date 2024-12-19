@@ -114,7 +114,7 @@ export class HomeDataService {
                 );
                 response.top_properties = foundPropertiesRes || [];
             } else if (el.alias === 'top_blogs') {
-                response.top_blogs.push(await this.getTopBlogs());
+                response.top_blogs.push((await this.getTopBlogs())?.data?.top_blogs || []);
             }
         }
         return response;
