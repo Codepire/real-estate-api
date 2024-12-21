@@ -100,7 +100,6 @@ export class PropertiesService {
             beds_total,
             rooms_total,
             property_types,
-            area,
             builder_names,
             city,
             zipcode,
@@ -124,7 +123,9 @@ export class PropertiesService {
             searchText,
             subdivision,
             golf_course,
-            location
+            location,
+            country,
+            state
         }: GetAllPropertiesDto,
         user: any,
     ): Promise<IGenericResult> {
@@ -213,15 +214,6 @@ export class PropertiesService {
             }
         }
 
-        // Validate and filter area
-        if (area) {
-            qb.andWhere(
-                '(LOWER(wrl.listingsdb_title) LIKE TRIM(LOWER(:area)) OR LOWER(wrl.Address) LIKE TRIM(LOWER(:area)) OR LOWER(wrl.StreetName) LIKE TRIM(LOWER(:area)))',
-                {
-                    area,
-                },
-            );
-        }
 
         // Validate and filter builder
         if (builder_names) {
@@ -237,6 +229,18 @@ export class PropertiesService {
                     },
                 );
             }
+        }
+
+        if (country) {
+            qb.andWhere('LOWER(wrl.Country) = TRIM(LOWER(:country))', {
+                country,
+            })
+        }
+
+        if (state) {
+            qb.andWhere('LOWER(wrl.State) = TRIM(LOWER(:state))', {
+                state,
+            })
         }
 
         if (city) {
