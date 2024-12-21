@@ -30,22 +30,6 @@ export class BlogsService {
         return blog;
     }
 
-    async createBlog(createBlogDto: CreateBlogDto): Promise<IGenericResult> {
-        try {
-            const newBlog = this.blogsRepo.create(createBlogDto);
-            const result = await this.blogsRepo.save(newBlog);
-            return {
-                message: 'Blog created successfully',
-                data: { blog: result },
-            };
-        } catch (error) {
-            if (error.code === 'ER_DUP_ENTRY') {
-                throw new ConflictException(CONSTANTS.BLOG_URL_CONFLICT);
-            }
-            throw new InternalServerErrorException();
-        }
-    }
-
     async findAllBlogs(getBlogsDto: GetBlogsDto): Promise<IGenericResult> {
         const page = parseInt(String(getBlogsDto.page), 10) || 1;
         const limit = parseInt(String(getBlogsDto.limit), 10) || 100;
@@ -108,39 +92,6 @@ export class BlogsService {
         return {
             data: { blog: foundBlog },
             message: 'Blog found',
-        };
-    }
-
-    async updateBlog(
-        id: string,
-        updateBlogDto: UpdateBlogDto,
-    ): Promise<IGenericResult> {
-        try {
-            const foundBlog = await this.findBlogById(id);
-
-            const updatedBlog = this.blogsRepo.merge(foundBlog, updateBlogDto);
-            await this.blogsRepo.save(updatedBlog);
-
-            return {
-                message: 'Blog updated successfully',
-                data: { blog: updatedBlog },
-            };
-        } catch (error) {
-            if (error.code === 'ER_DUP_ENTRY') {
-                throw new ConflictException(CONSTANTS.BLOG_URL_CONFLICT);
-            }
-            throw new InternalServerErrorException();
-        }
-    }
-
-    async deleteBlog(id: string): Promise<IGenericResult> {
-        const foundBlog = await this.findBlogById(id); // Will throw if not found
-        await this.blogsRepo.update({ id }, { deleted_at: new Date() }); // Soft delete
-        return {
-            message: 'Blog deleted successfully',
-            data: {
-                blog: foundBlog,
-            },
         };
     }
 }
