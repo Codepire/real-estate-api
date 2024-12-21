@@ -55,7 +55,7 @@ export class HomeDataController {
         };
     }
 
-    @Roles(UserRoleEnum.ADMIN)
+    @SkipAuth()
     @Get('home-data/top-cities')
     async getTopCities(
         @Query() query: QueryFiltersDto,
