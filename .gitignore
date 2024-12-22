@@ -65,4 +65,4 @@ credentials/
 
 public/
 
-/src/database/migrations
+# /src/database/migrations
