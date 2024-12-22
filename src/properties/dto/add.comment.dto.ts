@@ -9,7 +9,6 @@ export class AddCommentDto {
     @IsString()
     name: string;
 
-    @IsPhoneNumber('US')
     phone_number: string;
 
     @IsNotEmpty()
