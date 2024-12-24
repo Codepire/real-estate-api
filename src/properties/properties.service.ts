@@ -707,17 +707,22 @@ export class PropertiesService {
     }
 
     async addComment(propertyId: string, addCommentDto: AddCommentDto) {
-        const foundProperty = await this.dataSource.query(`
-            SELECT * FROM wp_realty_listingsdb WHERE listingsdb_id = ?;
-            `, [propertyId]);
+        // if property id is 0 then it is comment from contact us form
+        if (propertyId !== '0') {
+            const foundProperty = await this.dataSource.query(`
+                SELECT * FROM wp_realty_listingsdb WHERE listingsdb_id = ?;
+                `, [propertyId]);
 
-        if (!(foundProperty.length > 0)) throw new NotFoundException(CONSTANTS.PROPERTY_NOT_FOUND);
+            if (!(foundProperty.length > 0)) throw new NotFoundException(CONSTANTS.PROPERTY_NOT_FOUND);
+        }
 
         await this.dataSource.query(`
             INSERT INTO property_comment (comment, propertyId, name, email, phone_number)
             VALUES (?, ?, ?, ?, ?);
         `, [addCommentDto.comment, propertyId, addCommentDto.name, addCommentDto.email, addCommentDto.phone_number]);
-        return 'ok';
+        return {
+            message: 'ok'
+        };
     }
 
     async getComments(getCommentsDto: GetCommentsDto): Promise<IGenericResult> {
